@@ -1,4 +1,4 @@
-package grammar;
+package absimpa;
 
 import java.util.Formatter;
 import java.util.Set;

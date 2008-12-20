@@ -1,4 +1,4 @@
-package grammar;
+package absimpa;
 
 
 public interface LeafFactory<N, C extends Enum<C>, L extends Lexer<C>> {

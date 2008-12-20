@@ -1,8 +1,9 @@
 package nodes;
 
-import grammar.*;
 
 import java.util.List;
+
+import absimpa.*;
 
 import lexer.Token;
 

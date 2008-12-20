@@ -1,4 +1,4 @@
-package grammar;
+package absimpa;
 
 
 import java.util.*;
@@ -7,16 +7,16 @@ import java.util.*;
 /**
  * <p>
  * The {@code Grammar} describes a language made of sequences of {@code C}
- * objects provided by a {@link grammar.Lexer}. To create a {@code Grammar},
+ * objects provided by a {@link absimpa.Lexer}. To create a {@code Grammar},
  * use a {@link GrammarBuilder}. Then call {@link #compile()} to obtain a
  * {@link Parser} for the language described by this {@code Grammar}.
  * </p>
  * 
  * @param <N> is the type of the objects created by the parser generated from
- *        this grammar
+ *        this absimpa
  * @param <C> is the type of token codes provided by the lexer that will be
  *        used by this parser
- * @param <L> is the type of {@link grammar.Lexer} from which the parser
+ * @param <L> is the type of {@link absimpa.Lexer} from which the parser
  *        obtains token information
  */
 
@@ -83,7 +83,7 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
       if( myFirst!=null ) return myFirst;
       // FIXME: message with loop elements would be nice.
       String msg = 
-        String.format("grammar %s starts a left recursive loop",
+        String.format("absimpa %s starts a left recursive loop",
                       this);
       throw new LeftRecursiveException(msg);
     }

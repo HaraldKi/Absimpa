@@ -13,11 +13,11 @@ import monq.jfa.ReSyntaxException;
 import static simpa.Token.Code;
 /**
  * <p>
- * trivial and slow implementation of a lexer for the simple query grammar.
+ * trivial and slow implementation of a lexer for the simple query absimpa.
  * </p>
  * 
  */
-public class Lexer implements grammar.Lexer {
+public class Lexer implements absimpa.Lexer {
   private static final String TERMRE = "([A-Za-z0-9]+)";
   private static final String PHRASERE = "\"[^\"]*\"";
   private static final String SCOPERE = "[A-Za-z0-9]+[\r\n\t ]*:";
