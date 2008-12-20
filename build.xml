@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<project name="Simpa" default="compile" basedir=".">
+
+  <!-- To get this going, emma.jar must be in the ant classpath. One
+  way to have this is to put it into ${user.home}/.ant/lib -->
+  <taskdef resource="emma_ant.properties" />
+
+  <target name="compile" description="compiles java classes">
+    <mkdir dir="Classes"/>
+    <javac srcdir="src"
+      destdir="Classes"
+      source="1.5"
+      listfiles="yes"
+      fork="false"
+      debug="true"
+      deprecation="true"
+      >
+      <compilerarg value="-Xlint:unchecked"/>
+      <patternset includes="**/*.java"
+	excludes="**/package-info.java, tryout/**/*.java"/>
+    </javac>
+  </target>
+
+  <target name="javadoc" depends="svnrevision"
+    description="run javadoc to create api docs">
+    <javadoc sourcepath="src"
+      packagenames="lexer, nodes, parser"
+      destdir="dist/SimpaDoc"
+      windowtitle="Approximate Lookup Dictionaries"
+      header="&lt;span class='approheader'&gt;Simpa v${svn.revision}&lt;/span&gt;"
+      overview="src/overview.html"
+
+      Bottom="&lt;div class=&quot;approlink&quot;>download: &lt;a
+      href='https://developer.berlios.de/project/showfiles.php?group_id=10293' target='_top'>developer.berlios.de&lt;/a>&lt;br/>home page: &lt;a href=&quot;http://approdictio.berlios.de/&quot; target='_top'>approdictio.berlios.de&lt;/a>&lt;/div>"
+      public="true"
+      >
+    </javadoc>
+  </target> 
+  
+  <target name="jar" depends="cleanClasses, compile, svnrevision">
+    <mkdir dir="dist"/>
+    <jar destfile="dist/Simpa-${svn.revision}.jar" basedir="Classes"
+      includes="**/*.class"
+      excludes="**/Test*.class">
+      <manifest>
+	<attribute name="svn-revision" value="${svn.revision}" />
+	<attribute name="timestamp" value="${time.now}" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="docjar" depends="cleanDoc, javadoc">
+    <mkdir dir="dist"/>
+    <zip destfile="dist/SimpaDoc-${svn.revision}.zip"
+      basedir="dist" includes="SimpaDoc/**">
+    </zip>
+  </target>
+
+  <target name="upload" depends="jar, docjar"
+    description="upload jars for publishing to berlios">
+    <upload file="dist/Simpa-${svn.revision}.jar"/>
+    <upload file="dist/SimpaDoc-${svn.revision}.zip"/>
+  </target>
+
+  <target name="homepage" 
+    description="publish the homepage to berlios"
+    depends="javadoc, coverage">
+    <exec executable="scp">
+      <arg value="files/index.html"/>
+      <arg value="files/index.css"/>
+      <arg value="LICENSE" />
+      <arg value="pifpafpuf@shell.berlios.de:approdictio/htdocs" />
+    </exec>
+    <exec executable="rsync" spawn="true">
+      <arg value="--delete"/>
+      <arg value="-az"/>
+      <arg value="dist/SimpaDoc/" />
+      <arg value="pifpafpuf@shell.berlios.de:approdictio/htdocs/api" />
+    </exec>
+    <exec executable="rsync" spawn="true">
+      <arg value="--delete"/>
+      <arg value="-az"/>
+      <arg value="dist/covereport/" />
+      <arg value="pifpafpuf@shell.berlios.de:approdictio/htdocs/covereport" />
+    </exec>
+  </target>
+
+  <target name="cleanClasses">
+    <delete dir="Classes/approdictio" />
+  </target>
+  <target name="cleanDoc">
+    <delete dir="dist/SimpaDoc"/>
+  </target>
+
+  <target name="compiletests">
+    <javac srcdir="test"
+      destdir="Classes"
+      source="1.5"
+      listfiles="no"
+      fork="false"
+      debug="true"
+      deprecation="true"
+      >
+      <compilerarg value="-Xlint:unchecked"/>
+      <patternset includes="**/*.java" />
+    </javac>
+  </target>
+
+  <!-- prefer command line usage to be able to run my own tester -->
+  <target name="unitest" depends="compile, compiletests, emmainstr"
+    description="runit unit tests with our own test runner">
+    <java classname="parser.VerboseTester" fork="yes">
+      <jvmarg value="-Demma.coverage.out.file=dist/coverage/emmadata.ec"/>
+      <classpath>
+	<pathelement location="dist/coverage/Classes"/>
+	<pathelement location="/usr/share/java/junit4.jar"/>
+	<pathelement location="${user.home}/.ant/lib/emma.jar"/>
+	<pathelement location="Classes"/>
+      </classpath>
+      <arg value="parser.TestParsers"/>
+      <arg value="parser.TestExprLanguage"/>
+    </java>
+  </target>
+
+  <target name="emmainstr">
+    <delete dir="dist/coverage/Classes"/>
+    <emma verbosity="quiet">
+      <instr instrpath="Classes"
+	destdir="dist/coverage/Classes"
+	metadatafile="dist/coverage/emmadata.em"
+	merge="false">
+	<!-- filter excludes="*.Test*"/ -->
+      </instr>
+    </emma>
+  </target>
+
+  <target name="coverage" depends="unitest"
+    description="run unit test collecting coverage data and produce a report">
+    <emma verbosity="quiet">
+      <report sourcepath="src:test" 
+	columns="name,line,block,method"
+	sort="+line,+block,+method"
+	metrics="line:95"
+	>
+	<fileset dir="dist/coverage">
+	  <!-- find emmadata.ec. and emmadata.em -->
+	  <include name="emmadata.*" />
+	</fileset>
+	
+	<html outfile="dist/covereport/coverage.html" />
+      </report>
+    </emma>
+  </target>
+
+  <!-- Get subversion revision and whether the working dir is dirty
+  with regard to the repository. (Since subversion tasks are still not
+  standard with ant, use exec -->
+  <target name="svnrevision">
+    <exec executable="svn" output="dist/svnstatus">
+      <arg value="status"/> <arg value="-u"/>
+    </exec>
+    <!-- set svn.clean to "." if svnstatus has only one line -->
+    <loadfile property="svn.clean" srcFile="dist/svnstatus">
+      <filterchain>
+	<replaceregex pattern=".*" replace="."/>
+	<striplinebreaks/>
+      </filterchain>
+    </loadfile>
+
+    <loadfile property="svn.revid" srcFile="dist/svnstatus">
+      <filterchain>
+	<tailfilter lines="1"/>
+	<replaceregex pattern=".[^0-9]*" replace=""/>
+	<striplinebreaks/>
+      </filterchain>
+    </loadfile>
+    <condition property="svn.revision" value="${svn.revid}" else="dirty">
+      <equals arg1="${svn.clean}" arg2="." />
+    </condition>
+  </target>
+
+  <tstamp>
+    <format property="time.now" pattern="yyyy-MM-dd hh:mm:ss"/>
+  </tstamp>
+
+  <macrodef name="upload" description="upload to berlios incoming dir">
+    <attribute name="file"/>
+    <sequential>
+      <exec executable="lftp" inputstring="cd incoming;put @{file}">
+	<arg line="-u anonymous,pifpafpuf@gmx.de ftp.berlios.de"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
+  <target name="e">
+    <echoproperties/>
+  </target>
+</project>

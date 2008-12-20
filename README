@@ -1,0 +1,21 @@
+Komplett genervt von antlr und seiner schwer zu verstehenden Logik
+dachte ich mir es müsse nahezu trivial sein, einen passenden Parser zu
+schreiben.
+
+Insbesondere weil die Syntax so einfach ist.
+
+TERM
+QUOTED
+SCOPED
+
+
+literal = TERM | QUOTED | SCOPED
+
+NEGATED = '-' literal
+
+Es gibt keine Klammern. Mehrere literal können über OR
+zusammengebunden werden. Alles was nicht zusammengebunden ist, wird
+mit AND verknüpft. Beachte: NEGATED geht nicht mit OR. Überflüssige OR
+werden ignoriert.
+
+ 
