@@ -3,7 +3,6 @@ package grammar;
 
 import java.util.*;
 
-import lexer.Lexer;
 
 public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
     extends Grammar<N,C,L>

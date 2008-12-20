@@ -1,6 +1,5 @@
-package lexer;
+package grammar;
 
-import grammar.ParseException;
 
 import java.util.Set;
 

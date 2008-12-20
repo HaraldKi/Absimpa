@@ -2,17 +2,37 @@ package grammar;
 
 import java.util.*;
 
-import lexer.Lexer;
 
 /**
+ * <p>
+ * A recursive decent parser which transforms information provided by a
+ * {@link grammar.Lexer} into some type {@code N}.
+ * </p>
+ * <p>
+ * To obtain a {@code Parser}, you need to create a {@link Grammar}, for
+ * example by using the {@link GrammarBuilder} and then call
+ * {@link Grammar#compile()}.
+ * </p>
  * 
- * @param <N> is the type of the objects created by the grammar
- * @param <C> is the type of token codes provides by the tokens produced by
- *        the lexer
+ * @param <N> is the type of the objects created by the parser
+ * @param <C> is the type of token codes provided by the lexer
+ * @param <L> is the type of {@link grammar.Lexer} from which the parser
+ *        obtains tokens information
  */
 public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
-  public abstract N parse(L lex) throws ParseException;
+  private Parser() {}
 
+  /**
+   * <p>
+   * parses a sequence of objects of type {@code <C>} from the given
+   * {@code Lexer} and transforms it into an object of type {@code <N>}.
+   * </p>
+   * 
+   * @throws ParseException if the sequence of {@code <C>} objects provided
+   *         by the {@code Lexer} does not fit match the grammar for which
+   *         this parser was created.
+   */
+  public abstract N parse(L lex) throws ParseException;
   /* +***************************************************************** */
   static class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
@@ -34,7 +54,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
     }
   }
   /* +***************************************************************** */
-  public static class ChoiceParser<N,C extends Enum<C>,L extends Lexer<C>>
+  static class ChoiceParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
     private final boolean optional;

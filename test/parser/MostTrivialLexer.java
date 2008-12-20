@@ -1,12 +1,12 @@
 package parser;
 
+import grammar.Lexer;
 import grammar.ParseException;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lexer.Lexer;
 
 public class MostTrivialLexer<C extends Enum<C>> implements Lexer<C> {
   private final List<TokenInfo> tokenInfos = new ArrayList<TokenInfo>();

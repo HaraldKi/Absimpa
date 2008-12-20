@@ -2,7 +2,6 @@ package grammar;
 
 import java.util.*;
 
-import lexer.Lexer;
 
 
 public class TokenGrammar<N,C extends Enum<C>,L extends Lexer<C>>

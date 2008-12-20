@@ -2,7 +2,6 @@ package grammar;
 
 import java.util.EnumSet;
 
-import lexer.Lexer;
 
 
 class First<N,C extends Enum<C>,L extends Lexer<C>> {

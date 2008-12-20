@@ -3,7 +3,6 @@ package grammar;
 
 import java.util.*;
 
-import lexer.Lexer;
 
 
 public class Repeat<N, C extends Enum<C>,L extends Lexer<C>> extends Grammar<N,C,L> {

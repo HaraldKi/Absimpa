@@ -17,7 +17,7 @@ import static simpa.Token.Code;
  * </p>
  * 
  */
-public class Lexer implements lexer.Lexer {
+public class Lexer implements grammar.Lexer {
   private static final String TERMRE = "([A-Za-z0-9]+)";
   private static final String PHRASERE = "\"[^\"]*\"";
   private static final String SCOPERE = "[A-Za-z0-9]+[\r\n\t ]*:";
