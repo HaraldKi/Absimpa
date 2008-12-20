@@ -9,9 +9,9 @@ public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
     extends Grammar<N,C,L>
 {
   private final List<Grammar<N,C,L>> children = new ArrayList<Grammar<N,C,L>>(2);
-  private final NodeFactory<N,C> nf;
+  private final NodeFactory<N> nf;
 
-  public Sequence(NodeFactory<N,C> nf, Grammar<N,C,L> p) {
+  public Sequence(NodeFactory<N> nf, Grammar<N,C,L> p) {
     this.nf = nf;
     children.add(p);
   }

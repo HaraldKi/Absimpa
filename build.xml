@@ -24,7 +24,7 @@
   <target name="javadoc" depends="svnrevision"
     description="run javadoc to create api docs">
     <javadoc sourcepath="src"
-      packagenames="lexer, grammar"
+      packagenames="absimpa"
       destdir="dist/AbsimpaDoc"
       windowtitle="Approximate Lookup Dictionaries"
       header="&lt;span class='approheader'&gt;Simpa v${svn.revision}&lt;/span&gt;"

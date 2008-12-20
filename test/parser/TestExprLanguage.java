@@ -159,7 +159,7 @@ public class TestExprLanguage {
   }
   /* +***************************************************************** */
   private static enum Op
-      implements NodeFactory<Expr,Codes>, LeafFactory<Expr,Codes,L> {
+      implements NodeFactory<Expr>, LeafFactory<Expr,Codes,L> {
 
     DEFAULT, TIMES, DIVIDE, PLUS, MINUS, PRODUCT {
       public Expr create(List<Expr> children) {

@@ -4,7 +4,7 @@ package absimpa;
 /**
  * <p>
  * used to build a {@link Grammar} for a language made from objects of type
- * {@code C}. To create your absimpa, the following bits and pieces are
+ * {@code C}, <b>start here</b>. To create your absimpa, the following bits and pieces are
  * needed.
  * </p>
  * <ol>
@@ -63,9 +63,9 @@ package absimpa;
  *        obtains token information
  */
 public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
-  private final NodeFactory<N,C> defaultFactory;
+  private final NodeFactory<N> defaultFactory;
   /*+******************************************************************/
-  public GrammarBuilder(NodeFactory<N,C> defaultFactory) {
+  public GrammarBuilder(NodeFactory<N> defaultFactory) {
     this.defaultFactory = defaultFactory;
   }
   /*+******************************************************************/
@@ -73,14 +73,14 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
     return new TokenGrammar<N,C,L>(fac, code);
   }
   /* +***************************************************************** */
-  public Sequence<N,C,L> seq(NodeFactory<N,C> inner, Grammar<N,C,L> g) {
+  public Sequence<N,C,L> seq(NodeFactory<N> inner, Grammar<N,C,L> g) {
     return new Sequence<N,C,L>(inner, g);
   }
   public Sequence<N,C,L> seq(Grammar<N,C,L> g) {
     return new Sequence<N,C,L>(defaultFactory, g);
   }
   /*+******************************************************************/
-  public Repeat<N,C,L> repeat(NodeFactory<N,C> inner, Grammar<N,C,L> grammar,
+  public Repeat<N,C,L> repeat(NodeFactory<N> inner, Grammar<N,C,L> grammar,
                             int min, int max)
   {
     return new Repeat<N,C,L>(inner, min, max, grammar);
@@ -91,7 +91,7 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
   public Repeat<N,C,L> star(Grammar<N,C,L> grammar) {
     return repeat(grammar, 0, Integer.MAX_VALUE);
   }
-  public Repeat<N,C,L> star(NodeFactory<N,C> nf, Grammar<N,C,L> grammar) {
+  public Repeat<N,C,L> star(NodeFactory<N> nf, Grammar<N,C,L> grammar) {
     return repeat(nf, grammar, 0, Integer.MAX_VALUE);
   }
   /*+******************************************************************/

@@ -9,9 +9,9 @@ public class Repeat<N, C extends Enum<C>,L extends Lexer<C>> extends Grammar<N,C
   private final int min;
   private final int max;
   private final Grammar<N,C,L> child;
-  private final NodeFactory<N,C> nf;
+  private final NodeFactory<N> nf;
   
-  public Repeat(NodeFactory<N,C> nf, int min, int max, Grammar<N,C,L> arg) {
+  public Repeat(NodeFactory<N> nf, int min, int max, Grammar<N,C,L> arg) {
     this.nf = nf;
     if( min<0||max<min||max==0 ) {
       String msg =

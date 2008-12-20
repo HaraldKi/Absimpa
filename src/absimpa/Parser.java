@@ -81,8 +81,8 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
       extends Parser<N,C,L>
   {
     private final List<Parser<N,C,L>> children;
-    private final NodeFactory<N,C> nf;
-    SeqParser(NodeFactory<N,C> nf, List<Parser<N,C,L>> children) {
+    private final NodeFactory<N> nf;
+    SeqParser(NodeFactory<N> nf, List<Parser<N,C,L>> children) {
       this.nf = nf;
       this.children = children;
     }
@@ -103,9 +103,9 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
     private final int min, max;
     private final EnumSet<C> childLookahead;
     private Parser<N,C,L> child;
-    private final NodeFactory<N,C> nf;
+    private final NodeFactory<N> nf;
 
-    RepeatParser(EnumSet<C> childLookahead, NodeFactory<N,C> nf,
+    RepeatParser(EnumSet<C> childLookahead, NodeFactory<N> nf,
                  Parser<N,C,L> child, int min, int max) {
       if( min<0||max<min||max==0 ) {
         String msg =

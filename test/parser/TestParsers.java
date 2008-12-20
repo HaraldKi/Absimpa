@@ -42,10 +42,10 @@ public class TestParsers {
   private static enum Codes {
     SCOPE, TERM, AND, OR, POPEN, PCLOSE, NOT, EOF;
   }
-  /*+******************************************************************/
-  private static enum NodeType implements NodeFactory<TestNode,Codes>, LeafFactory<TestNode,Codes,L> {
-    DEFAULT, TOKEN, AND, OR, ORS, ORP, SCOPE, TERMLIST, SEQ, NOT,
-    OPENPAREN, CLOSEPAREN;
+  /* +***************************************************************** */
+  private static enum NodeType
+      implements NodeFactory<TestNode>, LeafFactory<TestNode,Codes,L> {
+    DEFAULT, TOKEN, AND, OR, ORS, ORP, SCOPE, TERMLIST, SEQ, NOT, OPENPAREN, CLOSEPAREN;
 
     public TestNode create(List<TestNode> children) {
       List<TestNode> flattened = flattenDefaultNodes(children);
@@ -55,7 +55,8 @@ public class TestParsers {
       List<TestNode> result = new ArrayList<TestNode>(l.size());
       for(TestNode n : l) {
         if( DEFAULT==n.getValue() ) {
-          for(Node child : n.children()) result.add((TestNode)child);
+          for(Node child : n.children())
+            result.add((TestNode)child);
         } else {
           result.add(n);
         }
