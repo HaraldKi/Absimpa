@@ -2,13 +2,14 @@ package parser;
 
 import static org.junit.Assert.assertEquals;
 
-import grammar.*;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import absimpa.*;
 
 import parser.MostTrivialLexer.TestToken;
 

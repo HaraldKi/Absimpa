@@ -3,7 +3,6 @@ package parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import grammar.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -13,6 +12,8 @@ import nodes.ValueNode;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import absimpa.*;
 
 import parser.MostTrivialLexer.TestToken;
 
@@ -321,7 +322,7 @@ public class TestParsers {
     Grammar<TestNode,Codes,L> critChoice = 
       gb.choice(optTerm).or(and);
 
-    // grammar -> critChoice or
+    // absimpa -> critChoice or
     Grammar<TestNode,Codes,L> grammar = 
       gb.seq(NodeType.SEQ, critChoice).add(or);
 
@@ -398,7 +399,7 @@ public class TestParsers {
   @Test
   public void testMiniLanguage() throws Exception {
     Parser<TestNode,Codes,L> grammar = miniLanguage();
-    //System.out.printf("%s%n", ((Grammar)grammar).lookaheadSet());
+    //System.out.printf("%s%n", ((Grammar)absimpa).lookaheadSet());
     TestNode node = analyze("- bla NOT aaa boar OR ey", grammar);
     assertEquals(NodeType.AND, node.getValue());
     assertEquals(NodeType.NOT, node.getChildType(0));
