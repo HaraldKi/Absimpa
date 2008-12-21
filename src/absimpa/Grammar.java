@@ -12,11 +12,11 @@ import java.util.*;
  * {@link Parser} for the language described by this {@code Grammar}.
  * </p>
  * 
- * @param <N> is the type of the objects created by the parser generated from
+ * @param <N> is the type of the objects created by the absimpa generated from
  *        this absimpa
  * @param <C> is the type of token codes provided by the lexer that will be
- *        used by this parser
- * @param <L> is the type of {@link absimpa.Lexer} from which the parser
+ *        used by this absimpa
+ * @param <L> is the type of {@link absimpa.Lexer} from which the absimpa
  *        obtains token information
  */
 

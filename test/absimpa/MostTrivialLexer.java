@@ -1,4 +1,4 @@
-package parser;
+package absimpa;
 
 
 import java.util.*;
@@ -10,7 +10,7 @@ import absimpa.ParseException;
 
 
 public class MostTrivialLexer<C extends Enum<C>> implements Lexer<C> {
-  private final List<TokenInfo> tokenInfos = new ArrayList<TokenInfo>();
+  private final List<TokenInfo<C>> tokenInfos = new ArrayList<TokenInfo<C>>();
   private final TestToken<C> eofToken;
   private final StringBuilder restText = new StringBuilder();
   

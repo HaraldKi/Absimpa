@@ -1,4 +1,4 @@
-package parser;
+package absimpa;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -13,9 +13,8 @@ import nodes.ValueNode;
 import org.junit.Before;
 import org.junit.Test;
 
-import absimpa.*;
+import absimpa.MostTrivialLexer.TestToken;
 
-import parser.MostTrivialLexer.TestToken;
 
 public class TestParsers {
   private static class L extends MostTrivialLexer<Codes> {

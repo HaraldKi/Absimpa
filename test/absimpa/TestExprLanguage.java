@@ -1,7 +1,6 @@
-package parser;
+package absimpa;
 
 import static org.junit.Assert.assertEquals;
-
 
 import java.io.IOException;
 import java.util.List;
@@ -9,9 +8,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import absimpa.*;
+import absimpa.MostTrivialLexer.TestToken;
 
-import parser.MostTrivialLexer.TestToken;
 
 /**
  * create a simple expression language and use it for testing.

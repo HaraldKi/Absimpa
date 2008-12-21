@@ -10,28 +10,28 @@
     <javac srcdir="src"
       destdir="Classes"
       source="1.5"
-      listfiles="yes"
       fork="false"
       debug="true"
       deprecation="true"
       >
       <compilerarg value="-Xlint:unchecked"/>
-      <patternset includes="**/*.java"
+      <patternset includes="absimpa/**/*.java nodes/**/*.java"
 	excludes="**/package-info.java, tryout/**/*.java"/>
     </javac>
   </target>
 
   <target name="javadoc" depends="svnrevision"
     description="run javadoc to create api docs">
+    <property name="apidocdir" value="dist/AbsimpaDoc"/>
     <javadoc sourcepath="src"
       packagenames="absimpa"
-      destdir="dist/AbsimpaDoc"
+      destdir="${apidocdir}"
       windowtitle="Approximate Lookup Dictionaries"
-      header="&lt;span class='approheader'&gt;Simpa v${svn.revision}&lt;/span&gt;"
+      header="&lt;span class='approheader'&gt;Absimpa v${svn.revision}&lt;/span&gt;"
       overview="src/overview.html"
 
       Bottom="&lt;div class=&quot;approlink&quot;>download: &lt;a
-      href='https://developer.berlios.de/project/showfiles.php?group_id=10293' target='_top'>developer.berlios.de&lt;/a>&lt;br/>home page: &lt;a href=&quot;http://approdictio.berlios.de/&quot; target='_top'>approdictio.berlios.de&lt;/a>&lt;/div>"
+      href='http://pifpafpuf.de/Absimpa/download'>pifpafpuf.de&lt;/a>&lt;br/>home page: &lt;a href=&quot;http://approdictio.berlios.de/&quot; target='_top'>approdictio.berlios.de&lt;/a>&lt;/div>"
       public="true"
       >
     </javadoc>
@@ -39,7 +39,8 @@
   
   <target name="jar" depends="cleanClasses, compile, svnrevision">
     <mkdir dir="dist"/>
-    <jar destfile="dist/Simpa-${svn.revision}.jar" basedir="Classes"
+    <property name="distjar" value="dist/Absimpa-${svn.revision}.jar"/>
+    <jar destfile="${distjar}" basedir="Classes"
       includes="**/*.class"
       excludes="**/Test*.class">
       <manifest>
@@ -86,7 +87,8 @@
   </target>
 
   <target name="cleanClasses">
-    <delete dir="Classes/approdictio" />
+    <delete dir="Classes/" />
+    <mkdir dir="Classes"/>
   </target>
   <target name="cleanDoc">
     <delete dir="dist/SimpaDoc"/>
@@ -109,7 +111,7 @@
   <!-- prefer command line usage to be able to run my own tester -->
   <target name="unitest" depends="compile, compiletests, emmainstr"
     description="runit unit tests with our own test runner">
-    <java classname="parser.VerboseTester" fork="yes">
+    <java classname="absimpa.VerboseTester" fork="yes">
       <jvmarg value="-Demma.coverage.out.file=dist/coverage/emmadata.ec"/>
       <classpath>
 	<pathelement location="dist/coverage/Classes"/>
@@ -117,8 +119,8 @@
 	<pathelement location="${user.home}/.ant/lib/emma.jar"/>
 	<pathelement location="Classes"/>
       </classpath>
-      <arg value="parser.TestParsers"/>
-      <arg value="parser.TestExprLanguage"/>
+      <arg value="absimpa.TestParsers"/>
+      <arg value="absimpa.TestExprLanguage"/>
     </java>
   </target>
 
@@ -183,15 +185,6 @@
   <tstamp>
     <format property="time.now" pattern="yyyy-MM-dd hh:mm:ss"/>
   </tstamp>
-
-  <macrodef name="upload" description="upload to berlios incoming dir">
-    <attribute name="file"/>
-    <sequential>
-      <exec executable="lftp" inputstring="cd incoming;put @{file}">
-	<arg line="-u anonymous,pifpafpuf@gmx.de ftp.berlios.de"/>
-      </exec>
-    </sequential>
-  </macrodef>
 
   <target name="e">
     <echoproperties/>

@@ -4,5 +4,15 @@
 
 svnurl=$(svn info|awk '/^URL/ {print $2}')
 
-svn export "${svnurl}" dist/Absimpa
+rm -rf dist/Absimpa
+svn export -q "${svnurl}" dist/Absimpa
+rm dist/Absimpa/publish
+jarfile=$(/bin/ls -1rt dist/Absimpa-*.jar)
+
+if echo "$jarfile" | grep -q dirty; then
+  echo "cannot publish dirty file, check in subversion first"
+fi
+
+version=$(echo $jarfile|sed -e 's/.*-\|[.]jar//g')
+tar cfz "dist/Absimpa-src-${version}.tar.gz" -C dist Absimpa
 

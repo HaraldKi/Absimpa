@@ -18,7 +18,7 @@ public interface LeafFactory<N, C extends Enum<C>, L extends Lexer<C>> {
    * <p>
    * must create an {@code N} from the current token available from the
    * lexer. This method should normally <b>not</b> call {@link Lexer#next}.
-   * The parser that that.</p>
+   * The absimpa that that.</p>
    */
   N create(L lex);
 }

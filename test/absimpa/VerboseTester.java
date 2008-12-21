@@ -1,4 +1,4 @@
-package parser;
+package absimpa;
 
 import org.junit.runner.*;
 import org.junit.runner.notification.Failure;
