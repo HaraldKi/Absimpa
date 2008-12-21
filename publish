@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#ant jar javadoc coverage
+
+svnurl=$(svn info|awk '/^URL/ {print $2}')
+
+svn export "${svnurl}" dist/Absimpa
+
