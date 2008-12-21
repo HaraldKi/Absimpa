@@ -7,7 +7,7 @@ svnurl=$(svn info|awk '/^URL/ {print $2}')
 rm -rf dist/Absimpa
 svn export -q "${svnurl}" dist/Absimpa
 rm dist/Absimpa/publish
-jarfile=$(/bin/ls -1rt dist/Absimpa-*.jar)
+jarfile=$(/bin/ls -1rt dist/Absimpa-*.jar|tail -1)
 
 if echo "$jarfile" | grep -q dirty; then
   echo "cannot publish dirty file, check in subversion first"
