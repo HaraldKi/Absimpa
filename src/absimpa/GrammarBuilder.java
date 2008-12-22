@@ -3,13 +3,13 @@ package absimpa;
 
 /**
  * <p>
- * used to build a {@link Grammar} for a language made from objects of type
+ * helps to build a {@link Grammar} for a language made from objects of type
  * {@code C}, <b>start here</b>. To create your grammar, the following bits and pieces are
  * needed.
  * </p>
  * <ol>
  * <li>A {@link absimpa.Lexer} is needed that provides token codes of type
- * {@code C}. Obviously it is completely up to you what these token codes
+ * {@code C}. It is completely up to you what these token codes
  * stand for. For the parser and the grammar the only interesting bit is that
  * {@code C} is an {@link java.lang.Enum}. Typically a token code signifies
  * a type of token like NUMBER, OPENBRACKET, IDENTIFIER and so on. Normally
@@ -21,12 +21,12 @@ package absimpa;
  * partial bit of input, it will call either a {@link LeafFactory} or a
  * {@link NodeFactory} with the bits it has recognized and asks them to
  * create an {@code N}.</li>
- * <li>One or more {@link LeafFactory} objects are needed. One of them is
+ * <li>One or more {@link LeafFactory} objects are needed. They are
  * called by the parser whenever a token code provided by the lexer is
  * recognized. The parser will call {@link LeafFactory#create} with the lexer
  * as parameter to obtain an {@code N} for the token (code). Which factory is
  * called, depends on the parameter that is passed to {@link #token} when the
- * parser is built.</li>
+ * grammar is built.</li>
  * <li>One or more {@link NodeFactory} objects are needed. Whenever the
  * parser recognizes a part of the input, for example a sequence of tokens as
  * described by the {@link #seq seq()} method, it will call the associated
