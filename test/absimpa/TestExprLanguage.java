@@ -8,7 +8,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import absimpa.MostTrivialLexer.TestToken;
+import example.Token;
+import example.TrivialLexer;
+
 
 
 /**
@@ -16,7 +18,7 @@ import absimpa.MostTrivialLexer.TestToken;
  *
  */
 public class TestExprLanguage {
-  private static class L extends MostTrivialLexer<Codes> {
+  private static class L extends TrivialLexer<Codes> {
     public L(Codes eofCode) {
       super(eofCode);
     }    
@@ -179,7 +181,7 @@ public class TestExprLanguage {
       @Override
       public Expr create(L lex)
       {
-        TestToken t = lex.currentToken();
+        Token t = lex.currentToken();
         return new Expr(Double.parseDouble(t.getText()));
       }
     },

@@ -17,10 +17,13 @@ version=$(echo $jarfile|sed -e 's/.*-\|[.]jar//g')
 srctgz="dist/Absimpa-src-${version}.tar.gz"
 tar cfz "$srctgz" -C dist Absimpa
 
-t=gnuher.de:apache/pifpafpuf.de/Absimpa
+t=gnuher.de:apache/pifpafpuf.de/absimpa
 
-ssh gnuher.de "mkdir -p apache/pifpafpuf.de/Absimpa/download"
+ssh gnuher.de "mkdir -p apache/pifpafpuf.de/absimpa/download"
 scp "$jarfile" "$t/download"
 scp "$srctgz" "$t/download"
 rsync --delete -az dist/AbsimpaDoc/ "$t/AbsimpaDoc"
-scp -r dist/covereport "$t"
+rsync --delete -az dist/covereport/ "$t/covereport"
+
+
+echo "!!!!! NEED TO CHANGE HOMEPAGE TO LINK TO CORRECT NEW PLACES"

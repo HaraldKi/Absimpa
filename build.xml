@@ -24,14 +24,14 @@
     description="run javadoc to create api docs">
     <property name="apidocdir" value="dist/AbsimpaDoc"/>
     <javadoc sourcepath="src"
-      packagenames="absimpa"
+      packagenames="absimpa, example"
       destdir="${apidocdir}"
-      windowtitle="Approximate Lookup Dictionaries"
+      windowtitle="Abstract Simple Parser API"
       header="&lt;span class='approheader'&gt;Absimpa v${svn.revision}&lt;/span&gt;"
       overview="src/overview.html"
 
       Bottom="&lt;div class=&quot;approlink&quot;>download: &lt;a
-      href='http://pifpafpuf.de/Absimpa/download'>pifpafpuf.de&lt;/a>&lt;br/>home page: &lt;a href=&quot;http://pifpafpuf.de/Absimpa/&quot; target='_top'>pifpafpuf.de/Absimpa&lt;/a>&lt;/div>"
+      href='http://pifpafpuf.de/Absimpa/download' target='_top'>pifpafpuf.de&lt;/a>&lt;br/>home page: &lt;a href=&quot;http://pifpafpuf.de/Absimpa/&quot; target='_top'>pifpafpuf.de/Absimpa&lt;/a>&lt;/div>"
       public="true"
       >
     </javadoc>

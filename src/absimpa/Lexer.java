@@ -23,13 +23,13 @@ import java.util.Set;
 public interface Lexer<TokenCode extends Enum<TokenCode>> {
   /**
    * <p>
-   * must discard the current token code, create a new one and return it.
+   * discards the current token code, creates a new one and returns it.
    * </p>
    */
   TokenCode next();
   /**
    * <p>
-   * must provide the current token code. This method must always return the
+   * provides the current token code. This method must always return the
    * same token code as long as {@link #next} is not called.
    * </p>
    */

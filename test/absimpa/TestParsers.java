@@ -13,11 +13,13 @@ import nodes.ValueNode;
 import org.junit.Before;
 import org.junit.Test;
 
-import absimpa.MostTrivialLexer.TestToken;
+import example.Token;
+import example.TrivialLexer;
+
 
 
 public class TestParsers {
-  private static class L extends MostTrivialLexer<Codes> {
+  private static class L extends TrivialLexer<Codes> {
     public L(Codes eofCode) {
       super(eofCode);
     }    
@@ -100,13 +102,13 @@ public class TestParsers {
   }
   /*+******************************************************************/
   private static class LeafNode extends TestNode {
-    private final TestToken t;
+    private final Token t;
     @SuppressWarnings("unchecked")
-    public LeafNode(TestToken t) {
+    public LeafNode(Token t) {
       super(NodeType.TOKEN, Collections.EMPTY_LIST);
       this.t = t;
     }
-    public TestToken getToken() {
+    public Token getToken() {
       return t;
     }
     protected void dump(Appendable app, String indent) throws IOException {
@@ -152,7 +154,7 @@ public class TestParsers {
     //node.dump(System.out);
     assertTrue(node instanceof LeafNode);
     LeafNode n = (LeafNode)node;
-    TestToken t = n.getToken();
+    Token t = n.getToken();
     assertEquals(text, t.getText());
     assertEquals(code, t.getCode());
   }
