@@ -11,8 +11,8 @@ import java.util.Set;
  * </p>
  * <p>
  * The {@code Lexer} must maintain a <em>current token code</em> which is
- * repeatedly queried by the absimpa. Only when {@link #next} is called, the
- * absimpa should discard the current token, and chop the next token off its
+ * repeatedly queried by the parser. Only when {@link #next} is called, the
+ * parser should discard the current token, and chop the next token off its
  * own input.
  * </p>
  * 
@@ -38,11 +38,11 @@ public interface Lexer<TokenCode extends Enum<TokenCode>> {
   /**
    * <p>
    * must provide a {@link ParseException}. This method is called by the
-   * absimpa if it finds a token code that does not fit its grammar. It is up
+   * parser if it finds a token code that does not fit its grammar. It is up
    * to the {@code Lexer} implementation to provide as much information as
    * possible in the exception about the current position of the input.</p.
    * 
-   * @param expectedTokens a set of tokens that the absimpa would have
+   * @param expectedTokens a set of tokens that the parser would have
    *        expected at the current position.
    */
   ParseException parseException(Set<TokenCode> expectedTokens);

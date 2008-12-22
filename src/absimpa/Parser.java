@@ -5,7 +5,7 @@ import java.util.*;
 
 /**
  * <p>
- * A recursive decent absimpa which transforms information provided by a
+ * A recursive decent parser which transforms information provided by a
  * {@link absimpa.Lexer} into some type {@code N}.
  * </p>
  * <p>
@@ -14,9 +14,9 @@ import java.util.*;
  * {@link Grammar#compile()}.
  * </p>
  * 
- * @param <N> is the type of the objects created by the absimpa
+ * @param <N> is the type of the objects created by the parser
  * @param <C> is the type of token codes provided by the lexer
- * @param <L> is the type of {@link absimpa.Lexer} from which the absimpa
+ * @param <L> is the type of {@link absimpa.Lexer} from which the parser 
  *        obtains tokens information
  */
 public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
@@ -29,8 +29,8 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
    * </p>
    * 
    * @throws ParseException if the sequence of {@code <C>} objects provided
-   *         by the {@code Lexer} does not fit match the absimpa for which
-   *         this absimpa was created.
+   *         by the {@code Lexer} does not match the grammarfor which
+   *         this parser was created.
    */
   public abstract N parse(L lex) throws ParseException;
   /* +***************************************************************** */
