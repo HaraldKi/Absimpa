@@ -37,10 +37,11 @@ public interface Lexer<TokenCode extends Enum<TokenCode>> {
 
   /**
    * <p>
-   * must provide a {@link ParseException}. This method is called by the
-   * parser if it finds a token code that does not fit its grammar. It is up
-   * to the {@code Lexer} implementation to provide as much information as
-   * possible in the exception about the current position of the input.</p.
+   * creates a {@link ParseException} on request from the parser. This method
+   * is called by the parser if it finds a token code that does not fit its
+   * grammar. It is up to the {@code Lexer} implementation to provide as much
+   * information as possible in the exception about the current position of
+   * the input.</p.
    * 
    * @param expectedTokens a set of tokens that the parser would have
    *        expected at the current position.

@@ -10,7 +10,7 @@ import absimpa.ParseException;
 
 /**
  * <p>
- * provides a trival implementation of a {@link absimpa.Lexer} which analyzes
+ * is a trival implementation of a {@link absimpa.Lexer} which analyzes
  * a string by trying out regular expressions for tokens until a match is
  * found. This is not intended for productive use. It is merely an example.
  * </p>
@@ -18,7 +18,7 @@ import absimpa.ParseException;
  * <p>
  * This lexer is set up by specifying a list of pairs (regex, C), where
  * <code>C</code> is some enumeration type, the generic parameter of this
- * class. To analyze in input string, the lexer tries to match each of the
+ * class. To analyze an input string, the lexer tries to match each of the
  * regular expressions at the beginning of the input string. If it finds a
  * match, the associated <code>C</code> represents the current token code
  * provided to the parser. If {@link #next} is called, the matching prefix of
@@ -58,8 +58,8 @@ public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
   /**
    * <p>
    * resets the lexer and initializes it to analyze the given
-   * <code>text</code>. Internally, {@link #next} is called to prepare the
-   * first token as the current token.
+   * <code>text</code>. To prepare the first token, {@link #next} is
+   * called internally.
    * </p>
    */
   public void initAnalysis(CharSequence text) {    

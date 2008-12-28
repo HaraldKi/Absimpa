@@ -16,11 +16,13 @@ import java.util.*;
  * 
  * @param <N> is the type of the objects created by the parser
  * @param <C> is the type of token codes provided by the lexer
- * @param <L> is the type of {@link absimpa.Lexer} from which the parser 
+ * @param <L> is the type of {@link absimpa.Lexer} from which the parser
  *        obtains tokens information
  */
-public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
-  private Parser() {}
+public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
+    implements ParserI<N,C,L>
+{
+  private Parser() { }
 
   /**
    * <p>
@@ -29,8 +31,8 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
    * </p>
    * 
    * @throws ParseException if the sequence of {@code <C>} objects provided
-   *         by the {@code Lexer} does not match the grammarfor which
-   *         this parser was created.
+   *         by the {@code Lexer} does not match the grammarfor which this
+   *         parser was created.
    */
   public abstract N parse(L lex) throws ParseException;
   /* +***************************************************************** */
@@ -76,7 +78,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
     }
 
   }
-  /*+******************************************************************/
+  /* +***************************************************************** */
   static class SeqParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
@@ -140,7 +142,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
       return nf.create(nodes);
     }
   }
-  /*+******************************************************************/
+  /* +***************************************************************** */
   static class RecurseParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
@@ -152,5 +154,5 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>> {
       return child.parse(lex);
     }
   }
-  /*+******************************************************************/
+  /* +***************************************************************** */
 }
