@@ -94,6 +94,12 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
   public Repeat<N,C,L> star(NodeFactory<N> nf, Grammar<N,C,L> grammar) {
     return repeat(nf, grammar, 0, Integer.MAX_VALUE);
   }
+  public Repeat<N,C,L> opt(Grammar<N,C,L> grammar) {
+    return repeat(defaultFactory, grammar, 0, 1);
+  }
+  public Repeat<N,C,L> opt(NodeFactory<N> nf, Grammar<N,C,L> grammar) {
+    return repeat(nf, grammar, 0, 1);
+  }
   /*+******************************************************************/
   /*+******************************************************************/
   public Choice<N,C,L> choice(Grammar<N,C,L> grammar) {

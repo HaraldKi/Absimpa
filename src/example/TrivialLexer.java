@@ -135,6 +135,10 @@ public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
     return currentToken;
   }
   /* +***************************************************************** */
+  public String currentText() {
+    return currentToken.getText();
+  }
+  /* +***************************************************************** */
   private void countToken() {
     if( currentToken==null ) return;
     column += currentToken.getText().length();

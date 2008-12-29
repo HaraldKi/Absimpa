@@ -24,14 +24,16 @@ public class TestExprLanguage {
   }
   /*+******************************************************************/
   private double eval(String text) throws IOException, ParseException {
-    return analyze(text).eval();
+   double x = analyze(text).value().doubleValue();
+   return x;
   }
   /*+******************************************************************/
   @Test
   public void addTest() throws Exception {
     double eps = 1e-20;
-    Expr n = analyze("3 + 4  + 5 - 5");
-    assertEquals(7.0, n.eval(), eps);
+    Expr n = analyze("3+4+5-6-8");
+
+    assertEquals(-2.0, n.value().doubleValue(), eps);
 
     assertEquals(-6.0, eval("2*-3"), eps);
     assertEquals(2.5, eval("10/4"), eps);
@@ -41,6 +43,8 @@ public class TestExprLanguage {
     assertEquals(1.0, eval("(1)*(1)- 0"), eps);
     assertEquals(11.0, eval("(((12))) - 1"), eps);
     assertEquals(6.0, eval("3*(1+ 1* (4- 3))"), eps);
+    assertEquals(-6.0, eval("3*-3--3"), eps);
+    assertEquals(6.0, eval("3*+3-+3"), eps);
   }
   /*+******************************************************************/
 

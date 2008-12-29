@@ -54,6 +54,9 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
       lex.next();
       return node;
     }
+    public String toString() {
+      return String.format("%s->%s", tokenCode, leafFactory);
+    }
   }
   /* +***************************************************************** */
   static class ChoiceParser<N,C extends Enum<C>,L extends Lexer<C>>
@@ -76,7 +79,17 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
     private Parser<N,C,L> mapCode(C code) {
       return choiceMap.get(code);
     }
-
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("CHOICE{");
+      String sep = "";
+      for(C c : choiceMap.keySet() ) {
+        sb.append(sep).append(c);
+        sep = ",";
+      }
+      sb.append('}');
+      return sb.toString();
+    }
   }
   /* +***************************************************************** */
   static class SeqParser<N,C extends Enum<C>,L extends Lexer<C>>
@@ -96,6 +109,9 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
       }
       if( nodes.size()==0 ) return null;
       return nf.create(nodes);
+    }
+    public String toString() {
+      return String.format("SEQ(%s)", nf);
     }
   }
   /* +***************************************************************** */
@@ -141,6 +157,9 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
       if( count==0 ) return null;
       return nf.create(nodes);
     }
+    public String toString() {
+      return String.format("REP(%s){%d to %d, %s}", nf, min, max, childLookahead);
+    }
   }
   /* +***************************************************************** */
   static class RecurseParser<N,C extends Enum<C>,L extends Lexer<C>>
@@ -152,6 +171,9 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
     }
     public N parse(L lex) throws ParseException {
       return child.parse(lex);
+    }
+    public String toString() {
+      return "RECURSE";
     }
   }
   /* +***************************************************************** */
