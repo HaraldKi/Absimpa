@@ -49,6 +49,7 @@ public class TestParsers {
     DEFAULT, TOKEN, AND, OR, ORS, ORP, SCOPE, TERMLIST, SEQ, NOT, OPENPAREN, CLOSEPAREN;
 
     public TestNode create(List<TestNode> children) {
+      if( children.size()==0) return null;
       List<TestNode> flattened = flattenDefaultNodes(children);
       return new TestNode(this, flattened);
     }
@@ -98,6 +99,11 @@ public class TestParsers {
           ((TestNode)child).dump(app, indent);
         }
       }
+    }
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      try {dump(sb);} catch(IOException e) {throw new Error("gnarg");}
+      return sb.toString();
     }
   }
   /*+******************************************************************/
@@ -581,8 +587,9 @@ public class TestParsers {
   /*+******************************************************************/
   @Test
   public void repeatOfOptional() throws Exception {
+    // REMINDER: an optional sub-grammar can satisfy all numbers of repeats
     Grammar<TestNode,Codes,L> optTerm = gb.repeat(term, 0, 1);
-    Grammar<TestNode,Codes,L> terms = gb.repeat(optTerm, 2, 3);
+    Grammar<TestNode,Codes,L> terms = gb.repeat(optTerm, 2, 5);
     Grammar<TestNode,Codes,L> top = gb.seq(terms).add(scopename);
     
     Parser<TestNode,Codes,L> p = top.compile();
@@ -594,15 +601,13 @@ public class TestParsers {
     assertEquals(NodeType.TOKEN, node.getChildType(1));
     assertEquals(NodeType.TOKEN, node.getChildType(2));
 
-    Exception e = null;
-    try {
-      node = analyze("a n:", p);
-    } catch( ParseException ee) {
-      e = ee;
-    }
-    String msg = e.getMessage();
-    //System.out.printf("%s%s",msg);
-    assertEquals("1:3:found token `SCOPE(n:)' but expected one of [TERM]", msg);
+    node = analyze("a n:", p);
+    assertEquals(NodeType.TOKEN, node.getChildType(0));
+    assertEquals(NodeType.TOKEN, node.getChildType(1));
+
+    node = analyze("n:", p);
+    assertEquals(NodeType.TOKEN, node.getChildType(0));
+  
   }
   /* +***************************************************************** */
   @Test

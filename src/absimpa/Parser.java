@@ -24,17 +24,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
 {
   private Parser() { }
 
-  /**
-   * <p>
-   * parses a sequence of objects of type {@code <C>} from the given
-   * {@code Lexer} and transforms it into an object of type {@code <N>}.
-   * </p>
-   * 
-   * @throws ParseException if the sequence of {@code <C>} objects provided
-   *         by the {@code Lexer} does not match the grammarfor which this
-   *         parser was created.
-   */
-  public abstract N parse(L lex) throws ParseException;
+   public abstract N parse(L lex) throws ParseException;
   /* +***************************************************************** */
   static class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
@@ -71,13 +61,10 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
     }
     public N parse(L lex) throws ParseException {
       C code = lex.current();
-      Parser<N,C,L> p = mapCode(code);
+      Parser<N,C,L> p = choiceMap.get(code);
       if( p!=null ) return p.parse(lex);
       if( optional ) return null;
       throw lex.parseException(choiceMap.keySet());
-    }
-    private Parser<N,C,L> mapCode(C code) {
-      return choiceMap.get(code);
     }
     public String toString() {
       StringBuilder sb = new StringBuilder();
@@ -107,7 +94,6 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
         N child = p.parse(lex);
         if( child!=null ) nodes.add(child);
       }
-      if( nodes.size()==0 ) return null;
       return nf.create(nodes);
     }
     public String toString() {
@@ -143,22 +129,21 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
 
       int count = 0;
       C code = lex.current();
-      while( count<min||(count<max&&childLookahead.contains(code)) ) {
+      while( count<min || (count<max && childLookahead.contains(code)) ) {
+        // REMINDER: child may be an optional node that continuously
+        // returns null due to a lookahead mismatch. In that case we loop
+        // until min without progress in reading input. Thats ok, because
+        // most of the time min is either 0 or 1, or the child is not
+        // optional.
         N node = child.parse(lex);
-
-        if( node==null ) {
-          throw lex.parseException(childLookahead);
-        }
-
-        nodes.add(node);
+        if( node!=null ) nodes.add(node);
         count += 1;
         code = lex.current();
       }
-      if( count==0 ) return null;
       return nf.create(nodes);
     }
     public String toString() {
-      return String.format("REP(%s){%d to %d, %s}", nf, min, max, childLookahead);
+      return String.format("REP(%s){%d,%d, la=%s}", nf, min, max, childLookahead);
     }
   }
   /* +***************************************************************** */

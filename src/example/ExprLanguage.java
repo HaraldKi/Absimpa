@@ -210,6 +210,7 @@ public class ExprLanguage {
     },
     LIST {
       public Expr create(List<Expr> children) {
+        if( children.size()==0 ) return null;
         int l = children.size();
         ExprOper last = (ExprOper)children.get(l-1);
         for(int i=l-2; i>=0; i--) {

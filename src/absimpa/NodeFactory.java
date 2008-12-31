@@ -16,8 +16,14 @@ import java.util.List;
 public interface NodeFactory<N> {
   /**
    * <p>
-   * must create a new {@code N} from the child objects.
+   * creates a new {@code N} from the child objects. This list of children
+   * may be empty, but it will not contain {@code null} elements.
    * </p>
+   * 
+   * @return a new {@code N} or {@code null}. A return value of {@code null}
+   *         will be not be put into a list of nodes on the level above, but
+   *         will rather be discarded. In fact a {@code null} return is
+   *         likely a good guess in case the list of children is empty.
    */
   N create(List<N> children);
 }
