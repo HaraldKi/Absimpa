@@ -6,7 +6,7 @@ package absimpa;
 * @param <L> is the type of {@link absimpa.Lexer} from which the parser
 *        obtains token codes
 */
-public interface ParserI<N,C extends Enum<C>,L extends Lexer<C>> {
+public interface Parser<N,C extends Enum<C>,L extends Lexer<C>> {
   /**
    * <p>
    * parses a sequence of objects of type {@code <C>} from the given

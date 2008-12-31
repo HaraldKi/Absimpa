@@ -21,7 +21,7 @@ public class Recurse<N,C extends Enum<C>,L extends Lexer<C>>
   }
   /* +***************************************************************** */
   @Override
-  protected ParserI<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
+  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
   {
 
     // FIXME: this is very nasty, because I take advantage of the knowledge
@@ -39,7 +39,7 @@ public class Recurse<N,C extends Enum<C>,L extends Lexer<C>>
     return child.computeFirst(firstOf);
   }
   protected void setRecurse(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
-    ParserI<N,C,L> p = firstOf.get(this).getParser();
+    Parser<N,C,L> p = firstOf.get(this).getParser();
     RecurseParser<N,C,L> myParser = (RecurseParser<N,C,L>)p;
     p = firstOf.get(child).getParser();
     myParser.setChild(p);

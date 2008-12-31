@@ -25,19 +25,19 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
   private String name = null;
   
   /* +***************************************************************** */
-  public final ParserI<N,C,L> compile() {
+  public final Parser<N,C,L> compile() {
     Map<Grammar<N,C,L>,First<N,C,L>> firstOf =
         new HashMap<Grammar<N,C,L>,First<N,C,L>>();
 
-    ParserI<N,C,L> result = build(firstOf);
+    Parser<N,C,L> result = build(firstOf);
     fillRecursives(firstOf, new HashSet<Grammar<N,C,L>>());
     return result;
   }
   /* +***************************************************************** */
-  protected final ParserI<N,C,L> build(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected final Parser<N,C,L> build(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     First<N,C,L> f = first(firstOf);
     if( f.getParser()!=null ) return f.getParser();
-    ParserI<N,C,L> p = buildParser(firstOf);
+    Parser<N,C,L> p = buildParser(firstOf);
     f.setParser(p);
     return p;
   }
@@ -69,7 +69,7 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
     return f;
   }
   /* +***************************************************************** */
-  protected abstract ParserI<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
+  protected abstract Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
   protected abstract First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
   /* +***************************************************************** */
   protected LookaheadConflictException lookaheadConflict(List<Grammar<N,C,L>> children,

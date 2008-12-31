@@ -8,15 +8,15 @@ import java.util.*;
 import absimpa.*;
 
 public class RepeatParser<N,C extends Enum<C>,L extends Lexer<C>>
-    implements ParserI<N,C,L>
+    implements Parser<N,C,L>
 {
   private final int min, max;
   private final EnumSet<C> childLookahead;
-  private ParserI<N,C,L> child;
+  private Parser<N,C,L> child;
   private final NodeFactory<N> nf;
 
   public RepeatParser(EnumSet<C> childLookahead, NodeFactory<N> nf,
-               ParserI<N,C,L> child, int min, int max) {
+               Parser<N,C,L> child, int min, int max) {
     if( min<0||max<min||max==0 ) {
       String msg =
           String.format("must have 0<=min<=max and max>0, but have "

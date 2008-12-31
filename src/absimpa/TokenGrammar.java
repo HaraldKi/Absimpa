@@ -21,7 +21,7 @@ public class TokenGrammar<N,C extends Enum<C>,L extends Lexer<C>>
   {
     return new ArrayList<Grammar<N,C,L>>(0);
   }
-  protected ParserI<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     return new TokenParser<N,C,L>(code, lf);
   }
   @Override

@@ -18,7 +18,7 @@ import java.util.EnumSet;
 class First<N,C extends Enum<C>,L extends Lexer<C>> {
   private final EnumSet<C> first;
   public final boolean epsilon;
-  private ParserI<N,C,L> parser;
+  private Parser<N,C,L> parser;
   
   public First(EnumSet<C> first, boolean epsilon) {
     this.first = first;
@@ -27,10 +27,10 @@ class First<N,C extends Enum<C>,L extends Lexer<C>> {
   public EnumSet<C> firstSet() {
     return EnumSet.copyOf(first);
   }
-  public void setParser(ParserI<N,C,L> p) {
+  public void setParser(Parser<N,C,L> p) {
     this.parser = p;
   }
-  public ParserI<N,C,L> getParser() {
+  public Parser<N,C,L> getParser() {
     return parser;
   }
 }

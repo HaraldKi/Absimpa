@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import absimpa.*;
 
 public class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
-    implements ParserI<N,C,L>
+    implements Parser<N,C,L>
 {
   private final LeafFactory<N,C,L> leafFactory;
   private final C tokenCode;
