@@ -3,7 +3,6 @@ package absimpa;
 
 import java.util.*;
 
-
 /**
  * <p>
  * The {@code Grammar} describes a language made of sequences of {@code C}
@@ -26,19 +25,19 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
   private String name = null;
   
   /* +***************************************************************** */
-  public final Parser<N,C,L> compile() {
+  public final ParserI<N,C,L> compile() {
     Map<Grammar<N,C,L>,First<N,C,L>> firstOf =
         new HashMap<Grammar<N,C,L>,First<N,C,L>>();
 
-    Parser<N,C,L> result = build(firstOf);
+    ParserI<N,C,L> result = build(firstOf);
     fillRecursives(firstOf, new HashSet<Grammar<N,C,L>>());
     return result;
   }
   /* +***************************************************************** */
-  protected final Parser<N,C,L> build(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected final ParserI<N,C,L> build(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     First<N,C,L> f = first(firstOf);
     if( f.getParser()!=null ) return f.getParser();
-    Parser<N,C,L> p = buildParser(firstOf);
+    ParserI<N,C,L> p = buildParser(firstOf);
     f.setParser(p);
     return p;
   }
@@ -70,7 +69,7 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
     return f;
   }
   /* +***************************************************************** */
-  protected abstract Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
+  protected abstract ParserI<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
   protected abstract First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
   /* +***************************************************************** */
   protected LookaheadConflictException lookaheadConflict(List<Grammar<N,C,L>> children,

@@ -1,5 +1,7 @@
 package absimpa;
 
+import absimpa.parserimpl.Parser;
+
 /**
  * <p>
  * necessary to create leaf nodes from parsed tokens. Whenever a

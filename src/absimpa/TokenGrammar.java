@@ -2,6 +2,8 @@ package absimpa;
 
 import java.util.*;
 
+import absimpa.parserimpl.Parser;
+
 
 
 public class TokenGrammar<N,C extends Enum<C>,L extends Lexer<C>>

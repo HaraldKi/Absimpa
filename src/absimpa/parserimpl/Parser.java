@@ -1,6 +1,8 @@
-package absimpa;
+package absimpa.parserimpl;
 
 import java.util.*;
+
+import absimpa.*;
 
 
 /**
@@ -26,12 +28,12 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
 
    public abstract N parse(L lex) throws ParseException;
   /* +***************************************************************** */
-  static class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
+  public static class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
     private final LeafFactory<N,C,L> leafFactory;
     private final C tokenCode;
-    TokenParser(C tokenCode, LeafFactory<N,C,L> lf) {
+    public TokenParser(C tokenCode, LeafFactory<N,C,L> lf) {
       this.leafFactory = lf;
       this.tokenCode = tokenCode;
     }
@@ -49,19 +51,19 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
     }
   }
   /* +***************************************************************** */
-  static class ChoiceParser<N,C extends Enum<C>,L extends Lexer<C>>
+  public static class ChoiceParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
     private final boolean optional;
-    private final EnumMap<C,Parser<N,C,L>> choiceMap;
+    private final EnumMap<C,ParserI<N,C,L>> choiceMap;
 
-    ChoiceParser(boolean optional, EnumMap<C,Parser<N,C,L>> choiceMap) {
+    public ChoiceParser(boolean optional, EnumMap<C,ParserI<N,C,L>> choiceMap) {
       this.optional = optional;
       this.choiceMap = choiceMap;
     }
     public N parse(L lex) throws ParseException {
       C code = lex.current();
-      Parser<N,C,L> p = choiceMap.get(code);
+      ParserI<N,C,L> p = choiceMap.get(code);
       if( p!=null ) return p.parse(lex);
       if( optional ) return null;
       throw lex.parseException(choiceMap.keySet());
@@ -79,18 +81,18 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
     }
   }
   /* +***************************************************************** */
-  static class SeqParser<N,C extends Enum<C>,L extends Lexer<C>>
+  public static class SeqParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
-    private final List<Parser<N,C,L>> children;
+    private final List<ParserI<N,C,L>> children;
     private final NodeFactory<N> nf;
-    SeqParser(NodeFactory<N> nf, List<Parser<N,C,L>> children) {
+    public SeqParser(NodeFactory<N> nf, List<ParserI<N,C,L>> children) {
       this.nf = nf;
       this.children = children;
     }
     public N parse(L lex) throws ParseException {
       List<N> nodes = new ArrayList<N>(children.size());
-      for(Parser<N,C,L> p : children) {
+      for(ParserI<N,C,L> p : children) {
         N child = p.parse(lex);
         if( child!=null ) nodes.add(child);
       }
@@ -101,16 +103,16 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
     }
   }
   /* +***************************************************************** */
-  static class RepeatParser<N,C extends Enum<C>,L extends Lexer<C>>
+  public static class RepeatParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
     private final int min, max;
     private final EnumSet<C> childLookahead;
-    private Parser<N,C,L> child;
+    private ParserI<N,C,L> child;
     private final NodeFactory<N> nf;
 
-    RepeatParser(EnumSet<C> childLookahead, NodeFactory<N> nf,
-                 Parser<N,C,L> child, int min, int max) {
+    public RepeatParser(EnumSet<C> childLookahead, NodeFactory<N> nf,
+                 ParserI<N,C,L> child, int min, int max) {
       if( min<0||max<min||max==0 ) {
         String msg =
             String.format("must have 0<=min<=max and max>0, but have "
@@ -147,11 +149,11 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
     }
   }
   /* +***************************************************************** */
-  static class RecurseParser<N,C extends Enum<C>,L extends Lexer<C>>
+  public static class RecurseParser<N,C extends Enum<C>,L extends Lexer<C>>
       extends Parser<N,C,L>
   {
-    private Parser<N,C,L> child;
-    void setChild(Parser<N,C,L> child) {
+    private ParserI<N,C,L> child;
+    public void setChild(ParserI<N,C,L> child) {
       this.child = child;
     }
     public N parse(L lex) throws ParseException {

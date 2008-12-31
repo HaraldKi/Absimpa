@@ -3,7 +3,6 @@ package absimpa;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-
 import java.io.IOException;
 import java.util.*;
 
@@ -148,12 +147,12 @@ public class TestParsers {
   @Test
   public void testTokenParser() throws Exception
   {
-    Parser<TestNode,Codes,L> tp =
+    ParserI<TestNode,Codes,L> tp =
         gb.token(NodeType.DEFAULT, Codes.TERM).compile();
     lex.initAnalysis("abc ddd: ");
     checkTokenParse(tp, "abc", Codes.TERM);
   }
-  private void checkTokenParse(Parser<TestNode,Codes,L> tp, String text,
+  private void checkTokenParse(ParserI<TestNode,Codes,L> tp, String text,
                                Codes code) throws Exception
   {
     TestNode node = tp.parse(lex);
@@ -168,13 +167,13 @@ public class TestParsers {
   @Test
   public void testSequenceParser() throws Exception {
     @SuppressWarnings("unchecked")
-    Parser<TestNode,Codes,L> scope = 
+    ParserI<TestNode,Codes,L> scope = 
       gb.seq(NodeType.SCOPE, scopename).add(term).compile();
 
     lex.initAnalysis("name: value");
     checkSequenceParse(scope, NodeType.SCOPE, NodeType.TOKEN, NodeType.TOKEN);
   }
-  private void checkSequenceParse(Parser<TestNode,Codes,L> scope,
+  private void checkSequenceParse(ParserI<TestNode,Codes,L> scope,
                                   NodeType parent, NodeType child1,
                                   NodeType child2) throws Exception
   {
@@ -185,7 +184,7 @@ public class TestParsers {
     assertEquals(child2, node.getChildType(1));
   }
   /* +***************************************************************** */
-  private TestNode analyze(String text, Parser<TestNode,Codes,L> p)
+  private TestNode analyze(String text, ParserI<TestNode,Codes,L> p)
     throws IOException, ParseException
   {
     lex.initAnalysis(text);
@@ -196,7 +195,7 @@ public class TestParsers {
   /*+******************************************************************/
   @Test
   public void testRepeat2_2() throws Exception {
-    Parser<TestNode,Codes,L> rep = makeRepeatGrammar(term, 2,2).compile();
+    ParserI<TestNode,Codes,L> rep = makeRepeatGrammar(term, 2,2).compile();
     
     TestNode node = analyze("eins zwei drei vier", rep);
     assertEquals(NodeType.TERMLIST, node.getValue());
@@ -256,7 +255,7 @@ public class TestParsers {
   /*+******************************************************************/
   @Test
   public void testChoice() throws Exception {
-    Parser<TestNode,Codes,L> choice = makeChoiceParser().compile();
+    ParserI<TestNode,Codes,L> choice = makeChoiceParser().compile();
     TestNode node = analyze("abc", choice);
     assertEquals(NodeType.TOKEN, node.getValue());
     assertEquals(Codes.TERM, getTokenCode(node));
@@ -271,7 +270,7 @@ public class TestParsers {
   }
   @Test(expected=ParseException.class)
   public void testChoiceException() throws Exception {
-    Parser<TestNode,Codes,L> choice = makeChoiceParser().compile();
+    ParserI<TestNode,Codes,L> choice = makeChoiceParser().compile();
     analyze("", choice);
   }
   private Enum getTokenCode(TestNode node) {
@@ -355,7 +354,7 @@ public class TestParsers {
     Exception e = null;
     try {
       @SuppressWarnings("unchecked")
-      Parser<TestNode,Codes,L> p =
+      ParserI<TestNode,Codes,L> p =
           gb.choice(negatedScope).or(negatedTerm).compile();
       assertEquals(null, p);
     } catch( Exception ee ) {
@@ -374,7 +373,7 @@ public class TestParsers {
     Exception e = null;
     try {
       @SuppressWarnings("unchecked")
-      Parser<TestNode,Codes,L> seq = 
+      ParserI<TestNode,Codes,L> seq = 
         gb.seq(NodeType.AND, optTerm).add(term).compile();
       assertEquals(null, seq);
     } catch( Exception ee ) {
@@ -387,7 +386,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @SuppressWarnings("unchecked")
-  private Parser<TestNode,Codes,L> miniLanguage()  {
+  private ParserI<TestNode,Codes,L> miniLanguage()  {
     Grammar<TestNode,Codes,L> scope = gb.seq(NodeType.SCOPE, scopename).add(term);
     Grammar<TestNode,Codes,L> literal = gb.choice(term).or(scope);
 
@@ -406,7 +405,7 @@ public class TestParsers {
   /* +***************************************************************** */
   @Test
   public void testMiniLanguage() throws Exception {
-    Parser<TestNode,Codes,L> grammar = miniLanguage();
+    ParserI<TestNode,Codes,L> grammar = miniLanguage();
     //System.out.printf("%s%n", ((Grammar)absimpa).lookaheadSet());
     TestNode node = analyze("- bla NOT aaa boar OR ey", grammar);
     assertEquals(NodeType.AND, node.getValue());
@@ -417,7 +416,7 @@ public class TestParsers {
   /* +***************************************************************** */
   @Test
   public void testMiniLanguageORORThrows() throws Exception {
-    Parser<TestNode,Codes,L> grammar = miniLanguage();
+    ParserI<TestNode,Codes,L> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM, Codes.SCOPE);
     checkParseException("abc:do OR OR zwei", grammar,
@@ -426,7 +425,7 @@ public class TestParsers {
   /* +***************************************************************** */
   @Test
   public void testMiniLanguageSCOPESCOPEThrows() throws Exception {
-    Parser<TestNode,Codes,L> grammar = miniLanguage();
+    ParserI<TestNode,Codes,L> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM);
     checkParseException("abc: abc:", grammar,
@@ -435,7 +434,7 @@ public class TestParsers {
   /* +***************************************************************** */
   @Test
   public void testMiniLanguageNOTNOTThrows() throws Exception {
-    Parser<TestNode,Codes,L> grammar = miniLanguage();
+    ParserI<TestNode,Codes,L> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM, Codes.SCOPE);
     checkParseException("abc NOT NOT rest", grammar,
@@ -444,7 +443,7 @@ public class TestParsers {
   /* +***************************************************************** */
   @Test
   public void testMiniLanguageDanglingORThrows() throws Exception {
-    Parser<TestNode,Codes,L> grammar = miniLanguage();
+    ParserI<TestNode,Codes,L> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM, Codes.SCOPE);
     checkParseException("abc OR", grammar,
@@ -458,7 +457,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   private void checkParseException(String text,
-                                   Parser<TestNode,Codes,L> grammar,
+                                   ParserI<TestNode,Codes,L> grammar,
                                    EnumSet<Codes> expected, Codes found)
     throws IOException
   {
@@ -484,7 +483,7 @@ public class TestParsers {
 
     rec.setChild(gb.choice(term).or(parens));
     
-    Parser<TestNode,Codes,L> p = parens.compile();
+    ParserI<TestNode,Codes,L> p = parens.compile();
     TestNode node = analyze("(a)", p);
     //node.dump(System.out);
     
@@ -553,7 +552,7 @@ public class TestParsers {
     Grammar<TestNode,Codes,L> optSeq =
       gb.seq(aStar).add(bStar).add(not);
     
-    Parser<TestNode,Codes,L> p = optSeq.compile();
+    ParserI<TestNode,Codes,L> p = optSeq.compile();
     
     TestNode node = analyze("NOT", p);
     //node.dump(System.out);
@@ -571,7 +570,7 @@ public class TestParsers {
       gb.seq(aStar).add(bStar);
     
     Grammar<TestNode,Codes,L> ctop = gb.choice(optSeq).or(not);
-    Parser<TestNode,Codes,L> p = ctop.compile();
+    ParserI<TestNode,Codes,L> p = ctop.compile();
     
     TestNode node = analyze("NOT", p);
     //node.dump(System.out);
@@ -592,7 +591,7 @@ public class TestParsers {
     Grammar<TestNode,Codes,L> terms = gb.repeat(optTerm, 2, 5);
     Grammar<TestNode,Codes,L> top = gb.seq(terms).add(scopename);
     
-    Parser<TestNode,Codes,L> p = top.compile();
+    ParserI<TestNode,Codes,L> p = top.compile();
     TestNode node = analyze("a b n:", p);
 
     //node.dump(System.out);

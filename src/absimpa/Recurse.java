@@ -2,6 +2,8 @@ package absimpa;
 
 import java.util.*;
 
+import absimpa.parserimpl.Parser;
+
 
 
 public class Recurse<N,C extends Enum<C>,L extends Lexer<C>>
@@ -37,7 +39,7 @@ public class Recurse<N,C extends Enum<C>,L extends Lexer<C>>
     return child.computeFirst(firstOf);
   }
   protected void setRecurse(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
-    Parser<N,C,L> p = firstOf.get(this).getParser();
+    ParserI<N,C,L> p = firstOf.get(this).getParser();
     Parser.RecurseParser<N,C,L> myParser = (Parser.RecurseParser<N,C,L>)p;
     p = firstOf.get(child).getParser();
     myParser.setChild(p);

@@ -22,8 +22,8 @@ public class ExprLanguage {
     }
   }
   public static class Eparser implements ParserI<Expr,Codes,L> {
-    private final Parser<Expr,Codes,L> p;
-    public Eparser(Parser<Expr,Codes,L> p) {
+    private final ParserI<Expr,Codes,L> p;
+    public Eparser(ParserI<Expr,Codes,L> p) {
       this.p = p;
     }
     @Override

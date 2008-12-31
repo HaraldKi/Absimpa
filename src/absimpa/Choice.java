@@ -3,6 +3,8 @@ package absimpa;
 
 import java.util.*;
 
+import absimpa.parserimpl.Parser;
+
 
 public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
     extends Grammar<N,C,L>
@@ -25,37 +27,37 @@ public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
   }
   /* +***************************************************************** */
   protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
-    EnumMap<C,Parser<N,C,L>> choiceMap = buildMap(firstOf);
+    EnumMap<C,ParserI<N,C,L>> choiceMap = buildMap(firstOf);
     First<N,C,L> f = first(firstOf);
     return new Parser.ChoiceParser<N,C,L>(f.epsilon, choiceMap);
   }
   /* +***************************************************************** */
-  private EnumMap<C,Parser<N,C,L>> buildMap(
+  private EnumMap<C,ParserI<N,C,L>> buildMap(
                                           Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
   {
-    EnumMap<C,Parser<N,C,L>> result = null;
+    EnumMap<C,ParserI<N,C,L>> result = null;
 
     for(Grammar<N,C,L> g : choices) {
       First<N,C,L> f = g.first(firstOf);
-      Parser<N,C,L> p = g.build(firstOf);
+      ParserI<N,C,L> p = g.build(firstOf);
       if( result==null ) result = initMap(f.firstSet());
       addToMap(result, f.firstSet(), p);
     }
     return result;
   }
   /* +***************************************************************** */
-  private EnumMap<C,Parser<N,C,L>> initMap(EnumSet<C> codes) {
+  private EnumMap<C,ParserI<N,C,L>> initMap(EnumSet<C> codes) {
     // if( codes.isEmpty() ) codes = EnumSet.complementOf(codes);
     for(C code : codes) {
-      return new EnumMap<C,Parser<N,C,L>>(code.getDeclaringClass());
+      return new EnumMap<C,ParserI<N,C,L>>(code.getDeclaringClass());
     }
     throw new RuntimeException(
         "this happens only, if a firstSet is empty, which should"
             +" never be the case");
   }
   /* +***************************************************************** */
-  private void addToMap(EnumMap<C,Parser<N,C,L>> map, EnumSet<C> codes,
-                        Parser<N,C,L> p)
+  private void addToMap(EnumMap<C,ParserI<N,C,L>> map, EnumSet<C> codes,
+                        ParserI<N,C,L> p)
   {
     for(C code : codes) {
       if( map.containsKey(code) ) throw new RuntimeException("not possible");
