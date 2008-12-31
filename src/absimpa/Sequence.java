@@ -5,8 +5,6 @@ import java.util.*;
 
 import absimpa.parserimpl.Parser;
 
-
-
 public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
     extends Grammar<N,C,L>
 {
@@ -27,7 +25,7 @@ public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
     return Collections.unmodifiableList(children);
   }
   /* +***************************************************************** */
-  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected ParserI<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     List<ParserI<N,C,L>> childParsers =
         new ArrayList<ParserI<N,C,L>>(children.size());
 

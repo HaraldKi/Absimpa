@@ -26,7 +26,7 @@ public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
     return Collections.unmodifiableList(choices);
   }
   /* +***************************************************************** */
-  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected ParserI<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     EnumMap<C,ParserI<N,C,L>> choiceMap = buildMap(firstOf);
     First<N,C,L> f = first(firstOf);
     return new Parser.ChoiceParser<N,C,L>(f.epsilon, choiceMap);

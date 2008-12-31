@@ -21,7 +21,7 @@ public class Recurse<N,C extends Enum<C>,L extends Lexer<C>>
   }
   /* +***************************************************************** */
   @Override
-  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
+  protected ParserI<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
   {
 
     // FIXME: this is very nasty, because I take advantage of the knowledge

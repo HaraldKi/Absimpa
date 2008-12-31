@@ -29,7 +29,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
    public abstract N parse(L lex) throws ParseException;
   /* +***************************************************************** */
   public static class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
-      extends Parser<N,C,L>
+      implements ParserI<N,C,L>
   {
     private final LeafFactory<N,C,L> leafFactory;
     private final C tokenCode;
@@ -52,7 +52,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
   }
   /* +***************************************************************** */
   public static class ChoiceParser<N,C extends Enum<C>,L extends Lexer<C>>
-      extends Parser<N,C,L>
+      implements ParserI<N,C,L>
   {
     private final boolean optional;
     private final EnumMap<C,ParserI<N,C,L>> choiceMap;
@@ -82,7 +82,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
   }
   /* +***************************************************************** */
   public static class SeqParser<N,C extends Enum<C>,L extends Lexer<C>>
-      extends Parser<N,C,L>
+      implements ParserI<N,C,L>
   {
     private final List<ParserI<N,C,L>> children;
     private final NodeFactory<N> nf;
@@ -104,7 +104,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
   }
   /* +***************************************************************** */
   public static class RepeatParser<N,C extends Enum<C>,L extends Lexer<C>>
-      extends Parser<N,C,L>
+      implements ParserI<N,C,L>
   {
     private final int min, max;
     private final EnumSet<C> childLookahead;
@@ -150,7 +150,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
   }
   /* +***************************************************************** */
   public static class RecurseParser<N,C extends Enum<C>,L extends Lexer<C>>
-      extends Parser<N,C,L>
+      implements ParserI<N,C,L>
   {
     private ParserI<N,C,L> child;
     public void setChild(ParserI<N,C,L> child) {
