@@ -2,7 +2,7 @@ package absimpa;
 
 import java.util.*;
 
-import absimpa.parserimpl.Parser;
+import absimpa.parserimpl.RecurseParser;
 
 
 
@@ -28,7 +28,7 @@ public class Recurse<N,C extends Enum<C>,L extends Lexer<C>>
     // about how Grammar orchestrates the tree walking. Need to find a
     // cleaner solution.
     First<N,C,L> f = firstOf.get(this);
-    Parser.RecurseParser<N,C,L> myParser = new Parser.RecurseParser<N,C,L>();
+    RecurseParser<N,C,L> myParser = new RecurseParser<N,C,L>();
     f.setParser(myParser);
     myParser.setChild(child.build(firstOf));
     return myParser;
@@ -40,7 +40,7 @@ public class Recurse<N,C extends Enum<C>,L extends Lexer<C>>
   }
   protected void setRecurse(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     ParserI<N,C,L> p = firstOf.get(this).getParser();
-    Parser.RecurseParser<N,C,L> myParser = (Parser.RecurseParser<N,C,L>)p;
+    RecurseParser<N,C,L> myParser = (RecurseParser<N,C,L>)p;
     p = firstOf.get(child).getParser();
     myParser.setChild(p);
   }

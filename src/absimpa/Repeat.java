@@ -3,7 +3,7 @@ package absimpa;
 
 import java.util.*;
 
-import absimpa.parserimpl.Parser;
+import absimpa.parserimpl.RepeatParser;
 
 
 
@@ -36,7 +36,7 @@ public class Repeat<N, C extends Enum<C>,L extends Lexer<C>> extends Grammar<N,C
     First<N,C,L> f = child.first(firstOf);
     EnumSet<C> childLookahead = f.firstSet();
     ParserI<N,C,L> childParser = child.build(firstOf);
-    return new Parser.RepeatParser<N,C,L>(childLookahead, nf, 
+    return new RepeatParser<N,C,L>(childLookahead, nf, 
         childParser, min, max);
   }
   /*+******************************************************************/

@@ -3,7 +3,7 @@ package absimpa;
 
 import java.util.*;
 
-import absimpa.parserimpl.Parser;
+import absimpa.parserimpl.SeqParser;
 
 public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
     extends Grammar<N,C,L>
@@ -33,7 +33,7 @@ public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
       Grammar<N,C,L> ga = (Grammar<N,C,L>)g;
       childParsers.add(ga.build(firstOf));
     }
-    return new Parser.SeqParser<N,C,L>(nf, childParsers);
+    return new SeqParser<N,C,L>(nf, childParsers);
   }
   /*+******************************************************************/
   @Override
