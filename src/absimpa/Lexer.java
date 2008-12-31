@@ -2,8 +2,6 @@ package absimpa;
 
 import java.util.Set;
 
-import absimpa.parserimpl.Parser;
-
 /**
  * <p>
  * defines the interface to a lexical analyzer (lexer) needed by the
