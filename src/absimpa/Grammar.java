@@ -24,6 +24,7 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
   protected Grammar() {}
   
   private String name = null;
+  
   /* +***************************************************************** */
   public final Parser<N,C,L> compile() {
     Map<Grammar<N,C,L>,First<N,C,L>> firstOf =

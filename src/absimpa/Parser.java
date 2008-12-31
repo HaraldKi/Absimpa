@@ -129,7 +129,7 @@ public abstract class Parser<N,C extends Enum<C>,L extends Lexer<C>>
 
       int count = 0;
       C code = lex.current();
-      while( count<min || (count<max && childLookahead.contains(code)) ) {
+      while( count<min||(count<max&&childLookahead.contains(code)) ) {
         // REMINDER: child may be an optional node that continuously
         // returns null due to a lookahead mismatch. In that case we loop
         // until min without progress in reading input. Thats ok, because

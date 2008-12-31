@@ -19,6 +19,11 @@ public interface LeafFactory<N, C extends Enum<C>, L extends Lexer<C>> {
    * must create an {@code N} from the current token available from the
    * lexer. This method should normally <b>not</b> call {@link Lexer#next}.
    * </p>
+   * 
+   * @return may be {@code null} to signify a
+   *         <em>syntactic sugar</em>
+   *         token to the parser. The parser will not enter the {@code null}
+   *         into its result.
    */
   N create(L lex);
 }
