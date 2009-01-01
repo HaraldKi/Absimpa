@@ -25,6 +25,16 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
   private String name = null;
   
   /* +***************************************************************** */
+  /**
+   * compiles the grammar into a parser to recognize the grammar.
+   * 
+   * @throws LeftRecursiveException if the grammar is <a
+   *         href="http://en.wikipedia.org/wiki/Left_recursion">left
+   *         recursive</a>.
+   * @throws LookaheadConflictException if either a {@link Choice} or a
+   *         {@link Sequence} encountered during compilation has a lookahead
+   *         conflict.
+   */
   public final Parser<N,C,L> compile() {
     Map<Grammar<N,C,L>,First<N,C,L>> firstOf =
         new HashMap<Grammar<N,C,L>,First<N,C,L>>();
@@ -88,6 +98,10 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
     throw new RuntimeException("this should never happen");
   }
   /*+******************************************************************/
+  /**
+   * used by {@link #toString} only, not needed for the function of the
+   * grammar.
+   */
   public Grammar<N,C,L> setName(String name) {
     this.name = name;
     return this;
@@ -98,6 +112,9 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
     return shortClassname();
   }
   /* +***************************************************************** */
+  /**
+   * returns a name and, potentially, the names of direct children.
+   */
   public String toString() {
     StringBuilder sb = new StringBuilder(getName());
     char sep = '[';

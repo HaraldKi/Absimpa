@@ -30,14 +30,14 @@ public class TestParsers {
   }
 
   private L lex;
-  private TokenGrammar<TestNode,Codes,L> term;
-  private TokenGrammar<TestNode,Codes,L> and;
-  private TokenGrammar<TestNode,Codes,L> or;
-  private TokenGrammar<TestNode,Codes,L> not;
-  private TokenGrammar<TestNode,Codes,L> scopename;
+  private Grammar<TestNode,Codes,L> term;
+  private Grammar<TestNode,Codes,L> and;
+  private Grammar<TestNode,Codes,L> or;
+  private Grammar<TestNode,Codes,L> not;
+  private Grammar<TestNode,Codes,L> scopename;
 
   private final GrammarBuilder<TestNode,Codes,L> gb = 
-    new GrammarBuilder<TestNode,Codes,L>(NodeType.DEFAULT);
+    new GrammarBuilder<TestNode,Codes,L>(NodeType.DEFAULT, NodeType.DEFAULT);
 
   private static enum Codes {
     SCOPE, TERM, AND, OR, POPEN, PCLOSE, NOT, EOF;
@@ -205,7 +205,7 @@ public class TestParsers {
   }
   @Test
   public void testRepeat0With0() throws Exception {
-    Repeat<TestNode,Codes,L> rep = makeRepeatGrammar(scopename, 0,2);
+    Grammar<TestNode,Codes,L> rep = makeRepeatGrammar(scopename, 0,2);
 
     Grammar<TestNode,Codes,L> seq = gb.seq(NodeType.SEQ, rep).add(term);
 
@@ -217,7 +217,7 @@ public class TestParsers {
   }
   @Test
   public void testRepeatStopNonmatchingToken() throws Exception {
-    Repeat<TestNode,Codes,L> rep = makeRepeatGrammar(term, 0, 5);
+    Grammar<TestNode,Codes,L> rep = makeRepeatGrammar(term, 0, 5);
 
     TestNode node = analyze("eins zwei ende:", rep.compile());
 
@@ -228,7 +228,7 @@ public class TestParsers {
   }
   @Test
   public void testRepeatStopAtMax() throws Exception {
-    Repeat<TestNode,Codes,L> rep = makeRepeatGrammar(term, 0, 2);
+    Grammar<TestNode,Codes,L> rep = makeRepeatGrammar(term, 0, 2);
 
     TestNode node = analyze("eins zwei drei vier", rep.compile());
 
@@ -238,7 +238,7 @@ public class TestParsers {
   }
   @Test(expected=ParseException.class)
   public void testRepeatNotEnough() throws Exception {
-    Repeat<TestNode,Codes,L> rep = makeRepeatGrammar(term, 4, 4);
+    Grammar<TestNode,Codes,L> rep = makeRepeatGrammar(term, 4, 4);
 
     TestNode node = analyze("eins zwei ", rep.compile());
 
@@ -246,10 +246,10 @@ public class TestParsers {
     assertEquals(NodeType.TOKEN, node.getChildType(1));
     assertEquals(2, node.numChildren());
   }
-  private Repeat<TestNode,Codes,L> makeRepeatGrammar(Grammar<TestNode,Codes,L> g,
+  private Grammar<TestNode,Codes,L> makeRepeatGrammar(Grammar<TestNode,Codes,L> g,
                                                      int min, int max)
   {
-    Repeat<TestNode,Codes,L> rep = gb.repeat(NodeType.TERMLIST, g, min, max);
+    Grammar<TestNode,Codes,L> rep = gb.repeat(NodeType.TERMLIST, g, min, max);
     return rep;
   }
   /*+******************************************************************/

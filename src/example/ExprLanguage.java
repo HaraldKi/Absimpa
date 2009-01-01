@@ -121,7 +121,7 @@ public class ExprLanguage {
     // sum -> product ( (add | sub ) product)*
     // expr -> '(' sum ')'
     GrammarBuilder<Expr,Codes,L> gb =
-        new GrammarBuilder<Expr,Codes,L>(null);
+        new GrammarBuilder<Expr,Codes,L>(null, null);
 
     Recurse<Expr,Codes,L> recExpr = new Recurse<Expr,Codes,L>();
 

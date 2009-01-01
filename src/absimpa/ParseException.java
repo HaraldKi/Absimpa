@@ -3,6 +3,20 @@ package absimpa;
 import java.util.Formatter;
 import java.util.Set;
 
+/**
+ * <p>
+ * The parser eventually throws a {@code ParseException}, although it does
+ * not create it itself. Rather it will call
+ * {@link Lexer#parseException(Set)} to rely on the lexer to create it with
+ * the necessary bits of information.
+ * </p>
+ * 
+ * <p>
+ * Strictly speaking this exception should be yet another generic parameter
+ * to all the classes in this package, but that would make writing code that
+ * uses them even more ugly.
+ * </p>
+ */
 public class ParseException extends Exception {
   private static final int UNSET = -1;
   private final Set expectedTokenCodes;
@@ -18,6 +32,9 @@ public class ParseException extends Exception {
     this.foundTokenCode = found;
   }
   /* +***************************************************************** */
+  /**
+   * creates a message from the fields set in this exception.
+   */
   @Override
   public String getMessage() {
     StringBuilder sb = new StringBuilder();

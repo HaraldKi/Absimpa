@@ -2,6 +2,9 @@ package absimpa;
 
 import java.util.*;
 
+/**
+ * thrown by {@link Grammar#compile}.
+ */
 public class LookaheadConflictException extends RuntimeException {
 
   public LookaheadConflictException(EnumSet la, Grammar g1, Grammar g2) {

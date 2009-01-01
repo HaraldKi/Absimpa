@@ -1,11 +1,17 @@
 package absimpa;
 
 /**
-* @param <N> is the type of the objects created by the parser
-* @param <C> is the type of token codes provided by the lexer
-* @param <L> is the type of {@link absimpa.Lexer} from which the parser
-*        obtains token codes
-*/
+ * <p>
+ * parses input in the form of token codes as provided by a lexical analyzer
+ * and constructs result obejcts. To obtain a parser, use the
+ * {@link GrammarBuilder} and {@link Grammar#compile compile} the resulting {@link Grammar}.
+ * </p>
+ * 
+ * @param <N> is the type of the objects created by the parser
+ * @param <C> is the type of token codes provided by the lexer
+ * @param <L> is the type of {@link absimpa.Lexer} from which the parser
+ *        obtains token codes
+ */
 public interface Parser<N,C extends Enum<C>,L extends Lexer<C>> {
   /**
    * <p>
