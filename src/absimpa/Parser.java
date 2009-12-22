@@ -1,5 +1,7 @@
 package absimpa;
 
+import absimpa.parserimpl.ParserResult;
+
 /**
  * <p>
  * parses input in the form of token codes as provided by a lexical analyzer
@@ -27,6 +29,6 @@ public interface Parser<N,C extends Enum<C>,L extends Lexer<C>> {
    *         by the {@code Lexer} does not match the grammar for which this
    *         parser was created.
    */
-  N parse(L lex) throws ParseException;
+  ParserResult<N> parse(L lex) throws ParseException;
 
 }

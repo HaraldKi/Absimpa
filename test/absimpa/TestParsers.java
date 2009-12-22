@@ -155,7 +155,7 @@ public class TestParsers {
   private void checkTokenParse(Parser<TestNode,Codes,L> tp, String text,
                                Codes code) throws Exception
   {
-    TestNode node = tp.parse(lex);
+    TestNode node = tp.parse(lex).get();
     //node.dump(System.out);
     assertTrue(node instanceof LeafNode);
     LeafNode n = (LeafNode)node;
@@ -177,7 +177,7 @@ public class TestParsers {
                                   NodeType parent, NodeType child1,
                                   NodeType child2) throws Exception
   {
-    TestNode node = scope.parse(lex);
+    TestNode node = scope.parse(lex).get();
     // node.dump(System.out);
     assertEquals(parent, node.getValue());
     assertEquals(child1, node.getChildType(0));
@@ -188,7 +188,7 @@ public class TestParsers {
     throws IOException, ParseException
   {
     lex.initAnalysis(text);
-    TestNode node = p.parse(lex);
+    TestNode node = p.parse(lex).get();
     //node.dump(System.out);
     return node;
   }

@@ -3,36 +3,52 @@
  */
 package absimpa.parserimpl;
 
-import java.util.EnumMap;
+import java.util.*;
 
 import absimpa.*;
 
+/**
+ * <p>
+ * a purely sequential choice parser that prefers epsilon expansion over
+ * later choices of non-epsilon.</p>
+ * 
+ * @param <N>
+ * @param <C>
+ * @param <L>
+ */
 public class ChoiceParser<N,C extends Enum<C>,L extends Lexer<C>>
     implements Parser<N,C,L>
 {
-  private final boolean optional;
-  private final EnumMap<C,Parser<N,C,L>> choiceMap;
+  private final List<Parser<N,C,L>> choices;
 
-  public ChoiceParser(boolean optional, EnumMap<C,Parser<N,C,L>> choiceMap) {
-    this.optional = optional;
-    this.choiceMap = choiceMap;
+  public ChoiceParser(List<Parser<N,C,L>> choices) {
+    this.choices = choices;
   }
-  public N parse(L lex) throws ParseException {
-    C code = lex.current();
-    Parser<N,C,L> p = choiceMap.get(code);
-    if( p!=null ) return p.parse(lex);
-    if( optional ) return null;
-    throw lex.parseException(choiceMap.keySet());
+  public ParserResult<N> parse(L lex) throws ParseException {
+    for(Parser<N,C,L> p : choices) {
+      ParserResult<N> r = p.parse(lex);
+      if( r.isEpsilon() || r.isNode() ) {
+        return r;
+      }
+    }
+    // TODO: need to collect the expected tokens here
+    throw lex.parseException(lookahead());
   }
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("CHOICE{");
     String sep = "";
-    for(C c : choiceMap.keySet() ) {
+    for(C c : lookahead()) {
       sb.append(sep).append(c);
       sep = ",";
     }
     sb.append('}');
     return sb.toString();
   }
+  
+  private Set<C> lookahead() {
+    // TODO: need to collect the expected tokens here
+    return new HashSet<C>();
+  }
+  
 }
