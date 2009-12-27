@@ -39,23 +39,21 @@ public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
   @Override
   protected First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
   {
-    EnumSet<C> firstSet = null;
-    boolean optional = true;
-    for(Grammar<N,C,L> g : children) {
-      Grammar<N,C,L> ga = (Grammar<N,C,L>)g;
-      First<N,C,L> f = ga.first(firstOf);
-      if( firstSet==null ) {
-        firstSet = f.firstSet();
-        optional = f.epsilon;
-      } else {
-        EnumSet<C> otherFirstSet = f.firstSet();
-        if( firstSet.removeAll(otherFirstSet) ) {
-          throw lookaheadConflict(children, ga, firstOf);
-        }
-        firstSet.addAll(otherFirstSet);
-        optional &= f.epsilon;
+    Grammar<N,C,L> g = children.get(0);
+    First<N,C,L> f = g.first(firstOf);
+
+    EnumSet<C> firstSet = f.firstSet();
+    boolean optional = f.epsilon;
+
+    for(int i=1; i<children.size() && optional; i++) {
+      g = children.get(i);
+      f = g.first(firstOf);
+      EnumSet<C> otherFirstSet = f.firstSet();
+      if( firstSet.removeAll(otherFirstSet) ) {
+        throw lookaheadConflict(children, g, firstOf);
       }
-      if( !optional ) break;
+      firstSet.addAll(otherFirstSet);
+      optional &= f.epsilon;
     }
     return new First<N,C,L>(firstSet, optional);
   }
