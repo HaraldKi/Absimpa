@@ -107,13 +107,13 @@ public class TestParsers {
   }
   /*+******************************************************************/
   private static class LeafNode extends TestNode {
-    private final Token t;
+    private final Token<Codes> t;
     @SuppressWarnings("unchecked")
     public LeafNode(Token t) {
       super(NodeType.TOKEN, Collections.EMPTY_LIST);
       this.t = t;
     }
-    public Token getToken() {
+    public Token<Codes> getToken() {
       return t;
     }
     protected void dump(Appendable app, String indent) throws IOException {
@@ -159,14 +159,13 @@ public class TestParsers {
     //node.dump(System.out);
     assertTrue(node instanceof LeafNode);
     LeafNode n = (LeafNode)node;
-    Token t = n.getToken();
+    Token<Codes> t = n.getToken();
     assertEquals(text, t.getText());
     assertEquals(code, t.getCode());
   }
   /* +***************************************************************** */
   @Test
   public void testSequenceParser() throws Exception {
-    @SuppressWarnings("unchecked")
     Parser<TestNode,Codes,L> scope = 
       gb.seq(NodeType.SCOPE, scopename).add(term).compile();
 
@@ -273,7 +272,7 @@ public class TestParsers {
     Parser<TestNode,Codes,L> choice = makeChoiceParser().compile();
     analyze("", choice);
   }
-  private Enum getTokenCode(TestNode node) {
+  private Codes getTokenCode(TestNode node) {
     LeafNode ln = (LeafNode)node;
     return ln.getToken().getCode();
   }
@@ -353,7 +352,6 @@ public class TestParsers {
 
     Exception e = null;
     try {
-      @SuppressWarnings("unchecked")
       Parser<TestNode,Codes,L> p =
           gb.choice(negatedScope).or(negatedTerm).compile();
       assertEquals(null, p);
@@ -372,7 +370,6 @@ public class TestParsers {
 
     Exception e = null;
     try {
-      @SuppressWarnings("unchecked")
       Parser<TestNode,Codes,L> seq = 
         gb.seq(NodeType.AND, optTerm).add(term).compile();
       assertEquals(null, seq);
@@ -385,22 +382,32 @@ public class TestParsers {
 
   }
   /* +***************************************************************** */
-  @SuppressWarnings("unchecked")
-  private Parser<TestNode,Codes,L> miniLanguage()  {
-    Grammar<TestNode,Codes,L> scope = gb.seq(NodeType.SCOPE, scopename).add(term);
-    Grammar<TestNode,Codes,L> literal = gb.choice(term).or(scope);
+  private Parser<TestNode,Codes,L> miniLanguage() {
+    return miniLanguageGrammar().compile();
+  }
+  /* +***************************************************************** */
+  private Grammar<TestNode,Codes,L> miniLanguageGrammar()  {
+    // scope -> scopename term
+    Grammar<TestNode,Codes,L> scope = 
+      gb.seq(NodeType.SCOPE, scopename).add(term);
+    // literal -> scope | literal
+    Grammar<TestNode,Codes,L> literal = 
+      gb.choice(term).or(scope);
 
+    // orlist -> literal (or literal)*
     Grammar<TestNode,Codes,L> orlist =
         gb.seq(NodeType.OR, literal)
-        .add(gb.repeat(gb.seq(or).add(literal), 0, Integer.MAX_VALUE));
-
+        .add(gb.star(gb.seq(or).add(literal)));
+    
+    // negated -> not literal
     Grammar<TestNode,Codes,L> negated = gb.seq(NodeType.NOT, not).add(literal);
 
+    // grammar -> (orlist | negated)+
     Grammar<TestNode,Codes,L> grammar =
         gb.repeat(NodeType.AND, gb.choice(orlist).or(negated),
                   1,
                   Integer.MAX_VALUE);
-    return grammar.compile();
+    return grammar;
   }
   /* +***************************************************************** */
   @Test
@@ -620,5 +627,24 @@ public class TestParsers {
     }
     assertEquals("java.lang.IllegalArgumentException", 
                  e.getClass().getName());
+  }
+  /*+******************************************************************/
+  @Test
+  public void explicitEOFMatching() throws Exception {
+    Grammar<TestNode,Codes,L> minig = miniLanguageGrammar();
+    Grammar<TestNode,Codes,L> g = gb.seq(minig).add(gb.token(Codes.EOF));
+
+    Parser<TestNode,Codes,L> p = g.compile();
+    TestNode node = analyze("a b n: a", p);
+
+    assertEquals(2, node.numChildren());
+    assertEquals(NodeType.AND, node.getChildType(0));
+    assertEquals(NodeType.TOKEN, node.getChildType(1));
+
+    node = analyze("a OR b", p);
+    assertEquals(2, node.numChildren());
+    assertEquals(NodeType.AND, node.getChildType(0));
+    assertEquals(NodeType.TOKEN, node.getChildType(1));
+
   }
 }
