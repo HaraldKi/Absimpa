@@ -12,7 +12,7 @@ public class RecurseParser<N,C extends Enum<C>,L extends Lexer<C>>
   public void setChild(Parser<N,C,L> child) {
     this.child = child;
   }
-  public ParserResult<N> parse(L lex) throws ParseException {
+  public N parse(L lex) throws ParseException {
     return child.parse(lex);
   }
   public String toString() {

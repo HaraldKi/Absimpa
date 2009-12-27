@@ -3,6 +3,8 @@
  */
 package absimpa.parserimpl;
 
+import java.util.EnumSet;
+
 import absimpa.*;
 
 public class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
@@ -14,15 +16,14 @@ public class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
     this.leafFactory = lf;
     this.tokenCode = tokenCode;
   }
-  public ParserResult<N> parse(L lex) throws ParseException {
+  public N parse(L lex) throws ParseException {
     C code = lex.current();
-    if( code!=tokenCode ) {
-      return ParserResult.NOTAPPLICABLE();
-    }
-    
+    if( code!=tokenCode ) throw lex.parseException(EnumSet.of(tokenCode));
+
+    // N node = leafFactory.create(lex);
     N node = leafFactory.create(lex);
     lex.next();
-    return new ParserResult<N>(node);      
+    return node;
   }
   public String toString() {
     return String.format("%s->%s", tokenCode, leafFactory);

@@ -19,15 +19,15 @@ import java.util.Set;
  */
 public class ParseException extends Exception {
   private static final int UNSET = -1;
-  private final Set expectedTokenCodes;
-  private final Enum foundTokenCode;
+  private final Set<?> expectedTokenCodes;
+  private final Enum<?> foundTokenCode;
 
   private String tokenText = null;
   private String sourceName = null;
   private int line = UNSET;
   private int column = UNSET;
   /* +***************************************************************** */
-  public ParseException(Set expected, Enum found) {
+  public ParseException(Set<?> expected, Enum found) {
     this.expectedTokenCodes = expected;
     this.foundTokenCode = found;
   }

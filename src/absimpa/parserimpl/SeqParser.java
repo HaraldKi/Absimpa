@@ -3,7 +3,8 @@
  */
 package absimpa.parserimpl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import absimpa.*;
 
@@ -12,25 +13,17 @@ public class SeqParser<N,C extends Enum<C>,L extends Lexer<C>>
 {
   private final List<Parser<N,C,L>> children;
   private final NodeFactory<N> nf;
-  
   public SeqParser(NodeFactory<N> nf, List<Parser<N,C,L>> children) {
     this.nf = nf;
     this.children = children;
   }
-  public ParserResult<N> parse(L lex) throws ParseException {
+  public N parse(L lex) throws ParseException {
     List<N> nodes = new ArrayList<N>(children.size());
-    
     for(Parser<N,C,L> p : children) {
-      ParserResult<N> child = p.parse(lex);
-      if( child.isEpsilon() ) continue;
-      if( child.isNode() ) {
-        nodes.add(child.get());
-        continue;
-      }
-      // TODO: compute the right lookahead for p
-      throw lex.parseException(new HashSet<C>());
+      N child = p.parse(lex);
+      if( child!=null ) nodes.add(child);
     }
-    return new ParserResult<N>(nf.create(nodes));
+    return nf.create(nodes);
   }
   public String toString() {
     return String.format("SEQ(%s)", nf);

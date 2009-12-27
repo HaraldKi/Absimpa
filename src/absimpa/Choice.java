@@ -26,16 +26,10 @@ public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
     return Collections.unmodifiableList(choices);
   }
   /* +***************************************************************** */
-  protected Parser<N,C,L> buildParser(
-                                      Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
-  {
+  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     EnumMap<C,Parser<N,C,L>> choiceMap = buildMap(firstOf);
     First<N,C,L> f = first(firstOf);
-
-    List<Parser<N,C,L>> choices = new ArrayList<Parser<N,C,L>>();
-    choices.addAll(choiceMap.values());
-
-    return new ChoiceParser<N,C,L>(choices);
+    return new ChoiceParser<N,C,L>(f.epsilon, choiceMap);
   }
   /* +***************************************************************** */
   private EnumMap<C,Parser<N,C,L>> buildMap(
