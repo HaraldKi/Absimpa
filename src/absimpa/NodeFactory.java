@@ -22,8 +22,7 @@ public interface NodeFactory<N> {
    * 
    * @return a new {@code N} or {@code null}. A return value of {@code null}
    *         will be not be put into a list of nodes on the level above, but
-   *         will rather be discarded. In fact a {@code null} return is
-   *         likely a good guess in case the list of children is empty.
+   *         will be discarded.
    */
   N create(List<N> children);
 }

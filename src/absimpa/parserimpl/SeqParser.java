@@ -19,11 +19,17 @@ public class SeqParser<N,C extends Enum<C>,L extends Lexer<C>>
   }
   public N parse(L lex) throws ParseException {
     List<N> nodes = new ArrayList<N>(children.size());
+    int count = 0;
     for(Parser<N,C,L> p : children) {
       N child = p.parse(lex);
       if( child!=null ) nodes.add(child);
+      count += 1;
     }
-    return nf.create(nodes);
+    if( count==0 ) {
+      return null;
+    } else {
+      return nf.create(nodes);
+    }
   }
   public String toString() {
     return String.format("SEQ(%s)", nf);

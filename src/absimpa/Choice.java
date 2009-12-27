@@ -68,8 +68,8 @@ public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
   protected First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
     boolean optional = false;
     EnumSet<C> firstSet = null;
-    for(Grammar<N,C,L> g : choices) {
-      Grammar<N,C,L> ga = (Grammar<N,C,L>)g;
+
+    for(Grammar<N,C,L> ga: choices) {
       First<N,C,L> f = ga.first(firstOf);
       if( firstSet==null ) {
         firstSet = f.firstSet();

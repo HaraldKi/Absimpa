@@ -61,7 +61,7 @@ public class VerboseTester extends RunListener {
     JUnitCore jucore = new JUnitCore();
     jucore.addListener(new VerboseTester());
     for(String className : argv) {
-      Class c = Class.forName(className);
+      Class<?> c = Class.forName(className);
       jucore.run(c);
     }
   }

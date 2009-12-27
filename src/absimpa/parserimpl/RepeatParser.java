@@ -46,7 +46,11 @@ public class RepeatParser<N,C extends Enum<C>,L extends Lexer<C>>
       count += 1;
       code = lex.current();
     }
-    return nf.create(nodes);
+    if( count==0 ) {
+      return null;
+    } else {
+      return nf.create(nodes);
+    }
   }
   public String toString() {
     return String.format("REP(%s){%d,%d, la=%s}", nf, min, max, childLookahead);

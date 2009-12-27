@@ -87,7 +87,7 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
                                                          Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
   {
     EnumSet<C> gFirstSet = g.first(firstOf).firstSet();
-    for(int i = children.indexOf(g); i>0; --i) {
+    for(int i = children.indexOf(g); i>=0; --i) {
       Grammar<N,C,L> other = (Grammar<N,C,L>)(children.get(i));
       EnumSet<C> otherFirstSet = other.first(firstOf).firstSet();
       if( !otherFirstSet.removeAll(gFirstSet) ) continue;
