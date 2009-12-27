@@ -9,8 +9,8 @@ import java.util.EnumSet;
  * <q>empty token</q>
  * may be an element of this set.
  * 
- * FIX ME: find a better name for the class. Since it also stores the
- * resulting parser for a grammar, First does not cover its full
+ * FIXME: find a better name for the class. Since it also stores the
+ * resulting parser for a grammar, the name First does not cover its full
  * responsibility.
  * 
  * @see (*)Aho, Sethi, Ullmann: Compiler: Principles, Techniques and Tools
