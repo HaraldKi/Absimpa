@@ -6,58 +6,58 @@ import java.util.*;
 import absimpa.parserimpl.ChoiceParser;
 
 
-public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
-    extends Grammar<N,C,L>
+public class Choice<N,C extends Enum<C>>
+    extends Grammar<N,C>
 {
-  private final List<Grammar<N,C,L>> choices;
-  // private final Grammar<N,C,L> firstOptional;
+  private final List<Grammar<N,C>> choices;
+  // private final Grammar<N,C> firstOptional;
 
-  public Choice(Grammar<N,C,L> g) {
-    choices = new ArrayList<Grammar<N,C,L>>();
+  public Choice(Grammar<N,C> g) {
+    choices = new ArrayList<Grammar<N,C>>();
     choices.add(g);
   }
   /* +***************************************************************** */
-  public Choice<N,C,L> or(Grammar<N,C,L> g) {
+  public Choice<N,C> or(Grammar<N,C> g) {
     choices.add(g);
     return this;
   }
   /* +***************************************************************** */
-  protected Iterable<Grammar<N,C,L>> children() {
+  protected Iterable<Grammar<N,C>> children() {
     return Collections.unmodifiableList(choices);
   }
   /* +***************************************************************** */
-  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
-    EnumMap<C,Parser<N,C,L>> choiceMap = buildMap(firstOf);
-    First<N,C,L> f = first(firstOf);
-    return new ChoiceParser<N,C,L>(f.epsilon, choiceMap);
+  protected Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
+    EnumMap<C,Parser<N,C>> choiceMap = buildMap(firstOf);
+    First<N,C> f = first(firstOf);
+    return new ChoiceParser<N,C>(f.epsilon, choiceMap);
   }
   /* +***************************************************************** */
-  private EnumMap<C,Parser<N,C,L>> buildMap(
-                                          Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
+  private EnumMap<C,Parser<N,C>> buildMap(
+                                          Map<Grammar<N,C>,First<N,C>> firstOf)
   {
-    EnumMap<C,Parser<N,C,L>> result = null;
+    EnumMap<C,Parser<N,C>> result = null;
 
-    for(Grammar<N,C,L> g : choices) {
-      First<N,C,L> f = g.first(firstOf);
-      Parser<N,C,L> p = g.build(firstOf);
+    for(Grammar<N,C> g : choices) {
+      First<N,C> f = g.first(firstOf);
+      Parser<N,C> p = g.build(firstOf);
       if( result==null ) result = initMap(f.firstSet());
       addToMap(result, f.firstSet(), p);
     }
     return result;
   }
   /* +***************************************************************** */
-  private EnumMap<C,Parser<N,C,L>> initMap(EnumSet<C> codes) {
+  private EnumMap<C,Parser<N,C>> initMap(EnumSet<C> codes) {
     // if( codes.isEmpty() ) codes = EnumSet.complementOf(codes);
     for(C code : codes) {
-      return new EnumMap<C,Parser<N,C,L>>(code.getDeclaringClass());
+      return new EnumMap<C,Parser<N,C>>(code.getDeclaringClass());
     }
     throw new RuntimeException(
         "this happens only, if a firstSet is empty, which should"
             +" never be the case");
   }
   /* +***************************************************************** */
-  private void addToMap(EnumMap<C,Parser<N,C,L>> map, EnumSet<C> codes,
-                        Parser<N,C,L> p)
+  private void addToMap(EnumMap<C,Parser<N,C>> map, EnumSet<C> codes,
+                        Parser<N,C> p)
   {
     for(C code : codes) {
       if( map.containsKey(code) ) throw new RuntimeException("not possible");
@@ -65,12 +65,12 @@ public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
     }
   }
   /* +***************************************************************** */
-  protected First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf) {
     boolean optional = false;
     EnumSet<C> firstSet = null;
 
-    for(Grammar<N,C,L> ga: choices) {
-      First<N,C,L> f = ga.first(firstOf);
+    for(Grammar<N,C> ga: choices) {
+      First<N,C> f = ga.first(firstOf);
       if( firstSet==null ) {
         firstSet = f.firstSet();
       } else {
@@ -82,7 +82,7 @@ public class Choice<N,C extends Enum<C>,L extends Lexer<C>>
       }
       optional |= f.epsilon;
     }
-    return new First<N,C,L>(firstSet, optional);
+    return new First<N,C> (firstSet, optional);
   }
   /* +***************************************************************** */
 }

@@ -108,9 +108,8 @@ package absimpa;
  * @param <L> is the type of {@link absimpa.Lexer} from which the parser
  *        obtains token information
  */
-public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
+public class GrammarBuilder<N,C extends Enum<C>> {
   private final NodeFactory<N> defaultNode;
-  private final LeafFactory<N,C,L> defaultLeaf;
   /* +***************************************************************** */
   /**
    * <p>
@@ -119,30 +118,18 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * explicitly provided.
    * </p>
    */
-  public GrammarBuilder(NodeFactory<N> defaultFactory,
-                        LeafFactory<N,C,L> defaultLeaf) {
+  public GrammarBuilder(NodeFactory<N> defaultFactory) {
     this.defaultNode = defaultFactory;
-    this.defaultLeaf = defaultLeaf;
   }
   /* +***************************************************************** */
-  /**
-   * <p>
-   * creates a grammar to recognize a single token with code {@code code}.
-   * The provided {@code factory} will be used to transform the recognized
-   * token into the result type {@code N}.
-   * </p>
-   */
-  public TokenGrammar<N,C,L> token(LeafFactory<N,C,L> factory, C code) {
-    return new TokenGrammar<N,C,L>(factory, code);
-  }
   /**
    * <p>
    * creates a grammar like {@link #token(LeafFactory, Enum)} but with the
    * default {@link LeafFactory}.
    * </p>
    */
-  public TokenGrammar<N,C,L> token(C code) {
-    return new TokenGrammar<N,C,L>(defaultLeaf, code);
+  public TokenGrammar<N,C> token(C code) {
+    return new TokenGrammar<N,C>(code);
   }
   /* +***************************************************************** */
   /**
@@ -153,8 +140,8 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * more subgrammars to the sequence, use {@link Sequence#add}.
    * </p>
    */
-  public Sequence<N,C,L> seq(NodeFactory<N> factory, Grammar<N,C,L> g) {
-    return new Sequence<N,C,L>(factory, g);
+  public Sequence<N,C> seq(NodeFactory<N> factory, Grammar<N,C> g) {
+    return new Sequence<N,C>(factory, g);
   }
   /**
    * <p>
@@ -162,8 +149,8 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * default {@link NodeFactory}.
    * </p>
    */
-  public Sequence<N,C,L> seq(Grammar<N,C,L> g) {
-    return new Sequence<N,C,L>(defaultNode, g);
+  public Sequence<N,C> seq(Grammar<N,C> g) {
+    return new Sequence<N,C>(defaultNode, g);
   }
   /* +***************************************************************** */
   /**
@@ -178,10 +165,10 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * @see #star
    * @see #opt
    */
-  public Repeat<N,C,L> repeat(NodeFactory<N> factory, Grammar<N,C,L> g,
+  public Repeat<N,C> repeat(NodeFactory<N> factory, Grammar<N,C> g,
                               int min, int max)
   {
-    return new Repeat<N,C,L>(factory, min, max, g);
+    return new Repeat<N,C>(factory, min, max, g);
   }
   /**
    * <p>
@@ -189,14 +176,14 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * but with the default {@link NodeFactory}.
    * </p>
    */
-  public Repeat<N,C,L> repeat(Grammar<N,C,L> grammar, int min, int max) {
-    return new Repeat<N,C,L>(defaultNode, min, max, grammar);
+  public Repeat<N,C> repeat(Grammar<N,C> grammar, int min, int max) {
+    return new Repeat<N,C>(defaultNode, min, max, grammar);
   }
   /**
    * convenience function to call {@link #repeat(Grammar,int,int)} with
    * {@code min=0} and {@code max=Integer.MAX_VALUE}.
    */
-  public Repeat<N,C,L> star(Grammar<N,C,L> grammar) {
+  public Repeat<N,C> star(Grammar<N,C> grammar) {
     return repeat(grammar, 0, Integer.MAX_VALUE);
   }
   /**
@@ -204,14 +191,14 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * {@link #repeat(NodeFactory,Grammar,int,int)} with {@code min=0} and
    * {@code max=Integer.MAX_VALUE}.
    */
-  public Repeat<N,C,L> star(NodeFactory<N> nf, Grammar<N,C,L> grammar) {
+  public Repeat<N,C> star(NodeFactory<N> nf, Grammar<N,C> grammar) {
     return repeat(nf, grammar, 0, Integer.MAX_VALUE);
   }
   /**
    * convenience function to call {@link #repeat(Grammar,int,int)} with
    * {@code min=0} and {@code max=1}.
    */
-  public Repeat<N,C,L> opt(Grammar<N,C,L> grammar) {
+  public Repeat<N,C> opt(Grammar<N,C> grammar) {
     return repeat(defaultNode, grammar, 0, 1);
   }
   /**
@@ -219,7 +206,7 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * {@link #repeat(NodeFactory,Grammar,int,int)} with {@code min=0} and
    * {@code max=1}.
    */
-  public Repeat<N,C,L> opt(NodeFactory<N> nf, Grammar<N,C,L> grammar) {
+  public Repeat<N,C> opt(NodeFactory<N> nf, Grammar<N,C> grammar) {
     return repeat(nf, grammar, 0, 1);
   }
   /* +***************************************************************** */
@@ -230,8 +217,8 @@ public class GrammarBuilder<N,C extends Enum<C>,L extends Lexer<C>> {
    * Choice} does not need a {@link NodeFactory}, because the resulting
    * parser just passes on the choice that was recognized.
    */
-  public Choice<N,C,L> choice(Grammar<N,C,L> g) {
-    return new Choice<N,C,L>(g);
+  public Choice<N,C> choice(Grammar<N,C> g) {
+    return new Choice<N,C>(g);
   }
   /* +***************************************************************** */
 }

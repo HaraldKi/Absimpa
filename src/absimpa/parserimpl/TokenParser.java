@@ -7,25 +7,23 @@ import java.util.EnumSet;
 
 import absimpa.*;
 
-public class TokenParser<N,C extends Enum<C>,L extends Lexer<C>>
-    implements Parser<N,C,L>
+public class TokenParser<N,C extends Enum<C>>
+    implements Parser<N,C>
 {
-  private final LeafFactory<N,C,L> leafFactory;
   private final C tokenCode;
-  public TokenParser(C tokenCode, LeafFactory<N,C,L> lf) {
-    this.leafFactory = lf;
+
+  public TokenParser(C tokenCode) {
     this.tokenCode = tokenCode;
   }
-  public N parse(L lex) throws ParseException {
+  public N parse(Lexer<N,C> lex) throws ParseException {
     C code = lex.current();
     if( code!=tokenCode ) throw lex.parseException(EnumSet.of(tokenCode));
 
     // N node = leafFactory.create(lex);
-    N node = leafFactory.create(lex);
-    lex.next();
+    N node = lex.next();
     return node;
   }
   public String toString() {
-    return String.format("%s->%s", tokenCode, leafFactory);
+    return tokenCode.toString();
   }
 }

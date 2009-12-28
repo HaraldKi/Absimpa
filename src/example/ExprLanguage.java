@@ -11,7 +11,7 @@ import absimpa.*;
  *
  */
 public class ExprLanguage {
-  public static class L extends TrivialLexer<Codes> {
+  public static class L extends TrivialLexer<Expr,Codes> {
     public L(Codes eofCode) {
       super(eofCode);
     }    
@@ -21,19 +21,55 @@ public class ExprLanguage {
       return this;
     }
   }
-  public static class Eparser implements Parser<Expr,Codes,L> {
-    private final Parser<Expr,Codes,L> p;
-    public Eparser(Parser<Expr,Codes,L> p) {
+  public static class Eparser implements Parser<Expr,Codes> {
+    private final Parser<Expr,Codes> p;
+    public Eparser(Parser<Expr,Codes> p) {
       this.p = p;
     }
     @Override
-    public Expr parse(L lex) throws ParseException
+    public Expr parse(Lexer<Expr,Codes> lex) throws ParseException
     {
       return p.parse(lex);
     }
   }
-  private static enum Codes {
-    EOF, NUMBER, PLUSMINUS, MULDIV, OPAREN, CPAREN;
+  private static enum Codes implements LeafXFactory<Expr,Codes> {
+    PLUS {
+      @Override
+      public Expr create(TrivialLexer<Expr,Codes> lex) {
+        return new ExprOper(Etype.PLUS);
+      }
+    },
+    MINUS {
+      @Override
+      public Expr create(TrivialLexer<Expr,Codes> lex) {
+        return new ExprOper(Etype.MINUS);
+      }
+    },
+    TIMES {
+      @Override
+      public Expr create(TrivialLexer<Expr,Codes> lex) {
+        return new ExprOper(Etype.TIMES);
+      }
+    },
+    DIVIDE {
+      @Override
+      public Expr create(TrivialLexer<Expr,Codes> lex) {
+        return new ExprOper(Etype.DIVIDE);
+      }
+    },
+    NUMBER {
+      @Override
+      public Expr create(TrivialLexer<Expr,Codes> lex) {
+        String t = lex.currentText();
+        Double d = Double.parseDouble(t);
+        return new ExprNum(d);
+      }
+    },
+    OPAREN, CPAREN, EOF;
+    @Override
+    public Expr create(TrivialLexer<Expr,Codes> lex) {
+      return null;
+    }
   }
   private static enum Etype {
     NUMBER, PLUS, MINUS, TIMES, DIVIDE;
@@ -108,9 +144,11 @@ public class ExprLanguage {
   /*+******************************************************************/
   public static L createLexer() {
     return new L(Codes.EOF)
-    .addToken(Codes.PLUSMINUS, "[-+]")
+    .addToken(Codes.PLUS, "[+]")
+    .addToken(Codes.MINUS, "[-]")
     .addToken(Codes.NUMBER, "[1-9][0-9]*|0")
-    .addToken(Codes.MULDIV, "[*/]")
+    .addToken(Codes.TIMES, "[*/]")
+    .addToken(Codes.DIVIDE, "[*/]")
     .addToken(Codes.OPAREN, "[(]")
     .addToken(Codes.CPAREN, "[)]")
     ;    
@@ -120,33 +158,35 @@ public class ExprLanguage {
     // product -> term ( (mul | div ) term)*
     // sum -> product ( (add | sub ) product)*
     // expr -> '(' sum ')'
-    GrammarBuilder<Expr,Codes,L> gb =
-        new GrammarBuilder<Expr,Codes,L>(null, null);
+    GrammarBuilder<Expr,Codes> gb =
+        new GrammarBuilder<Expr,Codes>(null);
 
-    Recurse<Expr,Codes,L> recExpr = new Recurse<Expr,Codes,L>();
+    Recurse<Expr,Codes> recExpr = new Recurse<Expr,Codes>();
 
-    Grammar<Expr,Codes,L> NUMBER = gb.token(Leafs.NUMBER, Codes.NUMBER);
-    Grammar<Expr,Codes,L> SIGN = gb.token(Leafs.OPERATOR, Codes.PLUSMINUS);
-    Grammar<Expr,Codes,L> MULDIV = gb.token(Leafs.OPERATOR, Codes.MULDIV);
-    Grammar<Expr,Codes,L> OPAREN = gb.token(Leafs.IGNORE, Codes.OPAREN);
-    Grammar<Expr,Codes,L> CPAREN = gb.token(Leafs.IGNORE, Codes.CPAREN);
+    Grammar<Expr,Codes> NUMBER = gb.token(Codes.NUMBER);
+    Grammar<Expr,Codes> SIGN = gb.choice(gb.token(Codes.PLUS))
+                                         .or(gb.token(Codes.MINUS));
+    Grammar<Expr,Codes> MULDIV = gb.choice(gb.token(Codes.TIMES))
+                                          .or(gb.token(Codes.DIVIDE));
+    Grammar<Expr,Codes> OPAREN = gb.token(Codes.OPAREN);
+    Grammar<Expr,Codes> CPAREN = gb.token(Codes.CPAREN);
 
-    Grammar<Expr,Codes,L> signum = 
+    Grammar<Expr,Codes> signum = 
       gb.seq(Inner.SIGN, gb.opt(Inner.PICKFIRST, SIGN)).add(NUMBER);
 
-    Grammar<Expr,Codes,L> term = gb.choice(signum).or(recExpr);
+    Grammar<Expr,Codes> term = gb.choice(signum).or(recExpr);
 
-    Grammar<Expr,Codes,L> duct = gb.seq(Inner.APPLYRIGHT, MULDIV).add(term);
+    Grammar<Expr,Codes> duct = gb.seq(Inner.APPLYRIGHT, MULDIV).add(term);
 
-    Grammar<Expr,Codes,L> product =
+    Grammar<Expr,Codes> product =
         gb.seq(Inner.APPLYLEFT, term).add(gb.star(Inner.LIST,duct));
 
-    Grammar<Expr,Codes,L> um = gb.seq(Inner.APPLYRIGHT, SIGN).add(product);
+    Grammar<Expr,Codes> um = gb.seq(Inner.APPLYRIGHT, SIGN).add(product);
 
-    Grammar<Expr,Codes,L> sum =
+    Grammar<Expr,Codes> sum =
         gb.seq(Inner.APPLYLEFT, product).add(gb.star(Inner.LIST, um));
 
-    Grammar<Expr,Codes,L> parenthesized =
+    Grammar<Expr,Codes> parenthesized =
         gb.seq(Inner.PICKFIRST, OPAREN).add(sum).add(CPAREN);
 
     recExpr.setChild(parenthesized);
@@ -154,37 +194,37 @@ public class ExprLanguage {
     return new Eparser(sum.compile());
   }
   /* +***************************************************************** */
-  private static enum Leafs implements LeafFactory<Expr,Codes,L> {
-    NUMBER {
-      public Expr create(L lex) {
-        String t = lex.currentText();
-        Double d = Double.parseDouble(t);
-        return new ExprNum(d);
-      }
-    },
-    OPERATOR {
-      public Expr create(L lex) {
-        String t = lex.currentText();
-        int count = 0;
-        for(int i=0; i<t.length(); i++) {
-          if( t.charAt(i)=='-') count+=1;
-        }
-        if( count%2==1 ) {
-          return new ExprOper(Etype.MINUS);
-        }
-        char ch = t.charAt(0);
-        if( ch=='*') return new ExprOper(Etype.TIMES);
-        if( ch=='/') return new ExprOper(Etype.DIVIDE);
-        return new ExprOper(Etype.PLUS);
-      }
-    },
-    IGNORE {
-      public Expr create(L lex) {
-        return null;
-      }
-    }
-    ;  
-  }
+//  private static enum Leafs implements LeafFactory<Expr,Codes> {
+//    NUMBER {
+//      public Expr create(L lex) {
+//        String t = lex.currentText();
+//        Double d = Double.parseDouble(t);
+//        return new ExprNum(d);
+//      }
+//    },
+//    OPERATOR {
+//      public Expr create(L lex) {
+//        String t = lex.currentText();
+//        int count = 0;
+//        for(int i=0; i<t.length(); i++) {
+//          if( t.charAt(i)=='-') count+=1;
+//        }
+//        if( count%2==1 ) {
+//          return new ExprOper(Etype.MINUS);
+//        }
+//        char ch = t.charAt(0);
+//        if( ch=='*') return new ExprOper(Etype.TIMES);
+//        if( ch=='/') return new ExprOper(Etype.DIVIDE);
+//        return new ExprOper(Etype.PLUS);
+//      }
+//    },
+//    IGNORE {
+//      public Expr create(L lex) {
+//        return null;
+//      }
+//    }
+//    ;  
+//  }
   /* +***************************************************************** */
   private static enum Inner implements NodeFactory<Expr> {
     APPLYRIGHT {

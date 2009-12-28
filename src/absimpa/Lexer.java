@@ -20,13 +20,14 @@ import java.util.Set;
  *        <q>characters</q>
  *        of the language to be parsed
  */
-public interface Lexer<TokenCode extends Enum<TokenCode>> {
+public interface Lexer<N, TokenCode extends Enum<TokenCode>> {
   /**
    * <p>
-   * discards the current token code, creates a new one and returns it.
+   * returns a node of type N for the current token while advancing the
+   * current token internally to the next one.
    * </p>
    */
-  TokenCode next();
+  N next();
   /**
    * <p>
    * provides the current token code. This method must always return the

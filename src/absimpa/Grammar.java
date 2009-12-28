@@ -19,7 +19,7 @@ import java.util.*;
  *        obtains token information
  */
 
-public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
+public abstract class Grammar<N, C extends Enum<C>> {
   protected Grammar() {}
   
   private String name = null;
@@ -35,26 +35,26 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
    *         {@link Sequence} encountered during compilation has a lookahead
    *         conflict.
    */
-  public final Parser<N,C,L> compile() {
-    Map<Grammar<N,C,L>,First<N,C,L>> firstOf =
-        new HashMap<Grammar<N,C,L>,First<N,C,L>>();
+  public final Parser<N,C> compile() {
+    Map<Grammar<N,C>,First<N,C>> firstOf =
+        new HashMap<Grammar<N,C>,First<N,C>>();
 
-    Parser<N,C,L> result = build(firstOf);
-    fillRecursives(firstOf, new HashSet<Grammar<N,C,L>>());
+    Parser<N,C> result = build(firstOf);
+    fillRecursives(firstOf, new HashSet<Grammar<N,C>>());
     return result;
   }
   /* +***************************************************************** */
-  protected final Parser<N,C,L> build(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
-    First<N,C,L> f = first(firstOf);
+  protected final Parser<N,C> build(Map<Grammar<N,C>,First<N,C>> firstOf) {
+    First<N,C> f = first(firstOf);
     if( f.getParser()!=null ) return f.getParser();
-    Parser<N,C,L> p = buildParser(firstOf);
+    Parser<N,C> p = buildParser(firstOf);
     f.setParser(p);
     return p;
   }
   /*+******************************************************************/
-  private final void fillRecursives(Map<Grammar<N,C,L>,First<N,C,L>> firstOf,
-                                    Set<Grammar<N,C,L>> done) {
-    for(Grammar<N,C,L> g : children()) {
+  private final void fillRecursives(Map<Grammar<N,C>,First<N,C>> firstOf,
+                                    Set<Grammar<N,C>> done) {
+    for(Grammar<N,C> g : children()) {
       g.setRecurse(firstOf);
       if( done.contains(g) ) continue;
       done.add(g);
@@ -62,9 +62,9 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
     }
   }
   /* +***************************************************************** */
-  protected final First<N,C,L> first(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected final First<N,C> first(Map<Grammar<N,C>,First<N,C>> firstOf) {
     if( firstOf.containsKey(this) ) {
-      First<N,C,L> myFirst = firstOf.get(this);
+      First<N,C> myFirst = firstOf.get(this);
       if( myFirst!=null ) return myFirst;
       // FIXME: message with loop elements would be nice.
       String msg = 
@@ -74,21 +74,21 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
     }
 
     firstOf.put(this, null);
-    First<N,C,L> f = computeFirst(firstOf);
+    First<N,C> f = computeFirst(firstOf);
     firstOf.put(this, f);
     return f;
   }
   /* +***************************************************************** */
-  protected abstract Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
-  protected abstract First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf);
+  protected abstract Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
+  protected abstract First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf);
   /* +***************************************************************** */
-  protected LookaheadConflictException lookaheadConflict(List<Grammar<N,C,L>> children,
-                                                         Grammar<N,C,L> g,
-                                                         Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
+  protected LookaheadConflictException lookaheadConflict(List<Grammar<N,C>> children,
+                                                         Grammar<N,C> g,
+                                                         Map<Grammar<N,C>,First<N,C>> firstOf)
   {
     EnumSet<C> gFirstSet = g.first(firstOf).firstSet();
     for(int i = children.indexOf(g); i>=0; --i) {
-      Grammar<N,C,L> other = (Grammar<N,C,L>)(children.get(i));
+      Grammar<N,C> other = (Grammar<N,C>)(children.get(i));
       EnumSet<C> otherFirstSet = other.first(firstOf).firstSet();
       if( !otherFirstSet.removeAll(gFirstSet) ) continue;
       otherFirstSet = other.first(firstOf).firstSet();
@@ -102,7 +102,7 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
    * used by {@link #toString} only, not needed for the function of the
    * grammar.
    */
-  public Grammar<N,C,L> setName(String name) {
+  public Grammar<N,C> setName(String name) {
     this.name = name;
     return this;
   }
@@ -118,7 +118,7 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
   public String toString() {
     StringBuilder sb = new StringBuilder(getName());
     char sep = '[';
-    for(Grammar<N,C,L> g : children()) {
+    for(Grammar<N,C> g : children()) {
       sb.append(sep).append(g.getName());
       sep = ',';
     }
@@ -133,8 +133,8 @@ public abstract class Grammar<N, C extends Enum<C>,L extends Lexer<C>> {
     return className.substring(p+1, className.length());
   }
   /* +***************************************************************** */
-  protected abstract Iterable<Grammar<N,C,L>> children();
-  protected void setRecurse(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
+  protected abstract Iterable<Grammar<N,C>> children();
+  protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {
     // only Recurse needs to override.
   }
   /* +***************************************************************** */

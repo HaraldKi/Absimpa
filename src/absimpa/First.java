@@ -15,10 +15,10 @@ import java.util.EnumSet;
  * 
  * @see (*)Aho, Sethi, Ullmann: Compiler: Principles, Techniques and Tools
  */
-class First<N,C extends Enum<C>,L extends Lexer<C>> {
+class First<N,C extends Enum<C>> {
   private final EnumSet<C> first;
   public final boolean epsilon;
-  private Parser<N,C,L> parser;
+  private Parser<N,C> parser;
   
   public First(EnumSet<C> first, boolean epsilon) {
     this.first = first;
@@ -27,10 +27,10 @@ class First<N,C extends Enum<C>,L extends Lexer<C>> {
   public EnumSet<C> firstSet() {
     return EnumSet.copyOf(first);
   }
-  public void setParser(Parser<N,C,L> p) {
+  public void setParser(Parser<N,C> p) {
     this.parser = p;
   }
-  public Parser<N,C,L> getParser() {
+  public Parser<N,C> getParser() {
     return parser;
   }
 }

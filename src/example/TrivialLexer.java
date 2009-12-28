@@ -5,8 +5,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import absimpa.Lexer;
-import absimpa.ParseException;
+import absimpa.*;
 
 /**
  * <p>
@@ -35,12 +34,12 @@ import absimpa.ParseException;
  * @param <C> is an enumeration and describes the token codes provided to the
  *        parser
  */
-public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
-  private final List<TokenInfo<C>> tokenInfos = new ArrayList<TokenInfo<C>>();
-  private final Token<C> eofToken;
+public class TrivialLexer<N,C extends Enum<C> & LeafXFactory<N,C>> implements Lexer<N,C> {
+  private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<TokenInfo<N,C>>();
+  private final Token<N,C> eofToken;
 
   private final StringBuilder restText = new StringBuilder();  
-  private Token<C> currentToken = null;
+  private Token<N,C> currentToken = null;
 
   private int line;
   private int column;
@@ -52,7 +51,7 @@ public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
    * </p>
    */
   public TrivialLexer(C eofCode) {
-    eofToken = new Token<C>("", eofCode);
+    eofToken = new Token<N,C>("", eofCode);
   }
   /*+******************************************************************/
   /**
@@ -67,7 +66,7 @@ public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
     restText.append(text);
     line = 1;
     column = 1;
-    next();
+    nextToken();
   }
   /*+******************************************************************/
   public ParseException parseException(Set<C> expectedTokens) {
@@ -89,9 +88,9 @@ public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
    * <code>[a-z]+</code>, make sure to call <code>addToken</code> first
    * for the more specific token. Otherwise it will never be matched.</p>
    */
-  public TrivialLexer<C> addToken(C tc, String regex) {
+  public TrivialLexer<N,C> addToken(C tc, String regex) {
     Pattern p = Pattern.compile(regex);
-    tokenInfos.add(new TokenInfo<C>(p, tc));
+    tokenInfos.add(new TokenInfo<N,C>(p, tc));
     return this;
   }
   /*+******************************************************************/
@@ -111,27 +110,33 @@ public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
    *         provided to the constructor
    */
   @Override
-  public C next() {
+  public N next() {
+    C code = currentToken.getCode();
+    N node = code.create(this);
+    nextToken();
+    return node;
+  }
+  
+  /*+******************************************************************/
+  private void nextToken() {
     countToken();
     while( restText.length()!=0 ) {
-      for(TokenInfo<C> ti : tokenInfos) {
+      for(TokenInfo<N,C> ti : tokenInfos) {
         Matcher m = ti.p.matcher(restText);
-        //System.out.printf("lex check: %s%n", m.pattern().pattern());
         if( !m.lookingAt() ) continue;
-        createToken(ti, m);
-        return currentToken.getCode();
+        createCurrentToken(ti, m);
+        return;
       }
       restText.deleteCharAt(0);
       column += 1;
     }
     currentToken = eofToken;
-    return eofToken.getCode();
   }
   /* +***************************************************************** */
   /**
    * <p>returns the current token.</p>
    */
-  public Token<C> currentToken() {
+  public Token<N,C> currentToken() {
     return currentToken;
   }
   /* +***************************************************************** */
@@ -144,15 +149,15 @@ public class TrivialLexer<C extends Enum<C>> implements Lexer<C> {
     column += currentToken.getText().length();
   }
   /* +***************************************************************** */
-  private void createToken(TokenInfo<C> ti, Matcher match) {
+  private void createCurrentToken(TokenInfo<N,C> ti, Matcher match) {
     String text = match.group();
     restText.delete(0, match.end());
-    currentToken = new Token<C>(text, ti.c);
+    currentToken = new Token<N,C>(text, ti.c);
     //System.out.printf("%s: creating token %s%n", getClass().getName(),
     //                currentToken);
   }
   /*+******************************************************************/
-  private static final class TokenInfo<C extends Enum<C>> {
+  private static final class TokenInfo<N,C extends Enum<C>> {
     public final Pattern p;
     public final C c;
     public TokenInfo(Pattern p, C c) {

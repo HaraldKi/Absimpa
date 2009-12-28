@@ -6,7 +6,7 @@ package example;
  * enumeration <code>C</code>.
  * </p>
  */
-public final class Token<C extends Enum<C>> {
+public final class Token<N,C extends Enum<C> &LeafXFactory<N,C>> {
   private final String text;
   private final C c;
 
@@ -17,10 +17,12 @@ public final class Token<C extends Enum<C>> {
   public C getCode() {
    return c;
   }
+
   public String getText() {
     return text;
   }
   public String toString() {
     return String.format("%s(\"%s\")", c, text);
   }
+  
 }

@@ -5,42 +5,42 @@ import java.util.*;
 
 import absimpa.parserimpl.SeqParser;
 
-public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
-    extends Grammar<N,C,L>
+public class Sequence<N,C extends Enum<C>>
+    extends Grammar<N,C>
 {
-  private final List<Grammar<N,C,L>> children = new ArrayList<Grammar<N,C,L>>(2);
+  private final List<Grammar<N,C>> children = new ArrayList<Grammar<N,C>>(2);
   private final NodeFactory<N> nf;
 
-  public Sequence(NodeFactory<N> nf, Grammar<N,C,L> p) {
+  public Sequence(NodeFactory<N> nf, Grammar<N,C> p) {
     this.nf = nf;
     children.add(p);
   }
   /*+******************************************************************/
-  public Sequence<N,C,L> add(Grammar<N,C,L> grammar) {
+  public Sequence<N,C> add(Grammar<N,C> grammar) {
     children.add(grammar);
     return this;
   }
   /*+******************************************************************/
-  protected Iterable<Grammar<N,C,L>> children() {
+  protected Iterable<Grammar<N,C>> children() {
     return Collections.unmodifiableList(children);
   }
   /* +***************************************************************** */
-  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
-    List<Parser<N,C,L>> childParsers =
-        new ArrayList<Parser<N,C,L>>(children.size());
+  protected Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
+    List<Parser<N,C>> childParsers =
+        new ArrayList<Parser<N,C>>(children.size());
 
-    for(Grammar<N,C,L> g : children) {
-      Grammar<N,C,L> ga = (Grammar<N,C,L>)g;
+    for(Grammar<N,C> g : children) {
+      Grammar<N,C> ga = (Grammar<N,C>)g;
       childParsers.add(ga.build(firstOf));
     }
-    return new SeqParser<N,C,L>(nf, childParsers);
+    return new SeqParser<N,C>(nf, childParsers);
   }
   /*+******************************************************************/
   @Override
-  protected First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
+  protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf)
   {
-    Grammar<N,C,L> g = children.get(0);
-    First<N,C,L> f = g.first(firstOf);
+    Grammar<N,C> g = children.get(0);
+    First<N,C> f = g.first(firstOf);
 
     EnumSet<C> firstSet = f.firstSet();
     boolean optional = f.epsilon;
@@ -55,6 +55,6 @@ public class Sequence<N,C extends Enum<C>,L extends Lexer<C>>
       firstSet.addAll(otherFirstSet);
       optional &= f.epsilon;
     }
-    return new First<N,C,L>(firstSet, optional);
+    return new First<N,C>(firstSet, optional);
   }
 }

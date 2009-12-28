@@ -6,29 +6,27 @@ import absimpa.parserimpl.TokenParser;
 
 
 
-public class TokenGrammar<N,C extends Enum<C>,L extends Lexer<C>>
-    extends Grammar<N,C,L>
+public class TokenGrammar<N,C extends Enum<C>>
+    extends Grammar<N,C>
 {
   private final C code;
-  private final LeafFactory<N,C,L> lf;
 
-  public TokenGrammar(LeafFactory<N,C,L> lf, C code) {
-    this.lf = lf;
+  public TokenGrammar(C code) {
     this.code = code;
   }
   @Override
-  protected Iterable<Grammar<N,C,L>> children()
+  protected Iterable<Grammar<N,C>> children()
   {
-    return new ArrayList<Grammar<N,C,L>>(0);
+    return new ArrayList<Grammar<N,C>>(0);
   }
-  protected Parser<N,C,L> buildParser(Map<Grammar<N,C,L>,First<N,C,L>> firstOf) {
-    return new TokenParser<N,C,L>(code, lf);
+  protected Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
+    return new TokenParser<N,C>(code);
   }
   @Override
-  protected First<N,C,L> computeFirst(Map<Grammar<N,C,L>,First<N,C,L>> firstOf)
+  protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf)
   {
     EnumSet<C> firstSet = EnumSet.of(code);
-    return new First<N,C,L>(firstSet, false);
+    return new First<N,C>(firstSet, false);
   }
   public String toString() {
     return String.format("%s{%s}", getName(), code);
