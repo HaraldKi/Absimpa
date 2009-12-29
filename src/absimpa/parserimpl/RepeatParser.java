@@ -30,7 +30,7 @@ public class RepeatParser<N,C extends Enum<C>>
     this.child = child;
   }
   /*+******************************************************************/
-  public ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
+  protected final ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
     List<N> nodes = new ArrayList<N>(min);
 
     int count = 0;

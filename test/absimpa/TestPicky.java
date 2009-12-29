@@ -13,18 +13,20 @@ import example.TrivialLexer;
 public class TestPicky {
   private L lex = null;
   GrammarBuilder<String,Codes> gb;
-  Grammar<String,Codes> term, number, space, ignore;
-  
-  private static enum Codes implements LeafXFactory<String,Codes> {
-    TERM, NUMBER, SPACE, IGNORE, EOF;
+  Grammar<String,Codes> term, number, space, ignore, plus;
+  /* +***************************************************************** */
+  private static enum Codes
+      implements LeafXFactory<String,Codes> {
+    TERM, NUMBER, SPACE, IGNORE, PLUS, EOF;
 
     @Override
     public String create(TrivialLexer<String,Codes> lex) {
       if( this==Codes.SPACE ) return null;
-      if( this==Codes.IGNORE) return null;
+      if( this==Codes.IGNORE ) return null;
       return "("+lex.currentToken().getText()+")";
     }
   }
+  /*+******************************************************************/
   private static final class L extends TrivialLexer<String,Codes> {
     public L(Codes eofToken) {
       super(eofToken);
@@ -32,8 +34,10 @@ public class TestPicky {
       addToken(Codes.NUMBER, "[0-9]+");
       addToken(Codes.SPACE, "\\s+");
       addToken(Codes.IGNORE, "[!]+");
+      addToken(Codes.PLUS, "[+]");
     }
   }
+  /* +***************************************************************** */
   private static final class NodeMaker
       implements NodeFactory<String>
   {
@@ -45,7 +49,7 @@ public class TestPicky {
     public String create(List<String> children) {
       StringBuilder sb = new StringBuilder();
       sb.append(name).append("[");
-      String sep="";
+      String sep = "";
       for(String child : children) {
         sb.append(sep).append(child);
         sep = ",";
@@ -63,6 +67,7 @@ public class TestPicky {
     number = gb.token(Codes.NUMBER);
     space = gb.token(Codes.SPACE);
     ignore = gb.token(Codes.IGNORE);
+    plus = gb.token(Codes.PLUS);
   }
   /* +***************************************************************** */
   private String analyze(String text, Parser<String,Codes> p)
@@ -136,4 +141,19 @@ public class TestPicky {
     //System.out.printf("%s%n", result);
     assertEquals("seqseq[seq[opt[]],(abc)]", result);
   }
+  /*+******************************************************************/
+  @Test
+  public void orOverAllEpsilons() throws Exception {
+    Grammar<String,Codes> optTerm = gb.opt(term);
+    Grammar<String,Codes> optNumber = gb.opt(number);
+    
+    Grammar<String,Codes> g = 
+      gb.seq(new NodeMaker("top"),gb.choice(optTerm).or(optNumber)).add(plus);
+    
+    Parser<String,Codes> p = g.compile();
+    String result = analyze("+", p);
+    // System.out.println(result);
+    assertEquals("top[(+)]", result);
+  }
+
 }

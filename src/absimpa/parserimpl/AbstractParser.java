@@ -43,7 +43,7 @@ public abstract class AbstractParser<N,C extends Enum<C>>
     return doParse(lex);
   }
   /*+******************************************************************/
-  protected abstract ParseResult<N> doParse(Lexer<N,C> lex)
+  abstract ParseResult<N> doParse(Lexer<N,C> lex)
     throws ParseException;
   /*+******************************************************************/
   private String shortClassname() {

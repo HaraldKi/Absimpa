@@ -19,12 +19,10 @@ public class ChoiceParser<N,C extends Enum<C>>
   }
   /*+******************************************************************/
   @Override
-  public ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
-    boolean sawEpsilon = false;
+  ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
     for(AbstractParser<N,C> p : children) {
       ParseResult<N> r = p.parseInternal(lex);
       if( r.isEpsilon() ) {
-        sawEpsilon = true;
         continue;
       }
       if( r.notApplicable() ) {
@@ -32,11 +30,10 @@ public class ChoiceParser<N,C extends Enum<C>>
       }
       return r;
     }
-    if( sawEpsilon ) return ParseResult.ISEPSILON();
-
-    throw new RuntimeException("method must have been called without making"+
+    
+    throw new RuntimeException("this method was obviously called without making"+
                                " sure that this parser's lookahead matches."+
-                               " This should wrong. Find the bug!");
+                               " This is wrong. Find the bug!");
   }
   /*+******************************************************************/
   public String toString() {

@@ -13,7 +13,7 @@ public class TokenParser<N,C extends Enum<C>>
   public TokenParser(C tokenCode) {
     super(EnumSet.of(tokenCode), false);
   }
-  protected ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {    
+  ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {    
     N node = lex.next();
     return new ParseResult<N>(node);
   }

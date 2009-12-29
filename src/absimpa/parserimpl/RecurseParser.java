@@ -22,7 +22,7 @@ public class RecurseParser<N,C extends Enum<C>>
     this.child = child;
   }
   @Override
-  public ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
+  ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
     return child.parseInternal(lex);
   }
   public String toString() {

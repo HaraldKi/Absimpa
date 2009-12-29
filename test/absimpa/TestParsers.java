@@ -643,5 +643,6 @@ public class TestParsers {
     assertEquals(2, node.numChildren());
     assertEquals(NodeType.AND, node.getChildType(0));
     assertEquals(NodeType.TOKEN, node.getChildType(1));
-  }  
+  }
+  /*+******************************************************************/
 }

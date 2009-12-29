@@ -21,7 +21,7 @@ public class SeqParser<N,C extends Enum<C>>
   }
   /*+******************************************************************/
   @Override
-  protected ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
+  ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
     List<N> nodes = new ArrayList<N>(children.size());
 
     for(AbstractParser<N,C> p : children) {
