@@ -147,8 +147,8 @@ public class ExprLanguage {
     .addToken(Codes.PLUS, "[+]")
     .addToken(Codes.MINUS, "[-]")
     .addToken(Codes.NUMBER, "[1-9][0-9]*|0")
-    .addToken(Codes.TIMES, "[*/]")
-    .addToken(Codes.DIVIDE, "[*/]")
+    .addToken(Codes.TIMES, "[*]")
+    .addToken(Codes.DIVIDE, "[/]")
     .addToken(Codes.OPAREN, "[(]")
     .addToken(Codes.CPAREN, "[)]")
     ;    

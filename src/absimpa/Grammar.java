@@ -15,8 +15,6 @@ import java.util.*;
  *        this grammar
  * @param <C> is the type of token codes provided by the lexer that will be
  *        used by this parser
- * @param <L> is the type of {@link absimpa.Lexer} from which the parser
- *        obtains token information
  */
 
 public abstract class Grammar<N, C extends Enum<C>> {

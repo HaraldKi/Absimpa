@@ -111,7 +111,7 @@ public class TestPicky {
     seq.compile();
   }
   /*+******************************************************************/
-  //@Test
+  @Test
   public void seqNotCreateEpsilon() throws Exception {
     Grammar<String,Codes> optIgnore = 
       gb.opt(new NodeMaker("opt"), ignore);

@@ -66,6 +66,7 @@ public class TrivialLexer<N,C extends Enum<C> & LeafXFactory<N,C>> implements Le
     restText.append(text);
     line = 1;
     column = 1;
+    currentToken = null;
     nextToken();
   }
   /*+******************************************************************/

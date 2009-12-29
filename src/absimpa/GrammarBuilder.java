@@ -18,16 +18,11 @@ package absimpa;
  * 
  * <li>A result type {@code N} is needed. This package makes no assumption
  * about the type of result created, it is just called {@code N}. Whenever
- * the parser has recognized a partial bit of input, it will call either a
- * {@link LeafFactory} or a {@link NodeFactory} with the bits it has
- * recognized and asks them to create an {@code N}.</li>
+ * the parser has recognized a token, it will ask the lexer to provide a leaf
+ * node for it. And when it has recognized a partial bit of input, it will
+ * call a {@link NodeFactory} with the bits it has recognized and asks it
+ * to create an {@code N}.</li>
  * 
- * <li>One or more {@link LeafFactory} objects are needed. They are called by
- * the parser whenever a token code provided by the lexer is recognized. The
- * parser will call {@link LeafFactory#create} with the lexer as parameter to
- * obtain an {@code N} for the token (code). Which factory is called, depends
- * on the parameter that is passed to {@link #token} when the grammar is
- * built.</li>
  * <li>One or more {@link NodeFactory} objects are needed. Whenever the
  * parser recognizes a part of the input, for example a sequence of tokens as
  * described by the {@link #seq seq()} method, it will call the associated
@@ -53,7 +48,7 @@ package absimpa;
  * 
  * <pre>
  * GrammarBuilder&lt;...&gt; gb = 
- *   new GrammarBuilder&lt;...&gt;(nodeFactory, leafFactory);
+ *   new GrammarBuilder&lt;...&gt;(nodeFactory);
  * Grammar&lt;...&gt; NUMBER = gb.token(CODE_NUMBER);
  * Grammar&lt;...&gt; product = gb.star(NUMBER);
  * Parser&lt;...&gt; parser = product.compile();
@@ -61,8 +56,7 @@ package absimpa;
  * 
  * <p>
  * This would define a {@code product} as arbitrary length sequence of
- * {@code NUMBER}s. When the parser recognizes {@code CODE_NUMBER}, it calls
- * the {@code leafFactory}. Later, when it has collected all {@code NUMBER}s
+ * {@code NUMBER}s. When the parser  has collected all {@code NUMBER}s
  * available, it will call the {@code nodeFactory} with the list of results
  * provided by the calls to {@code leafFactory}. The result of the parse
  * would be whatever the {@code nodeFactory} makes out of the list. It could
@@ -105,8 +99,6 @@ package absimpa;
  *        GrammarBuilder}
  * @param <C> is the type of token codes provided by the lexer that will be
  *        used by parser
- * @param <L> is the type of {@link absimpa.Lexer} from which the parser
- *        obtains token information
  */
 public class GrammarBuilder<N,C extends Enum<C>> {
   private final NodeFactory<N> defaultNode;
@@ -165,8 +157,8 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    * @see #star
    * @see #opt
    */
-  public Repeat<N,C> repeat(NodeFactory<N> factory, Grammar<N,C> g,
-                              int min, int max)
+  public Repeat<N,C> repeat(NodeFactory<N> factory, Grammar<N,C> g, int min,
+                            int max)
   {
     return new Repeat<N,C>(factory, min, max, g);
   }

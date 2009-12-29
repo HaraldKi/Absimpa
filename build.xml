@@ -94,6 +94,7 @@
       </classpath>
       <arg value="absimpa.TestParsers"/>
       <arg value="absimpa.TestExprLanguage"/>
+      <arg value="absimpa.TestPicky"/>
     </java>
   </target>
 
