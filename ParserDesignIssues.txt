@@ -1,0 +1,42 @@
+How to properly recurse?
+
+Up to 2009-12, the parser implementation has a bug coming from the fact that I don't properly make a distinction between a parser reducing to epsilon or the client node factory returning a null. Both were reported as null by the parser, which leads to wrong results as follows:
+
+If the children of a sequence all reduce to epsilon, the sequence itself should reduce to epsilon. However, if the children are turned into null nodes by the client's node factory, an empty sequence must be returned. Currently I cannot tell the difference between an epsilon child and a null node child. Consequently the results are wrong, one way or the other.
+
+Part of the problem is, that in designing a set of mutually recursive methods, I never know what to do in the caller and what in the callee. In the parser case the following two possibilities exist:
+
+=== A ===
+The caller (parent parser) knows all the lookahead sets of its children and only ever calls a child, if the current lookahead is right.
+
+For Choice, the *benefit* is, that we can map the lookahead to exactly one child and call it, without any trying out. A further potential benefit is the early detection of lookahead conflicts. The latter, however, is likely less intuitive than just prioritizing  candidates with matching lookahead according to the order in which the are specified in the grammar.
+
+The *drawback* is that even if the parent tests whether the child is applicable, the the child implementation will not do without testing for the lookahead again, if only as an assertion test.
+
+=== B ===
+The caller does not need to know lookahead sets of it children. Instead it asks the child, whether it feels responsible, i.e. whether its lookahead matches. 
+
+If we first ask and then call the child in a second round for parsing, we get the same *drawback* as in (A) in that the parse method would have to check the lookahead again, if only as an assert.
+
+=== C ===
+The caller just calls its children to parse. There are five possible results:
+1) The child can parse the result and returns whatever the node factory made of it, in particular a null result is possible.
+2) The child's lookahead does not match, but it can reduce to epsilon. Then it must return that epsilon, distinguishable from the null node.
+3) The child's lookahead does not match and it cannot reduce to epsilon. This is just tells the parent that this child is not applicable. It is not yet a parser error. Only if the parent has no other chance to go on this is a parse error. For example the Choice may try another child and a repeat(0,...) can reduce to epsilon.
+4) The child's lookahead matches, but one of its own children throws a parse excpception. This is just passed up.
+
+The *drawback* of this solution is, that it has to construct a result wrapper class for every return which is immediately discarded by the parent. For (A) and (B) this would not be necessary, since the child is only ever called, if its lookahead matches. Consequently, the only two possible results can be a node (null or not) or a parse exception. 
+
+
+=== Decision ===
+
+Solution (C) seems to be the most appropriate. It means that I cannot detect lookahead conflicts anymore. Instead I implicitly reduce on the first-come first-served basis as follows:
+
+Choice (i)) All children are tried in the order in which they were added. If one reduces to epsilon, this is recorded, but more children are tried until one returns a reduction. The result is then the reduction. If none returnes a reduction, then either the recorded epsilon is returned, or the Choice is not applicable.
+
+Choice (ii)) A variation of (i) would return the first reduction found, whether epsilon or not. This would violate, however, the usual longest match priority.
+
+Sequence) If a sequence starts with A* B* A*, there is a lookahead conflict between the two A, because for the first there is always the possibility to reduce it to epsilon. Here again, the first come, first server would choose the first A if the lookahead matches.
+
+Repeat(0,...) Of course a non-epsilon reduction of the child is preferred over the epsion reduction.
+
