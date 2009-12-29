@@ -34,7 +34,7 @@ import absimpa.*;
  * @param <C> is an enumeration and describes the token codes provided to the
  *        parser
  */
-public class TrivialLexer<N,C extends Enum<C> & LeafXFactory<N,C>> implements Lexer<N,C> {
+public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lexer<N,C> {
   private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<TokenInfo<N,C>>();
   private final Token<N,C> eofToken;
 

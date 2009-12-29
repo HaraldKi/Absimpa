@@ -42,7 +42,7 @@ package absimpa;
  * a sequence, by passing the first to {@link #seq seq()} and then adding
  * more with {@link Sequence#add}. To repeat things, use {@link #star star()}
  * or {@link #repeat repeat()}. Use {@link #choice choice()} and subsequently
- * {@link Choice#or Choice.or()} to create an choice of subnodes. A rough
+ * {@link Choice#or Choice.or()} to create a choice of subnodes. A rough
  * outline of an example is:
  * </p>
  * 
@@ -58,7 +58,7 @@ package absimpa;
  * This would define a {@code product} as arbitrary length sequence of
  * {@code NUMBER}s. When the parser  has collected all {@code NUMBER}s
  * available, it will call the {@code nodeFactory} with the list of results
- * provided by the calls to {@code leafFactory}. The result of the parse
+ * provided by the lexer to the token parser. The result of the parse
  * would be whatever the {@code nodeFactory} makes out of the list. It could
  * return an object that contains the list as a field, but it could as well
  * multiply the numbers and return an {@code N} that contains just the
@@ -78,7 +78,7 @@ package absimpa;
  * <h2>Parsing EOF</h2>
  * <p>
  * To make sure that parsers compiled from the grammars produced here parse
- * the whole input sequence, the lexer would need to eventually produce a
+ * the whole input sequence, the lexer eventually needs to produce a
  * specific eof-token which is explicitly matched by the grammar. Suppose
  * your grammar is nothing but {@code G-> (SCOPE TERM)+}. The parser will
  * happily parse a non-empty sequence of {@code SCOPE} and {@code TERM}
@@ -105,8 +105,8 @@ public class GrammarBuilder<N,C extends Enum<C>> {
   /* +***************************************************************** */
   /**
    * <p>
-   * the resulting {@code GrammarBuilder} will enter one of the given
-   * factories into grammar objects as they are created, if no factory is
+   * the resulting {@code GrammarBuilder} will enter the given
+   * factory into grammar objects as they are created, if no factory is
    * explicitly provided.
    * </p>
    */
@@ -116,8 +116,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
   /* +***************************************************************** */
   /**
    * <p>
-   * creates a grammar like {@link #token(LeafFactory, Enum)} but with the
-   * default {@link LeafFactory}.
+   * creates a grammar to recognize the given token code.
    * </p>
    */
   public TokenGrammar<N,C> token(C code) {
@@ -127,7 +126,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
   /**
    * <p>
    * creates a grammar to recognize a sequence of subgrammars which starts
-   * with {@code g}. The provided {@code factory} will be used to transform
+   * with {@code g}. The {@code factory} provided will be used to transform
    * the recognized list of elements into the result type {@code N}. To add
    * more subgrammars to the sequence, use {@link Sequence#add}.
    * </p>

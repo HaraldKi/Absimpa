@@ -5,7 +5,7 @@ import java.util.Set;
 
 /**
  * <p>
- * The parser eventually throws a {@code ParseException}, although it does
+ * The parser may throw a {@code ParseException}, but it does
  * not create it itself. Rather it will call
  * {@link Lexer#parseException(Set)} to rely on the lexer to create it with
  * the necessary bits of information.
@@ -68,6 +68,11 @@ public class ParseException extends Exception {
   public int getColumn() {
     return column;
   }
+  /**
+   * <p>
+   * set number of the input column within the input line on which
+   * the parse error occurred.</p>
+   */
   public void setColumn(int column) {
     if( column<0 ) throw new IllegalArgumentException("negative column");
     this.column = column;
@@ -75,6 +80,11 @@ public class ParseException extends Exception {
   public int getLine() {
     return line;
   }
+  /**
+   * <p>
+   * set number of the input line (or anything resembling a line) on which
+   * the parse error occurred.</p>
+   */
   public void setLine(int line) {
     if( line<0 ) throw new IllegalArgumentException("negative line number");
     this.line = line;
@@ -82,12 +92,21 @@ public class ParseException extends Exception {
   public String getSourceName() {
     return sourceName;
   }
+  /**
+   * <p>
+   * set the name of the source from which the line with the parse error was
+   * read.
+   * </p>
+   */
   public void setSourceName(String sourceName) {
     this.sourceName = sourceName;
   }
   public String getTokenText() {
     return tokenText;
   }
+  /**
+   * <p>sets a string representation of the token that caused the error.</p>    
+   */    
   public void setTokenText(String tokenText) {
     this.tokenText = tokenText;
   }

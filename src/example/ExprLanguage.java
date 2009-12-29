@@ -32,7 +32,7 @@ public class ExprLanguage {
       return p.parse(lex);
     }
   }
-  private static enum Codes implements LeafXFactory<Expr,Codes> {
+  private static enum Codes implements LeafFactory<Expr,Codes> {
     PLUS {
       @Override
       public Expr create(TrivialLexer<Expr,Codes> lex) {

@@ -20,8 +20,8 @@ public interface NodeFactory<N> {
    * may be empty, but it will not contain {@code null} elements.
    * </p>
    * 
-   * @return a new {@code N} or {@code null}. A return value of {@code null}
-   *         will be not be put into a list of nodes on the level above, but
+   * @return an {@code N} or {@code null}. A return value of {@code null}
+   *         will not be put into a list of nodes on the level above, but
    *         will be discarded.
    */
   N create(List<N> children);
