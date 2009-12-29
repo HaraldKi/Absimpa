@@ -9,8 +9,8 @@ import absimpa.*;
 
 /**
  * <p>
- * is a trival implementation of a {@link absimpa.Lexer} which analyzes
- * a string by trying out regular expressions for tokens until a match is
+ * is a trival implementation of a {@link absimpa.Lexer} which analyzes a
+ * string by trying out regular expressions for tokens until a match is
  * found. This is not intended for productive use. It is merely an example.
  * </p>
  * 
@@ -21,7 +21,9 @@ import absimpa.*;
  * regular expressions at the beginning of the input string. If it finds a
  * match, the associated <code>C</code> represents the current token code
  * provided to the parser. If {@link #next} is called, the matching prefix of
- * the input is discarded and the lexer tries again.
+ * the input is converted to an {@code N} by means of the {@code LeafFactory}
+ * implemented by the {@code C} type. The result is returned, while the lexer
+ * starts over with the next token.
  * </p>
  * 
  * <p>
@@ -32,7 +34,10 @@ import absimpa.*;
  * </p>
  * 
  * @param <C> is an enumeration and describes the token codes provided to the
- *        parser
+ *        parser. In addition, the enum know how to transform a token code
+ *        into an {@code N}
+ * @param <N> is the date type returned for a token when the parser has
+ *        recognized it and calles {@link #next}
  */
 public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lexer<N,C> {
   private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<TokenInfo<N,C>>();

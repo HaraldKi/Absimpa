@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import example.LeafXFactory;
+import example.LeafFactory;
 import example.TrivialLexer;
 
 public class TestPicky {
@@ -16,7 +16,7 @@ public class TestPicky {
   Grammar<String,Codes> term, number, space, ignore, plus;
   /* +***************************************************************** */
   private static enum Codes
-      implements LeafXFactory<String,Codes> {
+      implements LeafFactory<String,Codes> {
     TERM, NUMBER, SPACE, IGNORE, PLUS, EOF;
 
     @Override

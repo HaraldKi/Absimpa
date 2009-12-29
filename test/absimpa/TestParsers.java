@@ -38,7 +38,7 @@ public class TestParsers {
   private final GrammarBuilder<TestNode,Codes> gb = 
     new GrammarBuilder<TestNode,Codes>(NodeType.DEFAULT);
 
-  private static enum Codes implements LeafXFactory<TestNode,Codes> {
+  private static enum Codes implements LeafFactory<TestNode,Codes> {
     SCOPE, TERM, AND, OR, POPEN, PCLOSE, NOT, EOF;
     @Override
     public TestNode create(TrivialLexer<TestNode,Codes> lex) {
