@@ -3,6 +3,7 @@ package absimpa;
 
 import java.util.*;
 
+import absimpa.parserimpl.AbstractParser;
 import absimpa.parserimpl.SeqParser;
 
 public class Sequence<N,C extends Enum<C>>
@@ -25,15 +26,16 @@ public class Sequence<N,C extends Enum<C>>
     return Collections.unmodifiableList(children);
   }
   /* +***************************************************************** */
-  protected Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
-    List<Parser<N,C>> childParsers =
-        new ArrayList<Parser<N,C>>(children.size());
+  protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
+    List<AbstractParser<N,C>> childParsers =
+        new ArrayList<AbstractParser<N,C>>(children.size());
 
     for(Grammar<N,C> g : children) {
-      Grammar<N,C> ga = (Grammar<N,C>)g;
-      childParsers.add(ga.build(firstOf));
+      childParsers.add(g.build(firstOf));
     }
-    return new SeqParser<N,C>(nf, childParsers);
+    First<N,C> myFirst = first(firstOf);
+    return new SeqParser<N,C>(nf, childParsers, myFirst.firstSet(),
+        myFirst.epsilon);
   }
   /*+******************************************************************/
   @Override
@@ -50,6 +52,7 @@ public class Sequence<N,C extends Enum<C>>
       f = g.first(firstOf);
       EnumSet<C> otherFirstSet = f.firstSet();
       if( firstSet.removeAll(otherFirstSet) ) {
+        // FIXME: don't want any lookahead conflict any more
         throw lookaheadConflict(children, g, firstOf);
       }
       firstSet.addAll(otherFirstSet);

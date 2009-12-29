@@ -3,19 +3,30 @@
  */
 package absimpa.parserimpl;
 
+import java.util.EnumSet;
+
 import absimpa.*;
 
 public class RecurseParser<N,C extends Enum<C>>
-    implements Parser<N,C>
+    extends AbstractParser<N,C>
 {
-  private Parser<N,C> child;
-  public void setChild(Parser<N,C> child) {
+  private AbstractParser<N,C> child;
+  /*+******************************************************************/
+  public RecurseParser(EnumSet<C> lookahead,
+                       boolean mayBeEpsilon) {
+    super(lookahead, mayBeEpsilon);
+  }
+  /*+******************************************************************/
+  public void setChild(AbstractParser<N,C> child)
+  {
     this.child = child;
   }
-  public N parse(Lexer<N,C> lex) throws ParseException {
-    return child.parse(lex);
+  @Override
+  public ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
+    return child.parseInternal(lex);
   }
   public String toString() {
-    return "RECURSE";
+    return String.format("%s[%s]", getName(), child.getName());
   }
+
 }

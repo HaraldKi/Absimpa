@@ -3,6 +3,7 @@ package absimpa;
 
 import java.util.*;
 
+import absimpa.parserimpl.AbstractParser;
 import absimpa.parserimpl.RepeatParser;
 
 
@@ -32,17 +33,20 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     return l;
    }
   /*+******************************************************************/
-  protected Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
+  protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = child.first(firstOf);
     EnumSet<C> childLookahead = f.firstSet();
-    Parser<N,C> childParser = child.build(firstOf);
+    AbstractParser<N,C> childParser = child.build(firstOf);
     return new RepeatParser<N,C>(childLookahead, nf, 
-        childParser, min, max);
+        childParser, min==0 || f.epsilon, min, max);
   }
   /*+******************************************************************/
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = child.first(firstOf);
-    if( (min==0) != f.epsilon ) return new First<N,C>(f.firstSet(), min==0);
+    boolean mayBeEpsilon = min==0 || f.epsilon; 
+    if( mayBeEpsilon != f.epsilon ) {
+      return new First<N,C>(f.firstSet(), mayBeEpsilon);
+    }
     else return f;
   }
 }

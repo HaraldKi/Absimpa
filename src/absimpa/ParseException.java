@@ -27,7 +27,7 @@ public class ParseException extends Exception {
   private int line = UNSET;
   private int column = UNSET;
   /* +***************************************************************** */
-  public ParseException(Set<?> expected, Enum found) {
+  public ParseException(Set<?> expected, Enum<?> found) {
     this.expectedTokenCodes = expected;
     this.foundTokenCode = found;
   }
@@ -48,14 +48,20 @@ public class ParseException extends Exception {
     f.format("found token `%s", foundTokenCode);
     if( tokenText!=null ) f.format("(%s)'", tokenText);
     else sb.append('\'');
-    f.format(" but expected one of %s", expectedTokenCodes);
+    if( expectedTokenCodes.size()!=1 ) {
+      f.format(" but expected one of %s", expectedTokenCodes);
+    } else {
+      sb.append(" but expected `")
+      .append(expectedTokenCodes.iterator().next())
+      .append('\'');
+    }
     return sb.toString();
   }
   /*+******************************************************************/
-  public Set getExpectedTokenCodes() {
+  public Set<?> getExpectedTokenCodes() {
     return expectedTokenCodes;
   }
-  public Enum getFoundTokenCode() {
+  public Enum<?> getFoundTokenCode() {
     return foundTokenCode;
   }
   /*+******************************************************************/

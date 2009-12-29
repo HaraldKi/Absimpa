@@ -2,6 +2,8 @@ package absimpa;
 
 import java.util.EnumSet;
 
+import absimpa.parserimpl.AbstractParser;
+
 /**
  * <p>
  * The Dragon Book(*) calls <em>first</em> of a grammar rule the set of
@@ -18,7 +20,7 @@ import java.util.EnumSet;
 class First<N,C extends Enum<C>> {
   private final EnumSet<C> first;
   public final boolean epsilon;
-  private Parser<N,C> parser;
+  private AbstractParser<N,C> parser;
   
   public First(EnumSet<C> first, boolean epsilon) {
     this.first = first;
@@ -27,10 +29,10 @@ class First<N,C extends Enum<C>> {
   public EnumSet<C> firstSet() {
     return EnumSet.copyOf(first);
   }
-  public void setParser(Parser<N,C> p) {
+  public void setParser(AbstractParser<N,C> p) {
     this.parser = p;
   }
-  public Parser<N,C> getParser() {
+  public AbstractParser<N,C> getParser() {
     return parser;
   }
 }

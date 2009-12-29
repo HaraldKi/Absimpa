@@ -510,8 +510,7 @@ public class TestParsers {
     }
     assertTrue(e instanceof ParseException);
     String msg = e.getMessage();
-    //System.out.printf("%s%n", msg);
-    assertEquals("1:5:found token `TERM(b)' but expected one of [PCLOSE]", msg);
+    assertEquals("1:5:found token `TERM(b)' but expected `PCLOSE'", msg);
   }
   /*+******************************************************************/
   @Test

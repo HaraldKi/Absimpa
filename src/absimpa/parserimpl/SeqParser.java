@@ -3,35 +3,50 @@
  */
 package absimpa.parserimpl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import absimpa.*;
 
 public class SeqParser<N,C extends Enum<C>>
-    implements Parser<N,C>
+    extends AbstractParser<N,C>
 {
-  private final List<Parser<N,C>> children;
+  private final List<AbstractParser<N,C>> children;
   private final NodeFactory<N> nf;
-  public SeqParser(NodeFactory<N> nf, List<Parser<N,C>> children) {
+  /*+******************************************************************/
+  public SeqParser(NodeFactory<N> nf, List<AbstractParser<N,C>> children,
+                   EnumSet<C> lookahead, boolean mayBeEpsilon) {
+    super(lookahead, mayBeEpsilon);
     this.nf = nf;
     this.children = children;
   }
-  public N parse(Lexer<N,C> lex) throws ParseException {
+  /*+******************************************************************/
+  @Override
+  protected ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
     List<N> nodes = new ArrayList<N>(children.size());
-    int count = 0;
-    for(Parser<N,C> p : children) {
-      N child = p.parse(lex);
-      if( child!=null ) nodes.add(child);
-      count += 1;
+
+    for(AbstractParser<N,C> p : children) {
+      ParseResult<N> r = p.parseInternal(lex);
+      if( r.notApplicable() ) {
+        throw lex.parseException(p.getLookahead());
+      }
+      if( !r.isEpsilon() ) { 
+        N node = r.getNode();
+        if( node!=null ) nodes.add(node);
+      }
     }
-    if( count==0 ) {
-      return null;
-    } else {
-      return nf.create(nodes);
-    }
+    return new ParseResult<N>(nf.create(nodes));
   }
+  /*+******************************************************************/
   public String toString() {
-    return String.format("SEQ(%s)", nf);
+    StringBuilder sb = new StringBuilder();
+    Formatter fmt = new Formatter(sb);
+    fmt.format("%s(%s)[", getName(), nf);
+    String sep = "";
+    for(AbstractParser<N,C> p : children) {
+      fmt.format("%s%s", sep, p.getName());
+      sep = ",";
+    }
+    sb.append(']');
+    return sb.toString();
   }
 }

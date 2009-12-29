@@ -2,6 +2,7 @@ package absimpa;
 
 import java.util.*;
 
+import absimpa.parserimpl.AbstractParser;
 import absimpa.parserimpl.TokenParser;
 
 
@@ -19,7 +20,7 @@ public class TokenGrammar<N,C extends Enum<C>>
   {
     return new ArrayList<Grammar<N,C>>(0);
   }
-  protected Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
+  protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
     return new TokenParser<N,C>(code);
   }
   @Override

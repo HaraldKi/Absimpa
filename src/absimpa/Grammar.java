@@ -3,6 +3,8 @@ package absimpa;
 
 import java.util.*;
 
+import absimpa.parserimpl.AbstractParser;
+
 /**
  * <p>
  * The {@code Grammar} describes a language made of sequences of {@code C}
@@ -42,11 +44,12 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return result;
   }
   /* +***************************************************************** */
-  protected final Parser<N,C> build(Map<Grammar<N,C>,First<N,C>> firstOf) {
+  protected final AbstractParser<N,C> build(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = first(firstOf);
     if( f.getParser()!=null ) return f.getParser();
-    Parser<N,C> p = buildParser(firstOf);
+    AbstractParser<N,C> p = buildParser(firstOf);
     f.setParser(p);
+    p.setName(name);
     return p;
   }
   /*+******************************************************************/
@@ -77,7 +80,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return f;
   }
   /* +***************************************************************** */
-  protected abstract Parser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
+  protected abstract AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
   protected abstract First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf);
   /* +***************************************************************** */
   protected LookaheadConflictException lookaheadConflict(List<Grammar<N,C>> children,
@@ -124,7 +127,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return sb.toString();
   }
   /* +***************************************************************** */
-  protected String shortClassname() {
+  private String shortClassname() {
     String className = getClass().getName();
     int p = className.lastIndexOf('.');
     if( p<0 ) return className;

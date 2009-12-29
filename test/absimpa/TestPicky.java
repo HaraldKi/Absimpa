@@ -90,15 +90,15 @@ public class TestPicky {
     Parser<String,Codes> p = g.compile();
 
     String result = analyze("   123 456 789", p);
-    System.out.printf("%s%n", result);
+    //System.out.printf("%s%n", result);
     assertEquals("top[rep[(123),(456),(789)]]", result);
 
     result = analyze("1234", p);
-    System.out.printf("%s%n", result);    
+    //System.out.printf("%s%n", result);    
     assertEquals("top[rep[(1234)]]", result);
     
     result = analyze("  !!  !!", p);
-    System.out.printf("%s%n", result);
+    //System.out.printf("%s%n", result);
     assertEquals("top[rep[]]", result);
   }
   /*+******************************************************************/
@@ -120,15 +120,20 @@ public class TestPicky {
     Grammar<String,Codes> seq = 
       gb.seq(new NodeMaker("seq"), optIgnore).add(optSpace);
     Parser<String,Codes> p = seq.compile();
+
     String result = analyze("!!  abc", p);
-    System.out.printf("%s%n", result);
+    //System.out.printf("%s%n", result);
     assertEquals("seq[opt[],opt[]]", result);
     
     Grammar<String,Codes> seqseq = 
       gb.seq(new NodeMaker("seqseq"), seq).add(term);
     p = seqseq.compile();
     result = analyze("abc", p);
-    System.out.printf("%s%n", result);
-    assertEquals("seq[(abc)]", result);
+    //System.out.printf("%s%n", result);
+    assertEquals("seqseq[(abc)]", result);
+    
+    result = analyze("!!abc", p);
+    //System.out.printf("%s%n", result);
+    assertEquals("seqseq[seq[opt[]],(abc)]", result);
   }
 }

@@ -111,9 +111,6 @@ public class ExprLanguage {
     public void setOp(int which, Expr op) {
       ops.set(which, op);
     }
-    public void addOp(Expr op) {
-      ops.add(op);
-    }
     public Expr getOp(int i) {
       return ops.get(i);
     }
@@ -158,36 +155,40 @@ public class ExprLanguage {
     // product -> term ( (mul | div ) term)*
     // sum -> product ( (add | sub ) product)*
     // expr -> '(' sum ')'
-    GrammarBuilder<Expr,Codes> gb =
-        new GrammarBuilder<Expr,Codes>(null);
+    GrammarBuilder<Expr,Codes> gb = new GrammarBuilder<Expr,Codes>(null);
 
     Recurse<Expr,Codes> recExpr = new Recurse<Expr,Codes>();
 
     Grammar<Expr,Codes> NUMBER = gb.token(Codes.NUMBER);
-    Grammar<Expr,Codes> SIGN = gb.choice(gb.token(Codes.PLUS))
-                                         .or(gb.token(Codes.MINUS));
-    Grammar<Expr,Codes> MULDIV = gb.choice(gb.token(Codes.TIMES))
-                                          .or(gb.token(Codes.DIVIDE));
+    Grammar<Expr,Codes> SIGN =
+        gb.choice(gb.token(Codes.PLUS)).or(gb.token(Codes.MINUS));
+    Grammar<Expr,Codes> MULDIV =
+        gb.choice(gb.token(Codes.TIMES)).or(gb.token(Codes.DIVIDE));
     Grammar<Expr,Codes> OPAREN = gb.token(Codes.OPAREN);
     Grammar<Expr,Codes> CPAREN = gb.token(Codes.CPAREN);
 
-    Grammar<Expr,Codes> signum = 
-      gb.seq(Inner.SIGN, gb.opt(Inner.PICKFIRST, SIGN)).add(NUMBER);
+    Grammar<Expr,Codes> signum =
+        gb.seq(Inner.SIGN, gb.opt(Inner.PICKFIRST, SIGN)).add(NUMBER)
+          .setName("Signum");
 
-    Grammar<Expr,Codes> term = gb.choice(signum).or(recExpr);
+    Grammar<Expr,Codes> term = gb.choice(signum).or(recExpr).setName("Term");
 
-    Grammar<Expr,Codes> duct = gb.seq(Inner.APPLYRIGHT, MULDIV).add(term);
+    Grammar<Expr,Codes> duct =
+        gb.seq(Inner.APPLYRIGHT, MULDIV).add(term).setName("Duct");
 
     Grammar<Expr,Codes> product =
-        gb.seq(Inner.APPLYLEFT, term).add(gb.star(Inner.LIST,duct));
+        gb.seq(Inner.APPLYLEFT, term).add(gb.star(Inner.LIST, duct))
+          .setName("Product");
 
-    Grammar<Expr,Codes> um = gb.seq(Inner.APPLYRIGHT, SIGN).add(product);
+    Grammar<Expr,Codes> um =
+        gb.seq(Inner.APPLYRIGHT, SIGN).add(product).setName("Um");
 
     Grammar<Expr,Codes> sum =
-        gb.seq(Inner.APPLYLEFT, product).add(gb.star(Inner.LIST, um));
+        gb.seq(Inner.APPLYLEFT, product).add(gb.star(Inner.LIST, um))
+          .setName("Sum");
 
     Grammar<Expr,Codes> parenthesized =
-        gb.seq(Inner.PICKFIRST, OPAREN).add(sum).add(CPAREN);
+        gb.seq(Inner.PICKFIRST, OPAREN).add(sum).add(CPAREN).setName("Expr");
 
     recExpr.setChild(parenthesized);
 

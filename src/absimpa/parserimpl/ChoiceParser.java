@@ -3,36 +3,52 @@
  */
 package absimpa.parserimpl;
 
-import java.util.EnumMap;
+import java.util.*;
 
 import absimpa.*;
 
 public class ChoiceParser<N,C extends Enum<C>>
-    implements Parser<N,C>
+    extends AbstractParser<N,C>
 {
-  private final boolean optional;
-  private final EnumMap<C,Parser<N,C>> choiceMap;
+  private final List<AbstractParser<N,C>> children;
+  /*+******************************************************************/
+  public ChoiceParser(List<AbstractParser<N,C>> children,
+                      EnumSet<C> lookahead, boolean mayBeEpsilon) {
+    super(lookahead, mayBeEpsilon);
+    this.children = children;
+  }
+  /*+******************************************************************/
+  @Override
+  public ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
+    boolean sawEpsilon = false;
+    for(AbstractParser<N,C> p : children) {
+      ParseResult<N> r = p.parseInternal(lex);
+      if( r.isEpsilon() ) {
+        sawEpsilon = true;
+        continue;
+      }
+      if( r.notApplicable() ) {
+        continue;
+      }
+      return r;
+    }
+    if( sawEpsilon ) return ParseResult.ISEPSILON();
 
-  public ChoiceParser(boolean optional, EnumMap<C,Parser<N,C>> choiceMap) {
-    this.optional = optional;
-    this.choiceMap = choiceMap;
+    throw new RuntimeException("method must have been called without making"+
+                               " sure that this parser's lookahead matches."+
+                               " This should wrong. Find the bug!");
   }
-  public N parse(Lexer<N,C> lex) throws ParseException {
-    C code = lex.current();
-    Parser<N,C> p = choiceMap.get(code);
-    if( p!=null ) return p.parse(lex);
-    if( optional ) return null;
-    throw lex.parseException(choiceMap.keySet());
-  }
+  /*+******************************************************************/
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("CHOICE{");
+    Formatter fmt = new Formatter(sb);
+    fmt.format("%s[", getName());
     String sep = "";
-    for(C c : choiceMap.keySet() ) {
-      sb.append(sep).append(c);
-      sep = ",";
+    for(AbstractParser<N,C> p : children) {
+      fmt.format("%s%s", sep, p.getName());
+      sep = "|";
     }
-    sb.append('}');
+    sb.append("]");
     return sb.toString();
   }
 }
