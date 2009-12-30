@@ -64,7 +64,7 @@ public class TestPicky {
   @Before
   public void startup() {
     lex = new L(Codes.EOF);
-    gb = new GrammarBuilder<String,Codes>(new NodeMaker("node"));
+    gb = new GrammarBuilder<String,Codes>(null);
     term = gb.token(Codes.TERM);
     number = gb.token(Codes.NUMBER);
     space = gb.token(Codes.SPACE);
@@ -163,7 +163,7 @@ public class TestPicky {
     Parser<String,Codes> p = choice.compile();
     String result = analyze("bla-", p);
     //System.out.println(result);
-    assertEquals("node[seqm[(bla),(-)]]", result);
+    assertEquals("seqm[(bla),(-)]", result);
 
     // now show tht bla+ is a parse error for the same reason
     Exception e = null;
@@ -175,4 +175,60 @@ public class TestPicky {
     //System.out.println(e.getMessage());
     assertTrue(e.getMessage().startsWith("1:4:found token `PLUS(+)' "));
   }
+  /*+******************************************************************/
+  @Test
+  public void autoFlattening() throws Exception {
+    Grammar<String,Codes> g =
+      gb.seq(gb.opt(term),
+             plus,
+             gb.opt(number),
+             minus,
+             term).setNodeFactory(new NodeMaker("top"));
+    Parser<String,Codes> p = g.compile();
+    String result = analyze("abc+123-xyz", p);
+    //System.out.println(result);
+    assertEquals("top[(abc),(+),(123),(-),(xyz)]", result);
+    
+    result = analyze("+-abc", p);
+    //System.out.println(result);
+    assertEquals("top[(+),(-),(abc)]", result);
+  }
+  /*+******************************************************************/
+  @Test
+  public void anyGrammarWithNodeFactory() throws Exception {
+    Grammar<String,Codes> token = 
+      gb.token(Codes.TERM).setNodeFactory(new NodeMaker("toktok"));
+
+    Parser<String,Codes> p = token.compile();
+    String result = analyze("hallo", p);
+    assertEquals("toktok[(hallo)]", result);
+    
+    Grammar<String,Codes> choice = 
+      gb.choice(token).setNodeFactory(new NodeMaker("choice"));
+    p = choice.compile();
+    result = analyze("blabla", p);
+    assertEquals("choice[toktok[(blabla)]]", result);
+  }
+  /*+******************************************************************/
+  @Test(expected=IllegalStateException.class)
+  public void missingToplevelNodeFactory() throws Exception {
+    Grammar<String,Codes> g = gb.seq(term, space, number);
+    Parser<String,Codes> p = g.compile();
+    analyze("abc 123", p);
+  }
+  /*+******************************************************************/
+  @Test
+  public void starAndOpt() throws Exception {
+    Grammar<String,Codes> g = 
+      gb.seq(term.opt(new NodeMaker("oterm")),
+             gb.seq(space,number).star(new NodeMaker("mystar"))
+      ).setNodeFactory(new NodeMaker("top"));
+   
+    Parser<String,Codes> p = g.compile();
+    String result = analyze("abc 123 45 234 234", p);
+    System.out.println(result);
+    assertEquals("top[oterm[(abc)],mystar[(123),(45),(234),(234)]]", result);
+     
+  }
+  /*+******************************************************************/
 }

@@ -138,7 +138,9 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    * </p>
    */
   public Sequence<N,C> seq(NodeFactory<N> factory, Grammar<N,C> g) {
-    return new Sequence<N,C>(factory, g);
+    Sequence<N,C> s = new Sequence<N,C>(g);
+    s.setNodeFactory(factory);
+    return s;
   }
   /**
    * <p>
@@ -147,7 +149,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    * </p>
    */
   public Sequence<N,C> seq(Grammar<N,C> g) {
-    return new Sequence<N,C>(defaultNode, g);
+    return seq(defaultNode, g);
   }
   /* +***************************************************************** */
   public Sequence<N,C> seq(Grammar<N,C> g1, Grammar<N,C> g2) {
@@ -189,7 +191,9 @@ public class GrammarBuilder<N,C extends Enum<C>> {
   public Repeat<N,C> repeat(NodeFactory<N> factory, Grammar<N,C> g, int min,
                             int max)
   {
-    return new Repeat<N,C>(factory, min, max, g);
+    Repeat<N,C> rep =  new Repeat<N,C>(min, max, g);
+    rep.setNodeFactory(factory);
+    return rep;
   }
   /**
    * <p>
@@ -198,7 +202,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    * </p>
    */
   public Repeat<N,C> repeat(Grammar<N,C> grammar, int min, int max) {
-    return new Repeat<N,C>(defaultNode, min, max, grammar);
+    return repeat(defaultNode, grammar, min, max);
   }
   /**
    * convenience function to call {@link #repeat(Grammar,int,int)} with

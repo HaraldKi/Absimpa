@@ -12,10 +12,8 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
   private final int min;
   private final int max;
   private final Grammar<N,C> child;
-  private final NodeFactory<N> nf;
   
-  public Repeat(NodeFactory<N> nf, int min, int max, Grammar<N,C> arg) {
-    this.nf = nf;
+  public Repeat(int min, int max, Grammar<N,C> arg) {
     if( min<0||max<min||max==0 ) {
       String msg =
           String.format("must have 0<=min<=max and max>0, but have "
@@ -38,7 +36,7 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     EnumSet<C> childLookahead = f.firstSet();
     AbstractParser<N,C> childParser = child.build(firstOf);
     return new RepeatParser<N,C>(childLookahead, 
-        childParser, min==0 || f.epsilon, min, max).setNodeFactory(nf);
+        childParser, min==0 || f.epsilon, min, max);
   }
   /*+******************************************************************/
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf) {

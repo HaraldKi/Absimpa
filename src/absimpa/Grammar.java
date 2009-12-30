@@ -23,7 +23,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
   protected Grammar() {}
   
   private String name = null;
-  
+  private NodeFactory<N> nodeFactory = null;
   /* +***************************************************************** */
   /**
    * compiles the grammar into a parser to recognize the grammar.
@@ -44,12 +44,68 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return result;
   }
   /*+******************************************************************/
-  protected final AbstractParser<N,C> build(Map<Grammar<N,C>,First<N,C>> firstOf) {
+  /**
+   * <p>wraps {@code this} into a {@link Repeat}.</p>
+   */
+  public Grammar<N,C> rep(NodeFactory<N> nf, int min, int max) {
+    Grammar<N,C> g = new Repeat<N,C>(min, max, this);
+    g.setNodeFactory(nf);
+    return g;
+  }
+  /*+******************************************************************/
+  /**
+   * <p>
+   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * max} really huge.
+   * </p>
+   */
+  public Grammar<N,C> star(NodeFactory<N> nf) {
+    return rep(nf, 0, Integer.MAX_VALUE);
+  }
+  /**
+   * <p>
+   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * max} really huge.
+   * </p>
+   */
+  public Grammar<N,C> star() {
+    return star(null);
+  }
+  /*+******************************************************************/
+  /**
+   * <p>
+   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * max=1}.
+   * </p>
+   */
+  public Grammar<N,C> opt(NodeFactory<N> nf) {
+    return rep(nf, 0, 1);
+  }
+  /**
+   * <p>
+   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * max=1}.
+   * </p>
+   */
+  public Grammar<N,C> opt() {
+    return opt(null);
+  }
+  /*+******************************************************************/
+  public Grammar<N,C> setNodeFactory(NodeFactory<N> nf) {
+    this.nodeFactory = nf;
+    return this;
+  }
+  /*+******************************************************************/
+  final AbstractParser<N,C> build(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = first(firstOf);
-    if( f.getParser()!=null ) return f.getParser();
+    if( f.getParser()!=null ) {
+      return f.getParser();
+    }
+    
     AbstractParser<N,C> p = buildParser(firstOf);
     f.setParser(p);
     p.setName(name);
+    p.setNodeFactory(nodeFactory);
     return p;
   }
   /*+******************************************************************/
@@ -63,7 +119,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
     }
   }
   /* +***************************************************************** */
-  protected final First<N,C> first(Map<Grammar<N,C>,First<N,C>> firstOf) {
+  final First<N,C> first(Map<Grammar<N,C>,First<N,C>> firstOf) {
     if( firstOf.containsKey(this) ) {
       First<N,C> myFirst = firstOf.get(this);
       if( myFirst!=null ) return myFirst;
@@ -80,6 +136,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return f;
   }
   /* +***************************************************************** */
+  protected abstract Iterable<Grammar<N,C>> children();
   protected abstract AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
   protected abstract First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf);
   /* +***************************************************************** */
@@ -118,7 +175,6 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return className.substring(p+1, className.length());
   }
   /* +***************************************************************** */
-  protected abstract Iterable<Grammar<N,C>> children();
   protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {
     // only Recurse needs to override.
   }

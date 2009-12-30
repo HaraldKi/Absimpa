@@ -25,10 +25,8 @@ public class Sequence<N,C extends Enum<C>>
     extends Grammar<N,C>
 {
   private final List<Grammar<N,C>> children = new ArrayList<Grammar<N,C>>(2);
-  private NodeFactory<N> nf;
 
-  public Sequence(NodeFactory<N> nf, Grammar<N,C> p) {
-    this.nf = nf;
+  public Sequence(Grammar<N,C> p) {
     children.add(p);
   }
   /*+******************************************************************/
@@ -41,11 +39,6 @@ public class Sequence<N,C extends Enum<C>>
     return Collections.unmodifiableList(children);
   }
   /* +***************************************************************** */
-  public Sequence<N,C> setNodeFactory(NodeFactory<N> factory) {
-    this.nf = factory;
-    return this;
-  }
-  /* +***************************************************************** */
   protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
     List<AbstractParser<N,C>> childParsers =
         new ArrayList<AbstractParser<N,C>>(children.size());
@@ -55,7 +48,7 @@ public class Sequence<N,C extends Enum<C>>
     }
     First<N,C> myFirst = first(firstOf);
     return new SeqParser<N,C>(childParsers, myFirst.firstSet(),
-        myFirst.epsilon).setNodeFactory(nf);
+        myFirst.epsilon);
   }
   /*+******************************************************************/
   @Override
