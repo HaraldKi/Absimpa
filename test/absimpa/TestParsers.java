@@ -367,18 +367,22 @@ public class TestParsers {
   {
     Grammar<TestNode,Codes> optTerm = gb.repeat(term, 0, 1);
 
+    Parser<TestNode,Codes> p = 
+      gb.seq(optTerm, term).setNodeFactory(NodeType.AND).compile();
+
     Exception e = null;
     try {
-      Parser<TestNode,Codes> seq = 
-        gb.seq(NodeType.AND, optTerm).add(term).compile();
-      assertEquals(null, seq);
-    } catch( Exception ee ) {
+      // first come first server strategy of the sequence parser must result in
+      // a parse error, because the first term, despite being optional, is
+      // recognized. Then there is nothing left for the 2nd term to match.
+      analyze("abc", p);
+    } catch( ParseException ee ) {
       e = ee;
     }
+    
+    assertTrue(e!=null);
     //System.out.printf("%s%n", e.getMessage());
-    assertTrue(e.getMessage()
-        .startsWith("conflicting lookahead [TERM] for grammars"));
-
+    assertTrue(e.getMessage().startsWith("1:4:found token `EOF()'"));
   }
   /* +***************************************************************** */
   private Parser<TestNode,Codes> miniLanguage() {
@@ -388,18 +392,17 @@ public class TestParsers {
   private Grammar<TestNode,Codes> miniLanguageGrammar()  {
     // scope -> scopename term
     Grammar<TestNode,Codes> scope = 
-      gb.seq(NodeType.SCOPE, scopename).add(term);
+      gb.seq(scopename, term).setNodeFactory(NodeType.SCOPE);
     // literal -> scope | literal
-    Grammar<TestNode,Codes> literal = 
-      gb.choice(term).or(scope);
+    Grammar<TestNode,Codes> literal =  gb.choice(term).or(scope);
 
     // orlist -> literal (or literal)*
     Grammar<TestNode,Codes> orlist =
-        gb.seq(NodeType.OR, literal)
-        .add(gb.star(gb.seq(or).add(literal)));
+        gb.seq(literal, gb.star(gb.seq(or,literal))).setNodeFactory(NodeType.OR);
     
     // negated -> not literal
-    Grammar<TestNode,Codes> negated = gb.seq(NodeType.NOT, not).add(literal);
+    Grammar<TestNode,Codes> negated =
+      gb.seq(not, literal).setNodeFactory(NodeType.NOT);
 
     // grammar -> (orlist | negated)+
     Grammar<TestNode,Codes> grammar =

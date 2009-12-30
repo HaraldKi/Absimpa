@@ -6,11 +6,26 @@ import java.util.*;
 import absimpa.parserimpl.AbstractParser;
 import absimpa.parserimpl.SeqParser;
 
+/**
+ * is a grammar to recognize a sequence of child grammars. In BNF notation
+ * this would typically be written like the right side of</p>
+ * 
+ * <pre>
+ * A -> B C D E</pre>
+ * <p>
+ * The parser created from this grammar parses on a first come first serve
+ * basis, meaning that a sequence like {@code A? A B} can not parse the token
+ * sequence {@code A B}, due to the fact that the optional {@code A} matches
+ * immediately, leaving only the {@code B} of the input to be parsed, which
+ * does not match on the 2nd {@code A} of the rule. But notice that the rule
+ * {@code A A? B} is equivalent and can match {@code A B} just fine.
+ * </p>
+ */
 public class Sequence<N,C extends Enum<C>>
     extends Grammar<N,C>
 {
   private final List<Grammar<N,C>> children = new ArrayList<Grammar<N,C>>(2);
-  private final NodeFactory<N> nf;
+  private NodeFactory<N> nf;
 
   public Sequence(NodeFactory<N> nf, Grammar<N,C> p) {
     this.nf = nf;
@@ -24,6 +39,11 @@ public class Sequence<N,C extends Enum<C>>
   /*+******************************************************************/
   protected Iterable<Grammar<N,C>> children() {
     return Collections.unmodifiableList(children);
+  }
+  /* +***************************************************************** */
+  public Sequence<N,C> setNodeFactory(NodeFactory<N> factory) {
+    this.nf = factory;
+    return this;
   }
   /* +***************************************************************** */
   protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
@@ -41,22 +61,22 @@ public class Sequence<N,C extends Enum<C>>
   @Override
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf)
   {
-    Grammar<N,C> g = children.get(0);
-    First<N,C> f = g.first(firstOf);
+    Grammar<N,C> child = children.get(0);
+    First<N,C> childFirst = child.first(firstOf);
 
-    EnumSet<C> firstSet = f.firstSet();
-    boolean optional = f.epsilon;
+    EnumSet<C> firstSet = childFirst.firstSet();
+    boolean optional = childFirst.epsilon;
 
     for(int i=1; i<children.size() && optional; i++) {
-      g = children.get(i);
-      f = g.first(firstOf);
-      EnumSet<C> otherFirstSet = f.firstSet();
-      if( firstSet.removeAll(otherFirstSet) ) {
+      child = children.get(i);
+      childFirst = child.first(firstOf);
+      EnumSet<C> otherFirstSet = childFirst.firstSet();
+//      if( firstSet.removeAll(otherFirstSet) ) {
         // FIXME: don't want any lookahead conflict any more
-        throw lookaheadConflict(children, g, firstOf);
-      }
+  //      throw lookaheadConflict(children, child, firstOf);
+    //  }
       firstSet.addAll(otherFirstSet);
-      optional &= f.epsilon;
+      optional &= childFirst.epsilon;
     }
     return new First<N,C>(firstSet, optional);
   }

@@ -107,15 +107,6 @@ public class TestPicky {
     assertEquals("top[rep[]]", result);
   }
   /*+******************************************************************/
-  @Test(expected=LookaheadConflictException.class)
-  public void shouldNeverHappenInLAConflictException() throws Exception {
-    Grammar<String,Codes> optIgnore = 
-      gb.opt(new NodeMaker("opt"), ignore);
-    Grammar<String,Codes> seq = 
-      gb.seq(new NodeMaker("seq"), optIgnore).add(optIgnore);
-    seq.compile();
-  }
-  /*+******************************************************************/
   @Test
   public void seqNotCreateEpsilon() throws Exception {
     Grammar<String,Codes> optIgnore = 

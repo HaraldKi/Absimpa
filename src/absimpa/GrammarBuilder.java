@@ -20,8 +20,8 @@ package absimpa;
  * about the type of result created, it is just called {@code N}. Whenever
  * the parser has recognized a token, it will ask the lexer to provide a leaf
  * node for it. And when it has recognized a partial bit of input, it will
- * call a {@link NodeFactory} with the bits it has recognized and asks it
- * to create an {@code N}.</li>
+ * call a {@link NodeFactory} with the bits it has recognized and asks it to
+ * create an {@code N}.</li>
  * 
  * <li>One or more {@link NodeFactory} objects are needed. Whenever the
  * parser recognizes a part of the input, for example a sequence of tokens as
@@ -56,13 +56,12 @@ package absimpa;
  * 
  * <p>
  * This would define a {@code product} as arbitrary length sequence of
- * {@code NUMBER}s. When the parser  has collected all {@code NUMBER}s
+ * {@code NUMBER}s. When the parser has collected all {@code NUMBER}s
  * available, it will call the {@code nodeFactory} with the list of results
- * provided by the lexer to the token parser. The result of the parse
- * would be whatever the {@code nodeFactory} makes out of the list. It could
- * return an object that contains the list as a field, but it could as well
- * multiply the numbers and return an {@code N} that contains just the
- * product.
+ * provided by the lexer to the token parser. The result of the parse would
+ * be whatever the {@code nodeFactory} makes out of the list. It could return
+ * an object that contains the list as a field, but it could as well multiply
+ * the numbers and return an {@code N} that contains just the product.
  * </p>
  * <p>
  * Slightly tricky is the creation of a recursive grammar. Create a
@@ -78,14 +77,13 @@ package absimpa;
  * <h2>Parsing EOF</h2>
  * <p>
  * To make sure that parsers compiled from the grammars produced here parse
- * the whole input sequence, the lexer eventually needs to produce a
- * specific eof-token which is explicitly matched by the grammar. Suppose
- * your grammar is nothing but {@code G-> (SCOPE TERM)+}. The parser will
- * happily parse a non-empty sequence of {@code SCOPE} and {@code TERM}
- * pairs. In particular it will succeed for the sequence {@code SCOPE TERM
- * TERM} with parsing the first pair and will leave the 2nd {@code TERM}
- * unparsed. To prevent this, the grammar should rather be {@code G-> (SCOPE
- * TERM)+ EOF}.
+ * the whole input sequence, the lexer eventually needs to produce a specific
+ * eof-token which is explicitly matched by the grammar. Suppose your grammar
+ * is nothing but {@code G-> (SCOPE TERM)+}. The parser will happily parse a
+ * non-empty sequence of {@code SCOPE} and {@code TERM} pairs. In particular
+ * it will succeed for the sequence {@code SCOPE TERM TERM} with parsing the
+ * first pair and will leave the 2nd {@code TERM} unparsed. To prevent this,
+ * the grammar should rather be {@code G-> (SCOPE TERM)+ EOF}.
  * 
  * 
  * <p>
@@ -105,9 +103,9 @@ public class GrammarBuilder<N,C extends Enum<C>> {
   /* +***************************************************************** */
   /**
    * <p>
-   * the resulting {@code GrammarBuilder} will enter the given
-   * factory into grammar objects as they are created, if no factory is
-   * explicitly provided.
+   * the resulting {@code GrammarBuilder} will enter the given factory into
+   * grammar objects as they are created, if no factory is explicitly
+   * provided.
    * </p>
    */
   public GrammarBuilder(NodeFactory<N> defaultFactory) {
@@ -142,6 +140,23 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    */
   public Sequence<N,C> seq(Grammar<N,C> g) {
     return new Sequence<N,C>(defaultNode, g);
+  }
+  /* +***************************************************************** */
+  public Sequence<N,C> seq(Grammar<N,C> g1, Grammar<N,C> g2) {
+    return seq(g1).add(g2);
+  }
+  public Sequence<N,C> seq(Grammar<N,C> g1, Grammar<N,C> g2, Grammar<N,C> g3)
+  {
+    return seq(g1, g2).add(g3);
+  }
+  public Sequence<N,C> seq(Grammar<N,C> g1, Grammar<N,C> g2,
+                           Grammar<N,C> g3, Grammar<N,C> g4)
+  {
+    return seq(g1,g2,g3).add(g4);
+  }
+  public Sequence<N,C> seq(Grammar<N,C> g1, Grammar<N,C> g2, Grammar<N,C> g3,
+                           Grammar<N,C> g4, Grammar<N,C> g5) {
+    return seq(g1,g2,g3,g4).add(g5);
   }
   /* +***************************************************************** */
   /**
