@@ -232,8 +232,8 @@ public class GrammarBuilder<N,C extends Enum<C>> {
   }
   /* +***************************************************************** */
   /**
-   * creates a grammar to recognize any one of a number of subgrammars, one
-   * of which is the given {@code g}. To add more subgrammars to the choice,
+   * creates a grammar to recognize any one of a number of sub grammars, one
+   * of which is the given {@code g}. To add more sub grammars to the choice,
    * call {@link Choice#or}. In contrast to all other grammars, the {@code
    * Choice} does not need a {@link NodeFactory}, because the resulting
    * parser just passes on the choice that was recognized.

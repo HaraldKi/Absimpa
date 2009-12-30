@@ -1,7 +1,9 @@
 package absimpa.parserimpl;
 
+import java.util.*;
+
 class ParseResult<N> {
-  private final N node;
+  private final List<N> nodes;
   private final boolean isEpsilon;
   private final boolean notApplicable;
   private static final ParseResult<?> instanceNotApplicable = 
@@ -9,11 +11,17 @@ class ParseResult<N> {
   private static final ParseResult<?> instanceIsEpsilon = 
     new ParseResult<Object>(true);
   /*+******************************************************************/
-  public ParseResult(N node) {
+  public ParseResult(List<N> nodes) {
     this.isEpsilon = false;
-    this.notApplicable = false;    
-    this.node = node;
+    this.notApplicable = false;
+    this.nodes = new ArrayList<N>(nodes.size());
+    this.nodes.addAll(nodes);
   }
+  /*+******************************************************************/
+  public ParseResult(N node) {
+    this(node==null ? Collections.<N>emptyList() : Collections.singletonList(node));
+  }
+  /*+******************************************************************/
   private ParseResult(boolean isEpsilon) {
     if( isEpsilon ) {
       this.isEpsilon = true;
@@ -22,7 +30,7 @@ class ParseResult<N> {
       this.isEpsilon = false;
       this.notApplicable = true;
     }
-    node = null;
+    nodes = Collections.<N>emptyList();
   }
   /*+******************************************************************/
   public static <T> ParseResult<T> ISEPSILON() {
@@ -36,10 +44,22 @@ class ParseResult<N> {
     ParseResult<T> r = (ParseResult<T>)instanceNotApplicable;
     return r;
   }
-  /*+******************************************************************/
-  N getNode() {
-    return node;
+  /* +***************************************************************** */
+  public void addToNodeList(List<N> nodes) {
+    nodes.addAll(this.nodes);
   }
+  /*+******************************************************************/
+  // FIXME: need to rename to getNode after I found all calls to the old, trivial getNode
+  public N getXNode() {
+    if( nodes.size()>1 ) {
+      throw new IllegalStateException("parse result has more than one node");
+    }
+    if( nodes.size()==0 ) {
+      return null;
+    }
+    return nodes.get(0);
+  }
+  /*+******************************************************************/
   public boolean notApplicable() {
     return notApplicable;
   }

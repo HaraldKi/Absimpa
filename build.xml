@@ -33,7 +33,7 @@
 
       Bottom="&lt;div class=&quot;approlink&quot;>download: &lt;a
       href='http://pifpafpuf.de/Absimpa/download' target='_top'>pifpafpuf.de&lt;/a>&lt;br/>home page: &lt;a href=&quot;http://pifpafpuf.de/Absimpa/&quot; target='_top'>pifpafpuf.de/Absimpa&lt;/a>&lt;/div>"
-      public="true"
+      private="true"
       stylesheetfile="files/stylesheet.css"
       >
     </javadoc>

@@ -46,8 +46,7 @@ public class RepeatParser<N,C extends Enum<C>>
           break;
         }
       }
-      N node = r.getNode();
-      if( node!=null ) nodes.add(node);
+      r.addToNodeList(nodes);
       count += 1;
     }
     return new ParseResult<N>(nf.create(nodes));

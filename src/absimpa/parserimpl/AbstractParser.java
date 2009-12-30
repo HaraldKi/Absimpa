@@ -25,7 +25,7 @@ public abstract class AbstractParser<N,C extends Enum<C>>
     if( result.notApplicable() ) {
       throw lex.parseException(lookahead);
     }
-    return result.getNode();
+    return result.getXNode();
   }
   /*+******************************************************************/
   EnumSet<C> getLookahead() {

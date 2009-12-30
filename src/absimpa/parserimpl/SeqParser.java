@@ -30,8 +30,7 @@ public class SeqParser<N,C extends Enum<C>>
         throw lex.parseException(p.getLookahead());
       }
       if( !r.isEpsilon() ) { 
-        N node = r.getNode();
-        if( node!=null ) nodes.add(node);
+        r.addToNodeList(nodes);
       }
     }
     return new ParseResult<N>(nf.create(nodes));

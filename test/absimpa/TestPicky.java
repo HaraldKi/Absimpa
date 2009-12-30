@@ -157,7 +157,7 @@ public class TestPicky {
     Grammar<String,Codes> optTermPlus = 
       gb.opt(gb.seq(term, plus).setNodeFactory(new NodeMaker("seqp")));
     Grammar<String,Codes> choice = 
-      gb.choice(optTermMinus).or(optTermPlus);
+      gb.choice(optTermMinus, optTermPlus);
     
     // show that bla- is parse because the minus arm of choice has preceedence
     Parser<String,Codes> p = choice.compile();
