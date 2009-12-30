@@ -40,21 +40,16 @@ public class Choice<N,C extends Enum<C>>
   }
   /* +***************************************************************** */
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf) {
-    boolean optional = false;
-    EnumSet<C> firstSet = null;
-
-    for(Grammar<N,C> ga: children) {
-      First<N,C> f = ga.first(firstOf);
-      if( firstSet==null ) {
-        firstSet = f.firstSet();
-      } else {
-        EnumSet<C> otherFirst = f.firstSet();
-        if( firstSet.removeAll(otherFirst) ) {
-          throw lookaheadConflict(children, ga, firstOf);
-        }
-        firstSet.addAll(f.firstSet());
-      }
-      optional |= f.epsilon;
+    Grammar<N,C> childGrammar = children.get(0);
+    First<N,C> childFirst = childGrammar.first(firstOf);
+    
+    boolean optional = childFirst.epsilon;
+    EnumSet<C> firstSet = childFirst.firstSet();
+    for(int i=1; i<children.size(); i++) {
+      childGrammar = children.get(i);
+      childFirst = childGrammar.first(firstOf);
+      firstSet.addAll(childFirst.firstSet());
+      optional |= childFirst.epsilon;
     }
     return new First<N,C> (firstSet, optional);
   }

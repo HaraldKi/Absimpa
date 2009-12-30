@@ -85,6 +85,14 @@ package absimpa;
  * first pair and will leave the 2nd {@code TERM} unparsed. To prevent this,
  * the grammar should rather be {@code G-> (SCOPE TERM)+ EOF}.
  * 
+ * <h2>Multiple Argument Methods</h2>
+ * <p>
+ * It would be nice to use varargs methods for {@code seq()} and {@code
+ * choice()}. But due to the generic parameters of grammars, there would then
+ * always be the compiler warning about unsafe conversion to array. Therefore
+ * there are variants of those methods with up to 5 parameters. Only beyond
+ * that, varargs is used.</p>
+ * 
  * 
  * <p>
  * <b>Remark:</b> This package has no support to create a
@@ -158,7 +166,14 @@ public class GrammarBuilder<N,C extends Enum<C>> {
                            Grammar<N,C> g4, Grammar<N,C> g5) {
     return seq(g1,g2,g3,g4).add(g5);
   }
-  /* +***************************************************************** */
+  public Sequence<N,C> seq(Grammar<N,C> g1, Grammar<N,C> g2, Grammar<N,C> g3,
+                           Grammar<N,C> g4, Grammar<N,C> g5, 
+                           Grammar<N,C> ... more) {
+    Sequence<N,C> s =  seq(g1,g2,g3,g4).add(g5);
+    for(Grammar<N,C> g : more) s.add(g);
+    return s;
+  }
+   /* +***************************************************************** */
   /**
    * creates a grammar to recognize a repetition of the given subgrammar
    * {@code g}. The provided {@code factory} will be used to transform the
@@ -225,6 +240,27 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    */
   public Choice<N,C> choice(Grammar<N,C> g) {
     return new Choice<N,C>(g);
+  }
+  public Choice<N,C> choice(Grammar<N,C> g1, Grammar<N,C> g2) {
+    return choice(g1).or(g2);
+  }
+  public Choice<N,C> choice(Grammar<N,C> g1, Grammar<N,C> g2, Grammar<N,C> g3) {
+    return choice(g1).or(g2).or(g3);
+  }
+  public Choice<N,C> choice(Grammar<N,C> g1, Grammar<N,C> g2, Grammar<N,C> g3,
+                            Grammar<N,C> g4) {
+    return choice(g1).or(g2).or(g3).or(g4);
+  }
+  public Choice<N,C> choice(Grammar<N,C> g1, Grammar<N,C> g2, Grammar<N,C> g3,
+                            Grammar<N,C> g4, Grammar<N,C> g5) {
+    return choice(g1).or(g2).or(g3).or(g4).or(g5);
+  }
+  public Choice<N,C> choice(Grammar<N,C> g1, Grammar<N,C> g2, Grammar<N,C> g3,
+                            Grammar<N,C> g4, Grammar<N,C> g5,
+                            Grammar<N,C> ... more) {
+    Choice<N,C> c = choice(g1).or(g2).or(g3).or(g4).or(g5);
+    for(Grammar<N,C> g : more) c.or(g);
+    return c;    
   }
   /* +***************************************************************** */
 }

@@ -1,6 +1,7 @@
 package absimpa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -13,11 +14,11 @@ import example.TrivialLexer;
 public class TestPicky {
   private L lex = null;
   GrammarBuilder<String,Codes> gb;
-  Grammar<String,Codes> term, number, space, ignore, plus;
+  Grammar<String,Codes> term, number, space, ignore, plus, minus;
   /* +***************************************************************** */
   private static enum Codes
       implements LeafFactory<String,Codes> {
-    TERM, NUMBER, SPACE, IGNORE, PLUS, EOF;
+    TERM, NUMBER, SPACE, IGNORE, PLUS, MINUS, EOF;
 
     @Override
     public String create(TrivialLexer<String,Codes> lex) {
@@ -35,6 +36,7 @@ public class TestPicky {
       addToken(Codes.SPACE, "\\s+");
       addToken(Codes.IGNORE, "[!]+");
       addToken(Codes.PLUS, "[+]");
+      addToken(Codes.MINUS, "[-]");
     }
   }
   /* +***************************************************************** */
@@ -62,12 +64,13 @@ public class TestPicky {
   @Before
   public void startup() {
     lex = new L(Codes.EOF);
-    gb = new GrammarBuilder<String,Codes>(null);
+    gb = new GrammarBuilder<String,Codes>(new NodeMaker("node"));
     term = gb.token(Codes.TERM);
     number = gb.token(Codes.NUMBER);
     space = gb.token(Codes.SPACE);
     ignore = gb.token(Codes.IGNORE);
     plus = gb.token(Codes.PLUS);
+    minus = gb.token(Codes.MINUS);
   }
   /* +***************************************************************** */
   private String analyze(String text, Parser<String,Codes> p)
@@ -146,5 +149,30 @@ public class TestPicky {
     // System.out.println(result);
     assertEquals("top[(+)]", result);
   }
+  /*+******************************************************************/
+  @Test
+  public void laConflictInOr() throws Exception {
+    Grammar<String,Codes> optTermMinus = 
+      gb.opt(gb.seq(term, minus).setNodeFactory(new NodeMaker("seqm")));
+    Grammar<String,Codes> optTermPlus = 
+      gb.opt(gb.seq(term, plus).setNodeFactory(new NodeMaker("seqp")));
+    Grammar<String,Codes> choice = 
+      gb.choice(optTermMinus).or(optTermPlus);
+    
+    // show that bla- is parse because the minus arm of choice has preceedence
+    Parser<String,Codes> p = choice.compile();
+    String result = analyze("bla-", p);
+    //System.out.println(result);
+    assertEquals("node[seqm[(bla),(-)]]", result);
 
+    // now show tht bla+ is a parse error for the same reason
+    Exception e = null;
+    try {
+      result = analyze("bla+", p);
+    } catch(ParseException ee) {
+      e = ee;
+    }
+    //System.out.println(e.getMessage());
+    assertTrue(e.getMessage().startsWith("1:4:found token `PLUS(+)' "));
+  }
 }

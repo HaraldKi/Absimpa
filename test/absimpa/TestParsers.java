@@ -338,31 +338,6 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test
-  public void conflictingChoice() throws Exception
-  {
-    Grammar<TestNode,Codes> scope =
-        gb.seq(NodeType.SCOPE, scopename).add(term);
-
-    Grammar<TestNode,Codes> negatedTerm =
-        gb.seq(NodeType.NOT, not).add(term);
-
-    Grammar<TestNode,Codes> negatedScope =
-        gb.seq(NodeType.NOT, not).add(scope);
-
-    Exception e = null;
-    try {
-      Parser<TestNode,Codes> p =
-          gb.choice(negatedScope).or(negatedTerm).compile();
-      assertEquals(null, p);
-    } catch( Exception ee ) {
-      e = ee;
-    }
-
-    assertTrue(e.getMessage()
-        .startsWith("conflicting lookahead [NOT] for grammars"));
-  }
-  /* +***************************************************************** */
-  @Test
   public void conflictSequenceLA() throws Exception
   {
     Grammar<TestNode,Codes> optTerm = gb.repeat(term, 0, 1);

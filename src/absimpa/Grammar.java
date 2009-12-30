@@ -43,7 +43,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
     fillRecursives(firstOf, new HashSet<Grammar<N,C>>());
     return result;
   }
-  /* +***************************************************************** */
+  /*+******************************************************************/
   protected final AbstractParser<N,C> build(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = first(firstOf);
     if( f.getParser()!=null ) return f.getParser();
@@ -83,22 +83,6 @@ public abstract class Grammar<N, C extends Enum<C>> {
   protected abstract AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
   protected abstract First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf);
   /* +***************************************************************** */
-  protected LookaheadConflictException lookaheadConflict(List<Grammar<N,C>> children,
-                                                         Grammar<N,C> g,
-                                                         Map<Grammar<N,C>,First<N,C>> firstOf)
-  {
-    EnumSet<C> gFirstSet = g.first(firstOf).firstSet();
-    for(int i = children.indexOf(g); i>=0; --i) {
-      Grammar<N,C> other = (Grammar<N,C>)(children.get(i));
-      EnumSet<C> otherFirstSet = other.first(firstOf).firstSet();
-      if( !otherFirstSet.removeAll(gFirstSet) ) continue;
-      otherFirstSet = other.first(firstOf).firstSet();
-      otherFirstSet.retainAll(gFirstSet);
-      return new LookaheadConflictException(otherFirstSet, g, other);
-    }
-    throw new RuntimeException("this should never happen");
-  }
-  /*+******************************************************************/
   /**
    * used by {@link #toString} only, not needed for the function of the
    * grammar.
