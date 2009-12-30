@@ -12,9 +12,8 @@ public class RepeatParser<N,C extends Enum<C>>
 {
   private final int min, max;
   private AbstractParser<N,C> child;
-  private final NodeFactory<N> nf;
 
-  public RepeatParser(EnumSet<C> childLookahead, NodeFactory<N> nf,
+  public RepeatParser(EnumSet<C> childLookahead,
                       AbstractParser<N,C> child, boolean mayBeEpsilon,
                       int min, int max) {
     super(childLookahead, mayBeEpsilon);
@@ -24,13 +23,12 @@ public class RepeatParser<N,C extends Enum<C>>
               +" min=%d, max=%d", min, max);
       throw new IllegalArgumentException(msg);
     }
-    this.nf = nf;
     this.min = min;
     this.max = max;
     this.child = child;
   }
   /*+******************************************************************/
-  ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
+  List<N> doParse(Lexer<N,C> lex) throws ParseException {
     List<N> nodes = new ArrayList<N>(min);
 
     int count = 0;
@@ -49,10 +47,10 @@ public class RepeatParser<N,C extends Enum<C>>
       r.addToNodeList(nodes);
       count += 1;
     }
-    return new ParseResult<N>(nf.create(nodes));
+    return nodes;
   }
   /*+******************************************************************/
   public String toString() {
-    return String.format("REP(%s){%d,%d,%s}", nf, min, max, child.getName());
+    return String.format("REP{%d,%d,%s}", min, max, child.getName());
   }
 }

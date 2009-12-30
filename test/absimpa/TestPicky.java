@@ -117,7 +117,7 @@ public class TestPicky {
     Grammar<String,Codes> optSpace= 
       gb.opt(new NodeMaker("opt"), space);
     Grammar<String,Codes> seq = 
-      gb.seq(new NodeMaker("seq"), optIgnore).add(optSpace);
+      gb.seq(optIgnore, optSpace).setNodeFactory(new NodeMaker("seq"));
     Parser<String,Codes> p = seq.compile();
 
     String result = analyze("!!  abc", p);

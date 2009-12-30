@@ -3,7 +3,7 @@
  */
 package absimpa.parserimpl;
 
-import java.util.EnumSet;
+import java.util.*;
 
 import absimpa.*;
 
@@ -22,8 +22,11 @@ public class RecurseParser<N,C extends Enum<C>>
     this.child = child;
   }
   @Override
-  ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
-    return child.parseInternal(lex);
+  List<N> doParse(Lexer<N,C> lex) throws ParseException {
+    List<N> nodes = new ArrayList<N>(1);
+    ParseResult<N> pr = child.parseInternal(lex);
+    pr.addToNodeList(nodes);
+    return nodes;
   }
   public String toString() {
     return String.format("%s[%s]", getName(), child.getName());

@@ -54,8 +54,8 @@ public class Sequence<N,C extends Enum<C>>
       childParsers.add(g.build(firstOf));
     }
     First<N,C> myFirst = first(firstOf);
-    return new SeqParser<N,C>(nf, childParsers, myFirst.firstSet(),
-        myFirst.epsilon);
+    return new SeqParser<N,C>(childParsers, myFirst.firstSet(),
+        myFirst.epsilon).setNodeFactory(nf);
   }
   /*+******************************************************************/
   @Override
@@ -71,10 +71,6 @@ public class Sequence<N,C extends Enum<C>>
       child = children.get(i);
       childFirst = child.first(firstOf);
       EnumSet<C> otherFirstSet = childFirst.firstSet();
-//      if( firstSet.removeAll(otherFirstSet) ) {
-        // FIXME: don't want any lookahead conflict any more
-  //      throw lookaheadConflict(children, child, firstOf);
-    //  }
       firstSet.addAll(otherFirstSet);
       optional &= childFirst.epsilon;
     }

@@ -19,7 +19,7 @@ public class ChoiceParser<N,C extends Enum<C>>
   }
   /*+******************************************************************/
   @Override
-  ParseResult<N> doParse(Lexer<N,C> lex) throws ParseException {
+  List<N> doParse(Lexer<N,C> lex) throws ParseException {
     for(AbstractParser<N,C> p : children) {
       ParseResult<N> r = p.parseInternal(lex);
       if( r.isEpsilon() ) {
@@ -28,7 +28,9 @@ public class ChoiceParser<N,C extends Enum<C>>
       if( r.notApplicable() ) {
         continue;
       }
-      return r;
+      List<N> nodes = new ArrayList<N>(1);
+      r.addToNodeList(nodes);
+      return nodes;
     }
     
     throw new RuntimeException("this method was obviously called without making"+

@@ -1,6 +1,7 @@
 package absimpa.parserimpl;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import absimpa.*;
 
@@ -10,13 +11,21 @@ public abstract class AbstractParser<N,C extends Enum<C>>
   protected String name = null;
   protected final EnumSet<C> lookahead;
   protected final boolean mayBeEpsilon;
+  private NodeFactory<N> nodeFactory;
+  
   /*+******************************************************************/
   AbstractParser(EnumSet<C> lookahead, boolean mayBeEpsilon) {
     this.lookahead = lookahead;
     this.mayBeEpsilon = mayBeEpsilon;
+    this.nodeFactory = null;
   }
   /*+******************************************************************/
   public void setName(String name) { this.name = name; }
+  /*+******************************************************************/
+  public AbstractParser<N,C> setNodeFactory(NodeFactory<N> nf) {
+    this.nodeFactory = nf;
+    return this;
+  }
   /*+******************************************************************/
   @Override
   public N parse(Lexer<N,C> lex) throws ParseException {
@@ -40,10 +49,17 @@ public abstract class AbstractParser<N,C extends Enum<C>>
         return ParseResult.NOTAPPLICABLE();
       }
     }
-    return doParse(lex);
+    
+    List<N> nodes = doParse(lex);
+    
+    if( nodeFactory==null ) {
+      return new ParseResult<N>(nodes);
+    } else {
+      return new ParseResult<N>(nodeFactory.create(nodes));
+    }
   }
   /*+******************************************************************/
-  abstract ParseResult<N> doParse(Lexer<N,C> lex)
+  abstract List<N> doParse(Lexer<N,C> lex)
     throws ParseException;
   /*+******************************************************************/
   private String shortClassname() {

@@ -37,8 +37,8 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     First<N,C> f = child.first(firstOf);
     EnumSet<C> childLookahead = f.firstSet();
     AbstractParser<N,C> childParser = child.build(firstOf);
-    return new RepeatParser<N,C>(childLookahead, nf, 
-        childParser, min==0 || f.epsilon, min, max);
+    return new RepeatParser<N,C>(childLookahead, 
+        childParser, min==0 || f.epsilon, min, max).setNodeFactory(nf);
   }
   /*+******************************************************************/
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf) {
