@@ -95,6 +95,7 @@
       <arg value="absimpa.TestParsers"/>
       <arg value="absimpa.TestExprLanguage"/>
       <arg value="absimpa.TestPicky"/>
+      <arg value="absimpa.TestBNF"/>
     </java>
   </target>
 

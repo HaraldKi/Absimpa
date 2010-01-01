@@ -73,4 +73,15 @@ public class Sequence<N,C extends Enum<C>>
     }
     return new First<N,C>(firstSet, optional);
   }
+  /*+******************************************************************/
+  @Override
+  public String toString() {
+    String head = getName();
+    String tail = "";
+    if( head.length()>0 || children.size()>1) {
+      head = head + "(";
+      tail = ")";
+    }
+    return Util.join(children, head, " ", tail);
+  }
 }

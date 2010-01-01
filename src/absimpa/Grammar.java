@@ -158,6 +158,19 @@ public abstract class Grammar<N, C extends Enum<C>> {
   }
   /* +***************************************************************** */
   public String getName() {
+    StringBuilder sb = new StringBuilder();
+    if(name!=null) {
+      sb.append(name).append("->");
+      if( nodeFactory!=null ) {
+        sb.append(nodeFactory);
+      }
+    } else if( nodeFactory!=null ) {
+      sb.append(nodeFactory);
+    } 
+    return sb.toString();
+  }
+  /* +***************************************************************** */
+  private String getXXName() {
     StringBuilder sb = new StringBuilder(30);
     sb.append(shortClassname());
     String detail = getDetail();
@@ -187,7 +200,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
     // only Recurse needs to override.
   }
   /* +***************************************************************** */
-  public final String toString() {
+  public final String XXtoString() {
     return toString("");
   }
   /*+******************************************************************/

@@ -127,7 +127,7 @@ public class BNF<N, C extends Enum<C>> {
       case QUESTIONMARK:
         return new Node(new Repeat<N,C>(0, 1, child));
       case PLUS:
-        return new Node(new Repeat<N,C>(0, 1, child));
+        return new Node(new Repeat<N,C>(1, Integer.MAX_VALUE, child));
       default:
         assert false : "should not have TokenCode "+children.get(1).getCode();
       }
@@ -162,37 +162,41 @@ public class BNF<N, C extends Enum<C>> {
       return new Node(result);
     }
   };
-  /* +***************************************************************** */
-  public void rule(String name, String expansion) throws ParseException {
-    rule(name, expansion, Collections.<NodeFactory<N>>emptyList()); 
+  /*+******************************************************************/
+  public Grammar<N,C> getGrammar(String name) {
+    return syntaxMap.get(name);
   }
   /* +***************************************************************** */
-  public void rule(String name, String expansion, NodeFactory<N> nf) throws ParseException {
-    List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(2);
+  public Grammar<N,C> rule(String name, String expansion) throws ParseException {
+    return rule(name, expansion, Collections.<NodeFactory<N>>emptyList()); 
+  }
+  /* +***************************************************************** */
+  public Grammar<N,C> rule(String name, String expansion, NodeFactory<N> nf) throws ParseException {
+    List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(1);
     l.add(nf);
-    rule(name, expansion, l);
+    return rule(name, expansion, l);
   }
   /* +***************************************************************** */
-  public void rule(String name, String expansion, 
+  public Grammar<N,C> rule(String name, String expansion, 
                    NodeFactory<N> nf1, NodeFactory<N> nf2) throws ParseException {
     List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(2);
     l.add(nf1);
     l.add(nf2);
-    rule(name, expansion, l);
+    return rule(name, expansion, l);
   }
   /*+******************************************************************/
-  public void rule(String name, String expansion, 
+  public Grammar<N,C> rule(String name, String expansion, 
                    NodeFactory<N> nf1, 
                    NodeFactory<N> nf2,
                    NodeFactory<N> ...more) throws ParseException {
-    List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(2);
+    List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(2+more.length);
     l.add(nf1);
     l.add(nf2);
     for(NodeFactory<N> nf : more) l.add(nf);
-    rule(name, expansion, l);
+    return rule(name, expansion, l);
   }
   /* +***************************************************************** */
-  private void rule(String name, String expansion,
+  private Grammar<N,C> rule(String name, String expansion,
                    List<NodeFactory<N>> nodeFactories) throws ParseException
   {
     if( syntaxMap.containsKey(name) ) {
@@ -210,10 +214,12 @@ public class BNF<N, C extends Enum<C>> {
       placeHolder.setChild(child);
       //placeHolder.setName(name);
       syntaxMap.put(name, child);
+      return child;
     } else {
       Grammar<N,C> g = node.getGrammar();
       g.setName(name);
       syntaxMap.put(name, g);
+      return g;
     }
   }
   /*+******************************************************************/
@@ -290,29 +296,5 @@ public class BNF<N, C extends Enum<C>> {
     }
   }
   /*+******************************************************************/
-  enum X {A, B, C, D};
-  private static class NF implements NodeFactory<String>{
-    String name;
-    public NF(String name) {this.name = name;}
-    public String create(List<String> nodes) {
-      return Util.join(nodes, name+"[",  ",", "]");
-    }
-    public String toString() {
-      return "%"+name;
-    }
-  }
-  @SuppressWarnings("unchecked")
-  public static void main(String[] argv) throws Exception {
-
-    BNF<String,X> gb = new BNF<String,X>(X.class);
-    //@SuppressWarnings("unchecked")
-    gb.rule("top", 
-            "%( A | %(B C) | %(D* rest) )",
-            new NF("all"), new NF("bcpair"), new NF("drest"));
-    gb.rule("rest", "A 97978+");
-    //Parser<String,X> p = gb.compile("top");
-    System.out.println(gb.syntaxMap.get("top").toString());
-    System.out.println(gb.syntaxMap.get("rest").toString());
-  }
 }
 

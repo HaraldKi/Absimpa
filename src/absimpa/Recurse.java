@@ -48,4 +48,8 @@ public class Recurse<N,C extends Enum<C>>
     p = firstOf.get(child).getParser();
     myParser.setChild(p);
   }
+  /*+******************************************************************/
+  public String toString() {
+    return getName() + "[" + child.getName() + "]";
+  }
 }
