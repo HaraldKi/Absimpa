@@ -5,8 +5,11 @@ import java.util.*;
 import absimpa.parserimpl.AbstractParser;
 import absimpa.parserimpl.TokenParser;
 
-
-
+/**
+ * <p>a grammar to recognize a single token.</p>
+ * @param <C> is the type of token recognized.
+ * @param <N> is the type of object created from the token
+ */
 public class TokenGrammar<N,C extends Enum<C>>
     extends Grammar<N,C>
 {
@@ -18,7 +21,7 @@ public class TokenGrammar<N,C extends Enum<C>>
   @Override
   protected Iterable<Grammar<N,C>> children()
   {
-    return new ArrayList<Grammar<N,C>>(0);
+    return Collections.emptyList();
   }
   protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
     return new TokenParser<N,C>(code);
@@ -29,7 +32,7 @@ public class TokenGrammar<N,C extends Enum<C>>
     EnumSet<C> firstSet = EnumSet.of(code);
     return new First<N,C>(firstSet, false);
   }
-  public String toString() {
-    return String.format("%s{%s}", getName(), code);
+  public String getDetail() {
+    return code.toString();
   }
 }

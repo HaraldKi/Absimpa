@@ -21,7 +21,8 @@ public class ParseException extends Exception {
   private static final int UNSET = -1;
   private final Set<?> expectedTokenCodes;
   private final Enum<?> foundTokenCode;
-
+  private String moreInfo = null;
+  
   private String tokenText = null;
   private String sourceName = null;
   private int line = UNSET;
@@ -48,13 +49,19 @@ public class ParseException extends Exception {
     f.format("found token `%s", foundTokenCode);
     if( tokenText!=null ) f.format("(%s)'", tokenText);
     else sb.append('\'');
-    if( expectedTokenCodes.size()!=1 ) {
-      f.format(" but expected one of %s", expectedTokenCodes);
-    } else {
-      sb.append(" but expected `")
-      .append(expectedTokenCodes.iterator().next())
-      .append('\'');
+    if( expectedTokenCodes.size()!=0 ) {
+      if( expectedTokenCodes.size()!=1 ) {
+        f.format(" but expected one of %s", expectedTokenCodes);
+      } else {
+        sb.append(" but expected `")
+        .append(expectedTokenCodes.iterator().next())
+        .append('\'');
+      }
     }
+    if( moreInfo!=null ) {
+      sb.append("; ").append(moreInfo);
+    }
+                          
     return sb.toString();
   }
   /*+******************************************************************/
@@ -109,5 +116,12 @@ public class ParseException extends Exception {
    */    
   public void setTokenText(String tokenText) {
     this.tokenText = tokenText;
+  }
+  /*+******************************************************************/
+  public void setMoreInfo(String moreInfo) {
+    this.moreInfo = moreInfo;
+  }
+  public String getMoreInfo() {
+    return moreInfo;
   }
 }

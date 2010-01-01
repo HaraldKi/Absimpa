@@ -27,7 +27,7 @@ public interface Lexer<N, TokenCode extends Enum<TokenCode>> {
    * current token internally to the next one.
    * </p>
    */
-  N next();
+  N next() throws ParseException;
   /**
    * <p>
    * provides the current token code. This method must always return the

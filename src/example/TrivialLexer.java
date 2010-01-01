@@ -27,10 +27,14 @@ import absimpa.*;
  * </p>
  * 
  * <p>
- * If no match can be found, the first character of the input is silently
- * discarded and the lexer starts over trying to match the regular
- * expressions. Consequently, input that cannot be matched is silently
- * discarded.
+ * If no match can be found, the behaviour depends on whether
+ * {@link #setSkipRe setSkipRe()} was called. If yes, the regular expression
+ * is tried, and if it matches, the corresponding text is ignored and the
+ * lexer starts over trying to match the regular expressions. If the skip
+ * regular expression does not match, a ParserException is thrown. If no
+ * regular expression to skip was set, or if it was set to {@code null}, the
+ * lexer behaves as if every non-matching character may be skipped.
+ * Consequently, input that cannot be matched is then silently discarded.
  * </p>
  * 
  * @param <C> is an enumeration and describes the token codes provided to the
@@ -39,15 +43,19 @@ import absimpa.*;
  * @param <N> is the date type returned for a token when the parser has
  *        recognized it and calles {@link #next}
  */
-public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lexer<N,C> {
+public class TrivialLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<TokenInfo<N,C>>();
   private final Token<N,C> eofToken;
 
+  private final LeafFactory<N,C> leafFactory;
+  
   private final StringBuilder restText = new StringBuilder();  
   private Token<N,C> currentToken = null;
 
   private int line;
   private int column;
+  
+  private Pattern skip = null;
   /*+******************************************************************/
   /**
    * <p>
@@ -55,8 +63,9 @@ public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lex
    * when the end of input is encountered.
    * </p>
    */
-  public TrivialLexer(C eofCode) {
+  public TrivialLexer(C eofCode, LeafFactory<N,C> leafFactory) {
     eofToken = new Token<N,C>("", eofCode);
+    this.leafFactory = leafFactory; 
   }
   /*+******************************************************************/
   /**
@@ -66,13 +75,17 @@ public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lex
    * called internally.
    * </p>
    */
-  public void initAnalysis(CharSequence text) {    
+  public void initAnalysis(CharSequence text) throws ParseException {    
     restText.setLength(0);
     restText.append(text);
     line = 1;
     column = 1;
     currentToken = null;
     nextToken();
+  }
+  /*+******************************************************************/
+  public void setSkipRe(String regex) {
+    skip = Pattern.compile(regex);
   }
   /*+******************************************************************/
   public ParseException parseException(Set<C> expectedTokens) {
@@ -114,17 +127,17 @@ public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lex
    * 
    * @return a token code or, on end of input, the specific token code
    *         provided to the constructor
+   * @throws ParseException<C> 
    */
   @Override
-  public N next() {
-    C code = currentToken.getCode();
-    N node = code.create(this);
+  public N next() throws ParseException {
+    N node = leafFactory.create(this);
     nextToken();
     return node;
   }
   
   /*+******************************************************************/
-  private void nextToken() {
+  private void nextToken() throws ParseException {
     countToken();
     while( restText.length()!=0 ) {
       for(TokenInfo<N,C> ti : tokenInfos) {
@@ -133,10 +146,32 @@ public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lex
         createCurrentToken(ti, m);
         return;
       }
-      restText.deleteCharAt(0);
-      column += 1;
+      if( skip!=null ) {
+        applySkip();
+      } else {
+        restText.deleteCharAt(0);
+        column += 1;
+      }
     }
     currentToken = eofToken;
+  }
+  /*+******************************************************************/
+  private void applySkip() throws ParseException {
+    Matcher m = skip.matcher(restText);
+    if( !m.lookingAt() ) {
+      ParseException e = parseException(Collections.<C>emptySet());
+      String snippet;
+      int SNIPLEN = 20;
+      if( restText.length()>SNIPLEN+3 ) {
+        snippet = restText.substring(0, SNIPLEN)+"...";
+      } else {
+        snippet = restText.toString();
+      }
+      e.setMoreInfo("cannot then find valid token looking at: "+snippet);
+      throw e;
+    }
+    column += m.end();
+    restText.delete(0, m.end());    
   }
   /* +***************************************************************** */
   /**
@@ -170,5 +205,18 @@ public class TrivialLexer<N,C extends Enum<C> & LeafFactory<N,C>> implements Lex
       this.p = p;
       this.c = c;
     }
+  }
+  /*+******************************************************************/
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("TrivialLexer[(").append(currentToken.getCode())
+    .append(",").append(currentText()).append(") \"");
+    if( restText.length()>12 ) {
+      sb.append(restText.substring(0, 9)).append("...");
+    } else {
+      sb.append(restText);
+    }
+    sb.append("\"]");
+    return sb.toString();
   }
 }

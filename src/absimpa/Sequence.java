@@ -39,6 +39,10 @@ public class Sequence<N,C extends Enum<C>>
     return Collections.unmodifiableList(children);
   }
   /* +***************************************************************** */
+  protected String getDetail() {
+    return "";
+  }
+  /* +***************************************************************** */
   protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
     List<AbstractParser<N,C>> childParsers =
         new ArrayList<AbstractParser<N,C>>(children.size());

@@ -1,5 +1,7 @@
 package example;
 
-public interface LeafFactory<N,C extends Enum<C> & LeafFactory<N,C>> {
-  N create(TrivialLexer<N,C> lex);
+import absimpa.ParseException;
+
+public interface LeafFactory<N, C extends Enum<C>> {
+  N create(TrivialLexer<N,C> lex) throws ParseException;
 }

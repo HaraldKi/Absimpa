@@ -16,9 +16,11 @@ public class Recurse<N,C extends Enum<C>>
     this.child = child;
   }
   protected Iterable<Grammar<N,C>> children() {
-    List<Grammar<N,C>> l = new ArrayList<Grammar<N,C>>();
-    l.add(child);
-    return l;
+    return Collections.singletonList(child);
+   }
+  /* +***************************************************************** */
+  protected String getDetail() {
+    return "";
   }
   /* +***************************************************************** */
   @Override

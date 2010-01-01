@@ -13,7 +13,7 @@ import absimpa.*;
 public class ExprLanguage {
   public static class L extends TrivialLexer<Expr,Codes> {
     public L(Codes eofCode) {
-      super(eofCode);
+      super(eofCode, new AutoMappedLeafFactory());
     }    
     @Override
     public L addToken(Codes tc, String regex) {
@@ -66,10 +66,19 @@ public class ExprLanguage {
       }
     },
     OPAREN, CPAREN, EOF;
+
     @Override
     public Expr create(TrivialLexer<Expr,Codes> lex) {
       return null;
     }
+  }
+  private static class AutoMappedLeafFactory implements LeafFactory<Expr,Codes> {
+
+    @Override
+    public Expr create(TrivialLexer<Expr,Codes> lex) {
+      return lex.current().create(lex);
+    }
+    
   }
   private static enum Etype {
     NUMBER, PLUS, MINUS, TIMES, DIVIDE;

@@ -30,7 +30,7 @@ public class TestPicky {
   /*+******************************************************************/
   private static final class L extends TrivialLexer<String,Codes> {
     public L(Codes eofToken) {
-      super(eofToken);
+      super(eofToken, leafFactory);
       addToken(Codes.TERM, "[A-Za-z][A-Za-z0-9]*");
       addToken(Codes.NUMBER, "[0-9]+");
       addToken(Codes.SPACE, "\\s+");
@@ -39,6 +39,16 @@ public class TestPicky {
       addToken(Codes.MINUS, "[-]");
     }
   }
+  /*+******************************************************************/
+  private static LeafFactory<String,Codes> leafFactory = new LeafFactory<String,Codes>() {
+    @Override
+    public String create(TrivialLexer<String,Codes> lex)
+      throws ParseException
+    {
+      return lex.current().create(lex);
+    }
+    
+  };
   /* +***************************************************************** */
   private static final class NodeMaker
       implements NodeFactory<String>
@@ -223,7 +233,7 @@ public class TestPicky {
       gb.seq(term.opt(new NodeMaker("oterm")),
              gb.seq(space,number).star(new NodeMaker("mystar"))
       ).setNodeFactory(new NodeMaker("top"));
-   
+    
     Parser<String,Codes> p = g.compile();
     String result = analyze("abc 123 45 234 234", p);
     System.out.println(result);

@@ -48,11 +48,15 @@ class ParseResult<N> {
   public void addToNodeList(List<N> nodes) {
     nodes.addAll(this.nodes);
   }
-  /*+******************************************************************/
-  // FIXME: need to rename to getNode after I found all calls to the old, trivial getNode
+  /* +***************************************************************** */
+  // FIXME: need to rename to getNode after I found all calls to the old,
+  // trivial getNode
   public N getXNode() {
     if( nodes.size()>1 ) {
-      throw new IllegalStateException("parse result has more than one node");
+      String msg =
+          "parse result has more than one node, likely a forgotten "
+              +"NodeFactory";
+      throw new IllegalStateException(msg);
     }
     if( nodes.size()==0 ) {
       return null;

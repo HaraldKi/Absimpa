@@ -55,7 +55,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
   /*+******************************************************************/
   /**
    * <p>
-   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * wraps {@code this} into a {@link Repeat} with {@code min=0} and {code
    * max} really huge.
    * </p>
    */
@@ -64,7 +64,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
   }
   /**
    * <p>
-   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * wraps {@code this} into a {@link Repeat} with {@code min=0} and {code
    * max} really huge.
    * </p>
    */
@@ -74,7 +74,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
   /*+******************************************************************/
   /**
    * <p>
-   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * wraps {@code this} into a {@link Repeat} with {@code min=0} and {code
    * max=1}.
    * </p>
    */
@@ -83,7 +83,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
   }
   /**
    * <p>
-   * wraps {@code this} into a {@link Repeat}. with {@code min=0} and {code
+   * wraps {@code this} into a {@link Repeat} with {@code min=0} and {code
    * max=1}.
    * </p>
    */
@@ -139,6 +139,14 @@ public abstract class Grammar<N, C extends Enum<C>> {
   protected abstract Iterable<Grammar<N,C>> children();
   protected abstract AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
   protected abstract First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf);
+  /**
+   * to be implemented by subclasses in order to provide some detail to be
+   * put into the toString() output, e.g. the name of the token code for a
+   * TokenGrammar or the number of repetitions for a repeat.
+   * 
+   * @return
+   */
+  protected abstract String getDetail();
   /* +***************************************************************** */
   /**
    * used by {@link #toString} only, not needed for the function of the
@@ -150,21 +158,21 @@ public abstract class Grammar<N, C extends Enum<C>> {
   }
   /* +***************************************************************** */
   public String getName() {
-    if( name!=null ) return name;
-    return shortClassname();
-  }
-  /* +***************************************************************** */
-  /**
-   * returns a name and, potentially, the names of direct children.
-   */
-  public String toString() {
-    StringBuilder sb = new StringBuilder(getName());
-    char sep = '[';
-    for(Grammar<N,C> g : children()) {
-      sb.append(sep).append(g.getName());
-      sep = ',';
+    StringBuilder sb = new StringBuilder(30);
+    sb.append(shortClassname());
+    String detail = getDetail();
+    if( name!=null || detail.length()>0 ) {
+      sb.append('(');
+      String sep = "";
+      if(name!=null) {
+        sb.append(name);
+        sep = ":"; 
+      }
+      if( detail.length()>0 ) {
+        sb.append(sep).append(detail);
+      }
+      sb.append(')');
     }
-    if( sep==',') sb.append(']');
     return sb.toString();
   }
   /* +***************************************************************** */
@@ -179,4 +187,33 @@ public abstract class Grammar<N, C extends Enum<C>> {
     // only Recurse needs to override.
   }
   /* +***************************************************************** */
+  public final String toString() {
+    return toString("");
+  }
+  /*+******************************************************************/
+  private String toString(String indent) {
+    StringBuilder sb = new StringBuilder();
+    
+    sb.append(indent).append(getName());
+    appendNodeFactory(sb);
+
+    if( this instanceof Recurse<?,?> || this instanceof TokenGrammar<?,?> ) {
+      return sb.toString();
+    }
+    
+    sb.append("[\n");
+    for(Grammar<N,C> child : children()) {
+      sb.append(child.toString("  "+indent));
+      sb.append('\n');
+    }
+    sb.append(indent).append("]");
+    return sb.toString();
+  }
+  /*+******************************************************************/
+  private void appendNodeFactory(StringBuilder sb) {
+    if( nodeFactory!=null ) {
+      sb.append('{').append(nodeFactory).append('}');
+    }    
+  }
+  /*+******************************************************************/
 }

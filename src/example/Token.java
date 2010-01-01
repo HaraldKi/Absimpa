@@ -6,7 +6,7 @@ package example;
  * enumeration <code>C</code>.
  * </p>
  */
-public final class Token<N,C extends Enum<C> &LeafFactory<N,C>> {
+public final class Token<N,C extends Enum<C>> {
   private final String text;
   private final C c;
 

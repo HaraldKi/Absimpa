@@ -26,9 +26,7 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
   }
   /* +***************************************************************** */
   protected Iterable<Grammar<N,C>> children() {
-    ArrayList<Grammar<N,C>> l = new ArrayList<Grammar<N,C>>();
-    l.add(child);
-    return l;
+    return Collections.singletonList(child);
    }
   /*+******************************************************************/
   protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
@@ -46,5 +44,23 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
       return new First<N,C>(f.firstSet(), mayBeEpsilon);
     }
     else return f;
+  }
+  /*+******************************************************************/
+  public String getDetail() {
+    if( min==0 ) {
+      if( max==1 ) return "?";
+      if( max==Integer.MAX_VALUE ) return "*";
+    }
+    if( min==1 ) {
+      if( max==Integer.MAX_VALUE ) return "+";
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(min).append(',');
+    if( max==Integer.MAX_VALUE ) {
+      sb.append("...");
+    } else {
+      sb.append(max);
+    }
+    return sb.toString();
   }
 }

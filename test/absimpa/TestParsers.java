@@ -19,7 +19,7 @@ import example.*;
 public class TestParsers {
   private static class L extends TrivialLexer<TestNode,Codes> {
     public L(Codes eofCode) {
-      super(eofCode);
+      super(eofCode, leafFactory);
     }    
     @Override
     public L addToken(Codes tc, String regex) {
@@ -45,6 +45,16 @@ public class TestParsers {
       return new LeafNode(lex.currentToken());
     }
   }
+  /*+******************************************************************/
+  private static LeafFactory<TestNode,Codes> leafFactory = new LeafFactory<TestNode,Codes>() {
+    @Override
+    public TestNode create(TrivialLexer<TestNode,Codes> lex)
+      throws ParseException
+    {
+      return lex.current().create(lex);
+    }
+    
+  };
   /* +***************************************************************** */
   private static enum NodeType implements NodeFactory<TestNode>{
     DEFAULT, TOKEN, AND, OR, ORS, ORP, SCOPE, TERMLIST, SEQ, NOT, OPENPAREN, CLOSEPAREN;

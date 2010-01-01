@@ -25,6 +25,10 @@ public class Choice<N,C extends Enum<C>>
     return Collections.unmodifiableList(children);
   }
   /* +***************************************************************** */
+  protected String getDetail() {
+    return "";
+  }
+  /* +***************************************************************** */
   protected AbstractParser<N,C> buildParser(
                                             Map<Grammar<N,C>,First<N,C>> firstOf)
   {
