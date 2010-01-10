@@ -24,7 +24,8 @@ public class BNF<N, C extends Enum<C>> {
   
   /*+******************************************************************/
   private static enum TokenCode  {
-    EOF, SYMBOL, STAR, PLUS, OPAREN, CPAREN, QUESTIONMARK, BAR, PERCENT;
+    EOF, SYMBOL, NUMBER, STAR, PLUS, OPAREN, CPAREN, QUESTIONMARK, BAR, PERCENT,
+    LBRACE, RBRACE, COMMA;
   }
   /* +***************************************************************** */
   public BNF(Class<C> enumClass) {
@@ -32,9 +33,16 @@ public class BNF<N, C extends Enum<C>> {
     // expr -> product ( "|" product)*
     // product -> term (term)*
     // term -> literal (oper)?
-    // oper -> "+" | "*" | "?"
+    // oper -> "+" | "*" | "?" | "{" range "}"
+    // range -> number ("," (number | "*"))?
     // literal -> symbol | "%"? "(" expr ")"
     // symbol -> {any token registered by the user}
+
+    
+    //..
+    // TODO: Require to pre-decleare recursive rules. Otherwise a simple typo
+    // ends up somewhere with an NPE
+    //
 
     C[] constants = enumClass.getEnumConstants();
     syntaxMap = new HashMap<String,Grammar<N,C>>(constants.length);
@@ -47,6 +55,7 @@ public class BNF<N, C extends Enum<C>> {
     Recurse<Node,TokenCode> recurse = new Recurse<Node,TokenCode>();
 
     Grammar<Node,TokenCode> symbol = gb.token(TokenCode.SYMBOL);
+    Grammar<Node,TokenCode> number = gb.token(TokenCode.NUMBER);
     Grammar<Node,TokenCode> oparen = gb.token(TokenCode.OPAREN);
     Grammar<Node,TokenCode> cparen = gb.token(TokenCode.CPAREN);
     Grammar<Node,TokenCode> star = gb.token(TokenCode.STAR);
@@ -54,6 +63,9 @@ public class BNF<N, C extends Enum<C>> {
     Grammar<Node,TokenCode> questionmark = gb.token(TokenCode.QUESTIONMARK);
     Grammar<Node,TokenCode> bar = gb.token(TokenCode.BAR);
     Grammar<Node,TokenCode> nfmark = gb.token(TokenCode.PERCENT);
+    Grammar<Node,TokenCode> lbrace = gb.token(TokenCode.LBRACE);
+    Grammar<Node,TokenCode> rbrace = gb.token(TokenCode.RBRACE);
+    Grammar<Node,TokenCode> comma = gb.token(TokenCode.COMMA);
 
     Grammar<Node,TokenCode> parenExpr =
         gb.seq(gb.opt(nfmark), oparen, recurse, cparen)
@@ -61,7 +73,17 @@ public class BNF<N, C extends Enum<C>> {
 
     Grammar<Node,TokenCode> literal = gb.choice(symbol, parenExpr);
 
-    Grammar<Node,TokenCode> oper = gb.choice(plus, star, questionmark);
+    Grammar<Node,TokenCode> range = 
+      gb.seq(number,
+             gb.seq(comma, 
+                    gb.choice(number, star)).opt());
+                                      
+    Grammar<Node,TokenCode> oper = 
+      gb.choice(plus, 
+                star, 
+                questionmark, 
+                gb.seq(lbrace, range, rbrace)
+                );
 
     Grammar<Node,TokenCode> term =
         gb.seq(literal, gb.opt(oper)).setNodeFactory(makeLiteral);
@@ -77,12 +99,18 @@ public class BNF<N, C extends Enum<C>> {
     parser = expr.compile();
 
     lex = new TrivialLexer<Node,TokenCode>(TokenCode.EOF, new MyLeafs());
-    lex.addToken(TokenCode.SYMBOL, "[A-Za-z][A-Za-z0-9]*").addToken(TokenCode.STAR,
-                                                            "[*]")
-      .addToken(TokenCode.PLUS, "[+]").addToken(TokenCode.OPAREN, "[(]")
-      .addToken(TokenCode.CPAREN, "[)]").addToken(TokenCode.QUESTIONMARK,
-                                                  "[?]")
-      .addToken(TokenCode.BAR, "[|]").addToken(TokenCode.PERCENT, "[%]");
+    lex.addToken(TokenCode.SYMBOL, "[A-Za-z][A-Za-z0-9]*");
+    lex.addToken(TokenCode.NUMBER, "[0-9]+");
+    lex.addToken(TokenCode.STAR,"[*]");
+    lex.addToken(TokenCode.PLUS, "[+]");
+    lex.addToken(TokenCode.OPAREN, "[(]");
+    lex.addToken(TokenCode.CPAREN, "[)]");
+    lex.addToken(TokenCode.QUESTIONMARK,"[?]");
+    lex.addToken(TokenCode.BAR, "[|]");
+    lex.addToken(TokenCode.PERCENT, "[%]");
+    lex.addToken(TokenCode.LBRACE, "[{]");
+    lex.addToken(TokenCode.RBRACE, "[}]");
+    lex.addToken(TokenCode.COMMA, "[,]");
     lex.setSkipRe("[\\s]+");
   }
   /*+******************************************************************/
@@ -101,8 +129,8 @@ public class BNF<N, C extends Enum<C>> {
       if( children.size()==1 ) {
         return children.get(0);
       }
-      assert children.size()!=2 : "must have one or two children but have "+children.size(); 
-      assert children.get(0).code == TokenCode.PERCENT;
+      assert children.size()==2 : "must have one or two children but have "+children.size(); 
+      assert children.get(0).nodeFactory != null;
       
       Node childNode = children.get(1);
       Grammar<N,C> child = childNode.getGrammar();
@@ -118,7 +146,10 @@ public class BNF<N, C extends Enum<C>> {
       if( children.size()==1 ) {
         return children.get(0);
       }
-      assert children.size()!=2 : "must have one or two children but have "+children.size(); 
+
+      if( children.get(1).getNum()!=null ) {
+        return createRepeatFromRange(children);
+      }
 
       Grammar<N,C> child = children.get(0).getGrammar();
       switch( children.get(1).getCode() ) {
@@ -132,6 +163,21 @@ public class BNF<N, C extends Enum<C>> {
         assert false : "should not have TokenCode "+children.get(1).getCode();
       }
       return null;
+    }
+    private final Node createRepeatFromRange(List<Node> children) {
+      int from = children.get(1).getNum().intValue();
+      int to;
+      if( children.size()==3 ) {
+        if( children.get(2).getCode()==TokenCode.STAR ) {
+          to = Integer.MAX_VALUE;          
+        } else {
+          to = children.get(2).getNum().intValue();
+        }
+      } else {
+        to = from;
+      }
+      Grammar<N,C> g = new Repeat<N,C>(from, to, children.get(0).getGrammar());
+      return new Node(g);
     }
   };
   /*+******************************************************************/
@@ -253,6 +299,16 @@ public class BNF<N, C extends Enum<C>> {
       case PLUS:
       case QUESTIONMARK:
         return new Node(current);
+      case NUMBER:
+        try {
+          Integer num = Integer.parseInt(lex.currentText());
+          return new Node(num);
+        } catch( NumberFormatException e) {
+          ParseException ex = lex.parseException(Collections.<TokenCode>emptySet());
+          ex.setMoreInfo("cannot parse number, it is likely too large");
+          ex.initCause(e);
+          throw ex;
+        }
       case PERCENT:
         if( nfmarkStack.size()<1 ) {
           ParseException e = lex.parseException(Collections.<TokenCode>emptySet());
@@ -270,20 +326,30 @@ public class BNF<N, C extends Enum<C>> {
     private final Grammar<N,C> grammar;
     private final TokenCode code;
     private final NodeFactory<N> nodeFactory;
+    private final Integer num;
     public Node(Grammar<N,C> grammar) {
       this.grammar = grammar;
       this.code = null;
       this.nodeFactory = null;
+      this.num = null;
     }
     public Node(TokenCode code) {
       this.grammar = null;
       this.code = code;
       this.nodeFactory = null;
+      this.num = null;
     }
     public Node(NodeFactory<N> nodeFactory) {
       this.grammar = null;
       this.code = null;
       this.nodeFactory = nodeFactory;
+      this.num= null;
+    }
+    public Node(int num) {
+      this.grammar = null;
+      this.code = null;
+      this.nodeFactory = null;
+      this.num = Integer.valueOf(num);
     }
     public Grammar<N,C> getGrammar() {
       return grammar;
@@ -293,6 +359,9 @@ public class BNF<N, C extends Enum<C>> {
     }
     public NodeFactory<N> getNodeFactory() {
       return nodeFactory;
+    }
+    public Integer getNum() {
+      return num;
     }
   }
   /*+******************************************************************/

@@ -57,7 +57,7 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     StringBuilder sb = new StringBuilder();
     sb.append(min).append(',');
     if( max==Integer.MAX_VALUE ) {
-      sb.append("...");
+      sb.append("*");
     } else {
       sb.append(max);
     }

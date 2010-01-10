@@ -49,9 +49,7 @@ class ParseResult<N> {
     nodes.addAll(this.nodes);
   }
   /* +***************************************************************** */
-  // FIXME: need to rename to getNode after I found all calls to the old,
-  // trivial getNode
-  public N getXNode() {
+  public N getNode() {
     if( nodes.size()>1 ) {
       String msg =
           "parse result has more than one node, likely a forgotten "

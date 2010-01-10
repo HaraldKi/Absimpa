@@ -57,6 +57,7 @@ public class TestBNF {
   @Test
   public void placeholderTest() throws Exception {
     Grammar<String,Token> g = bnf.rule("assign", "IDENT EQUAL expr");
+    Grammar<String,Token> m = bnf.rule("m", "expr | NUMBER");
     Grammar<String,Token> h = bnf.rule("expr", "IDENT | NUMBER");
     
     //System.out.println(g);
@@ -64,6 +65,9 @@ public class TestBNF {
     
     //System.out.println(h);
     assertEquals("expr->(IDENT | NUMBER)", h.toString());
+    
+    //System.out.println(m);
+    assertEquals("m->([expr->] | NUMBER)", m.toString());
   }
   /*+******************************************************************/
   @Test
@@ -74,6 +78,76 @@ public class TestBNF {
     //System.out.println(g);
     assertEquals("R->(%pair1(IDENT NUMBER) | %pair2(MINUS PLUS))", 
                  g.toString());
+  }
+  /*+******************************************************************/
+  @Test
+  public void rangeTest() throws Exception {
+    Grammar<String,Token> g;
+    g = bnf.rule("R", "IDENT{2,7}");
+    //System.out.println(g);
+    assertEquals("R->(IDENT){2,7}", g.toString());
+    
+    g = bnf.rule("S", "NUMBER{3}");
+    //System.out.println(g);
+    assertEquals("S->(NUMBER){3,3}", g.toString());
+    
+    g = bnf.rule("T", "EQUAL{0,*}");
+    //System.out.println(g);
+    assertEquals("T->(EQUAL)*", g.toString());
+
+    g = bnf.rule("U", "EQUAL{3,*}");
+    //System.out.println(g);
+    assertEquals("U->(EQUAL){3,*}", g.toString());
+  }
+  /*+******************************************************************/
+  @Test
+  public void rangeTooLarge() throws Exception {
+    Throwable ee = null;
+    try {
+      bnf.rule("R", "IDENT{2,777777777777777777777777777777}");
+    } catch( ParseException e) {
+      ee = e.getCause();
+    }
+    assertEquals(NumberFormatException.class, ee.getClass());
+  }
+  /*+******************************************************************/
+  @Test 
+  public void missingNodeFactory() throws Exception {
+    Exception ee = null;
+    try {
+      bnf.rule("R", "%(IDENT)");
+    } catch( ParseException e ) {
+      ee = e;
+    }
+    assertTrue(ee.getMessage().endsWith("not enough node factories"));
+  }
+  /*+******************************************************************/
+  @Test(expected=IllegalArgumentException.class)
+  public void multiplyDefinedName() throws Exception {
+    bnf.rule("a", "IDENT");
+    bnf.rule("a", "NUMBER");
+  }
+  /*+******************************************************************/
+  @Test
+  public void testGetGrammar() throws Exception {
+    Grammar<String,Token> g = bnf.rule("assign", "IDENT EQUALS NUMBER");
+    assertEquals(g, bnf.getGrammar("assign"));
+  }
+  /*+******************************************************************/
+  @Test
+  public void manyNodeFactories() throws Exception {
+    @SuppressWarnings("unchecked")
+    Grammar<String,Token> g = 
+      bnf.rule("a", "%(IDENT | %(NUMBER) | %(EQUAL))",
+               new NF("all"), new NF("num"), new NF("="));
+    //System.out.println(g);
+    assertEquals("a->%all(IDENT | %numNUMBER | %=EQUAL)", g.toString());
+  }
+  /*+******************************************************************/
+  @Test(expected=IllegalStateException.class)
+  public void missingDefinitions() throws Exception {
+    bnf.rule("a", "IDENT | expr");
+    bnf.compile("a");    
   }
   /*+******************************************************************/
 }

@@ -170,63 +170,8 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return sb.toString();
   }
   /* +***************************************************************** */
-  private String getXXName() {
-    StringBuilder sb = new StringBuilder(30);
-    sb.append(shortClassname());
-    String detail = getDetail();
-    if( name!=null || detail.length()>0 ) {
-      sb.append('(');
-      String sep = "";
-      if(name!=null) {
-        sb.append(name);
-        sep = ":"; 
-      }
-      if( detail.length()>0 ) {
-        sb.append(sep).append(detail);
-      }
-      sb.append(')');
-    }
-    return sb.toString();
-  }
-  /* +***************************************************************** */
-  private String shortClassname() {
-    String className = getClass().getName();
-    int p = className.lastIndexOf('.');
-    if( p<0 ) return className;
-    return className.substring(p+1, className.length());
-  }
-  /* +***************************************************************** */
   protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {
     // only Recurse needs to override.
   }
   /* +***************************************************************** */
-  public final String XXtoString() {
-    return toString("");
-  }
-  /*+******************************************************************/
-  private String toString(String indent) {
-    StringBuilder sb = new StringBuilder();
-    
-    sb.append(indent).append(getName());
-    appendNodeFactory(sb);
-
-    if( this instanceof Recurse<?,?> || this instanceof TokenGrammar<?,?> ) {
-      return sb.toString();
-    }
-    
-    sb.append("[\n");
-    for(Grammar<N,C> child : children()) {
-      sb.append(child.toString("  "+indent));
-      sb.append('\n');
-    }
-    sb.append(indent).append("]");
-    return sb.toString();
-  }
-  /*+******************************************************************/
-  private void appendNodeFactory(StringBuilder sb) {
-    if( nodeFactory!=null ) {
-      sb.append('{').append(nodeFactory).append('}');
-    }    
-  }
-  /*+******************************************************************/
 }
