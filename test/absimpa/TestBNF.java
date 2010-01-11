@@ -150,4 +150,11 @@ public class TestBNF {
     bnf.compile("a");    
   }
   /*+******************************************************************/
+  @Test(expected=LeftRecursiveException.class)
+  public void leftrecursiveLoop() throws Exception {
+    bnf.rule("a", "b IDENT");
+    bnf.rule("b", "a EQUAL NUMBER");
+    bnf.compile("a");
+  }
+  /*+******************************************************************/
 }
