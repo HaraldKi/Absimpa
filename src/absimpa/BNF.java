@@ -1,11 +1,9 @@
-package absimpa.wisent;
+package absimpa;
 
 import java.util.*;
 
 import example.LeafFactory;
 import example.TrivialLexer;
-
-import absimpa.*;
 
 public class BNF<N, C extends Enum<C>> {
   // For grammars entered with rule();
@@ -253,20 +251,19 @@ public class BNF<N, C extends Enum<C>> {
     lex.initAnalysis(expansion);
     Node node = parser.parse(lex);
 
+    Grammar<N,C> g = node.getGrammar();
+    g.setName(name);
+
     Recurse<N,C> placeHolder = placeHolders.remove(name);
     if( placeHolder!=null ) {
-      Grammar<N,C> child = node.getGrammar();
-      child.setName(name);
-      placeHolder.setChild(child);
-      //placeHolder.setName(name);
-      syntaxMap.put(name, child);
-      return child;
-    } else {
-      Grammar<N,C> g = node.getGrammar();
-      g.setName(name);
-      syntaxMap.put(name, g);
-      return g;
+      placeHolder.setChild(g);
+      placeHolder.setName("r#"+name);
+      g = placeHolder;
     }
+
+    syntaxMap.put(name, g);
+
+    return g;
   }
   /*+******************************************************************/
   public Parser<N,C> compile(String ruleNname) {

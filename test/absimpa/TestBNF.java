@@ -5,7 +5,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import absimpa.wisent.BNF;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -59,15 +58,21 @@ public class TestBNF {
     Grammar<String,Token> g = bnf.rule("assign", "IDENT EQUAL expr");
     Grammar<String,Token> m = bnf.rule("m", "expr | NUMBER");
     Grammar<String,Token> h = bnf.rule("expr", "IDENT | NUMBER");
+    Grammar<String,Token> n = bnf.rule("n", "expr | NUMBER");
     
-    //System.out.println(g);
-    assertEquals("assign->(IDENT EQUAL [expr->])", g.toString());
+    System.out.println(g);
+    assertEquals("assign->(IDENT EQUAL r#expr->[expr->])", g.toString());
     
-    //System.out.println(h);
+    System.out.println(h);
     assertEquals("expr->(IDENT | NUMBER)", h.toString());
     
-    //System.out.println(m);
+    System.out.println(m);
     assertEquals("m->([expr->] | NUMBER)", m.toString());
+    
+    System.out.println(n);
+    String sm = m.toString().substring(1);
+    String sn = n.toString().substring(1);
+    assertEquals(sn, sm);
   }
   /*+******************************************************************/
   @Test
