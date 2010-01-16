@@ -389,29 +389,11 @@ public class BNF<N, C extends Enum<C>> {
     }
   }
   /*+******************************************************************/
-  private static void showGrammar(Grammar<?,?> grammar) {
-                                
-    Set<Grammar<?,?>> known = new HashSet<Grammar<?,?>>();
-    List<Grammar<?,?>> grammars = new ArrayList<Grammar<?,?>>();
-    grammars.add(grammar);
-    
-    while( grammars.size()>0 ) {
-      Grammar<?,?> g = grammars.remove(0);
-      known.add(g);
-      if( g.getName()!=null ) {
-        System.out.printf("%s --> %s%n", g, g.ruleString());
-      }
-      for(Grammar<?,?> child : g.children() ) {
-        if( !known.contains(child) ) grammars.add(child);
-      }
-    }
-  }
-  /*+******************************************************************/
   static enum Code { TOK1, TOK2, TOK3;}
   public static void main(String[] argv) {
     
     BNF<String,Code> bnf = new BNF<String,Code>(Code.class);
-    showGrammar(bnf.getGrammar());
+    System.out.println(bnf.getGrammar().toBNF());
   }
 }
 

@@ -136,6 +136,10 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return f;
   }
   /* +***************************************************************** */
+  protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {
+    // only Recurse needs to override.
+  }
+  /* +***************************************************************** */
   protected abstract Iterable<Grammar<N,C>> children();
   protected abstract AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
   protected abstract First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf);
@@ -174,8 +178,23 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return ruleString();
   }
   /* +***************************************************************** */
-  protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {
-    // only Recurse needs to override.
+  public final String toBNF() {
+    
+    Set<Grammar<?,?>> known = new HashSet<Grammar<?,?>>();
+    List<Grammar<?,?>> grammars = new ArrayList<Grammar<?,?>>();
+    grammars.add(this);
+    StringBuilder sb = new StringBuilder();
+    while( grammars.size()>0 ) {
+      Grammar<?,?> g = grammars.remove(0);
+      known.add(g);
+      if( g.getName()!=null ) {
+        sb.append(g).append(" --> ").append(g.ruleString()).append('\n');
+      }
+      for(Grammar<?,?> child : g.children() ) {
+        if( !known.contains(child) ) grammars.add(child);
+      }
+    }
+    return sb.toString();
   }
-  /* +***************************************************************** */
+  /*+******************************************************************/
 }
