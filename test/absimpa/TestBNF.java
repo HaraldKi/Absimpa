@@ -20,7 +20,7 @@ public class TestBNF {
     bnf = new BNF<String,Token>(Token.class);
   }
   /*+******************************************************************/
-  private final class NF implements NodeFactory<String> {
+  private static final class NF implements NodeFactory<String> {
     private final String name;
     public NF(String name) { this.name = name; }
 
@@ -36,19 +36,20 @@ public class TestBNF {
   @Test
   public void minimalTest() throws Exception {
     Grammar<String,Token> g = bnf.rule("R", "IDENT");
-    assertEquals("R->IDENT", g.toString());
+    assertEquals("R", g.toString());
+    assertEquals("R(IDENT)", g.ruleString());
 
     char[] opts = {'+','*','?'};
     for(char c : opts) {
       g = bnf.rule("S"+c, "IDENT"+c);
-      assertEquals("S"+c+"->(R->IDENT)"+c, g.toString());
+      assertEquals("R"+c, g.ruleString());
     }
     
     g = bnf.rule("T", "IDENT EQUAL NUMBER");
-    assertEquals("T->(R->IDENT EQUAL NUMBER)", g.toString());
+    assertEquals("(R EQUAL NUMBER)", g.ruleString());
     
     g = bnf.rule("U", "%(NUMBER (TIMES NUMBER)*)", new NF("prod"));
-    assertEquals("U->%prod(NUMBER (TIMES NUMBER)*)", g.toString());
+    assertEquals("%prod(NUMBER (TIMES NUMBER)*)", g.ruleString());
     
     //System.out.println(g);
   }
@@ -60,16 +61,17 @@ public class TestBNF {
     Grammar<String,Token> h = bnf.rule("expr", "IDENT | NUMBER");
     Grammar<String,Token> n = bnf.rule("n", "expr | NUMBER");
     
-    System.out.println(g);
-    assertEquals("assign->(IDENT EQUAL r#expr->[expr->])", g.toString());
+    //System.out.println(g);
+    assertEquals("(IDENT EQUAL r#expr)", g.ruleString());
     
-    System.out.println(h);
-    assertEquals("expr->(IDENT | NUMBER)", h.toString());
+    //System.out.println(h);
+    assertEquals("(IDENT | NUMBER)", 
+                 ((Recurse<String,Token>)h).children().iterator().next().ruleString());
     
-    System.out.println(m);
-    assertEquals("m->([expr->] | NUMBER)", m.toString());
+    //System.out.println(m);
+    assertEquals("(r#expr | NUMBER)", m.ruleString());
     
-    System.out.println(n);
+    //System.out.println(n);
     String sm = m.toString().substring(1);
     String sn = n.toString().substring(1);
     assertEquals(sn, sm);
@@ -81,8 +83,8 @@ public class TestBNF {
     g = bnf.rule("R", "%(IDENT NUMBER) | %(MINUS PLUS)",
                  new NF("pair1"), new NF("pair2"));
     //System.out.println(g);
-    assertEquals("R->(%pair1(IDENT NUMBER) | %pair2(MINUS PLUS))", 
-                 g.toString());
+    assertEquals("(%pair1(IDENT NUMBER) | %pair2(MINUS PLUS))", 
+                 g.ruleString());
   }
   /*+******************************************************************/
   @Test
@@ -90,24 +92,24 @@ public class TestBNF {
     Grammar<String,Token> g;
     g = bnf.rule("R", "IDENT{2,7}");
     //System.out.println(g);
-    assertEquals("R->(IDENT){2,7}", g.toString());
+    assertEquals("IDENT{2,7}", g.ruleString());
     
     g = bnf.rule("S", "NUMBER{3}");
     //System.out.println(g);
-    assertEquals("S->(NUMBER){3,3}", g.toString());
+    assertEquals("NUMBER{3,3}", g.ruleString());
     
     g = bnf.rule("T", "EQUAL{0,*}");
     //System.out.println(g);
-    assertEquals("T->(EQUAL)*", g.toString());
+    assertEquals("EQUAL*", g.ruleString());
 
     g = bnf.rule("U", "EQUAL{3,*}");
     //System.out.println(g);
-    assertEquals("U->(EQUAL){3,*}", g.toString());
+    assertEquals("EQUAL{3,*}", g.ruleString());
   }
   /*+******************************************************************/
   @Test
   public void rangeTooLarge() throws Exception {
-    Throwable ee = null;
+    Throwable ee = new Throwable();
     try {
       bnf.rule("R", "IDENT{2,777777777777777777777777777777}");
     } catch( ParseException e) {
@@ -118,7 +120,7 @@ public class TestBNF {
   /*+******************************************************************/
   @Test 
   public void missingNodeFactory() throws Exception {
-    Exception ee = null;
+    Exception ee = new Exception();
     try {
       bnf.rule("R", "%(IDENT)");
     } catch( ParseException e ) {
@@ -145,8 +147,8 @@ public class TestBNF {
     Grammar<String,Token> g = 
       bnf.rule("a", "%(IDENT | %(NUMBER) | %(EQUAL))",
                new NF("all"), new NF("num"), new NF("="));
-    //System.out.println(g);
-    assertEquals("a->%all(IDENT | %numNUMBER | %=EQUAL)", g.toString());
+    //System.out.println(g.ruleString());
+    assertEquals("%all(IDENT | %num(NUMBER) | %=(EQUAL))", g.ruleString());
   }
   /*+******************************************************************/
   @Test(expected=IllegalStateException.class)

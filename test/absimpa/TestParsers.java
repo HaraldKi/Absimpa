@@ -306,7 +306,7 @@ public class TestParsers {
   }
   /*+******************************************************************/
   @Test
-  public void SequenceInChoice() throws Exception {
+  public void sequenceInChoice() throws Exception {
 
     Sequence<TestNode,Codes> seq = 
       gb.seq(NodeType.SCOPE, scopename).add(term);
@@ -455,15 +455,17 @@ public class TestParsers {
                                    EnumSet<Codes> expected, Codes found)
     throws IOException
   {
-    ParseException e = null;
+    Exception ex = new Exception();
     try {
       analyze(text, grammar);
     } catch( ParseException ee ) {
-      e = ee;
+      ex = ee;
       // e.printStackTrace();
     }
-    assertEquals(expected, e.getExpectedTokenCodes());
-    assertEquals(found, e.getFoundTokenCode());
+    assertTrue( ex instanceof ParseException );
+    ParseException pe = (ParseException)ex;
+    assertEquals(expected, pe.getExpectedTokenCodes());
+    assertEquals(found, pe.getFoundTokenCode());
   }
   /*+******************************************************************/
   @Test 
@@ -492,8 +494,8 @@ public class TestParsers {
     }
     Exception e = null;
     try {
-      node = analyze("((a b))", p);
-    } catch(ParseException ee) {
+      analyze("((a b))", p);
+    } catch(Exception ee) {
       e = ee;
     }
     assertTrue(e instanceof ParseException);
@@ -605,7 +607,7 @@ public class TestParsers {
   @Test
   public void repeatThrows() throws Exception
   {
-    Exception e = null;
+    Exception e = new Exception();
     try {
       gb.repeat(term, 1, 0);
     } catch( IllegalArgumentException ee ) {

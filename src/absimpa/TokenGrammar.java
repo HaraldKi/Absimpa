@@ -35,7 +35,9 @@ public class TokenGrammar<N,C extends Enum<C>>
   public String getDetail() {
     return code.toString();
   }
-  public String toString() {
-    return getName()+code.toString();
+  public String _ruleString() {
+    String name = getName();
+    if( name==null ) return code.toString();
+    return name + "(" + code.toString() +")";
   }
 }

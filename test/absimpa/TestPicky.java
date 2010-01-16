@@ -176,9 +176,9 @@ public class TestPicky {
     assertEquals("seqm[(bla),(-)]", result);
 
     // now show tht bla+ is a parse error for the same reason
-    Exception e = null;
+    Exception e = new Exception();
     try {
-      result = analyze("bla+", p);
+      analyze("bla+", p);
     } catch(ParseException ee) {
       e = ee;
     }

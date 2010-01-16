@@ -139,14 +139,22 @@ public abstract class Grammar<N, C extends Enum<C>> {
   protected abstract Iterable<Grammar<N,C>> children();
   protected abstract AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf);
   protected abstract First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf);
-  /**
-   * to be implemented by subclasses in order to provide some detail to be
-   * put into the toString() output, e.g. the name of the token code for a
-   * TokenGrammar or the number of repetitions for a repeat.
-   * 
-   * @return
-   */
-  protected abstract String getDetail();
+  protected abstract String _ruleString();
+  /*+******************************************************************/
+  public final String ruleString() {
+    String nf = nodeFactory==null ? null : nodeFactory.toString();
+    if( nf==null || nf.length()==0 ) return _ruleString();
+    
+    StringBuilder sb = new StringBuilder();
+    sb.append(nodeFactory);
+    String s = _ruleString();
+    if( s.startsWith("(") ) {
+      sb.append(s);
+    } else {
+      sb.append('(').append(s).append(')');
+    }
+    return sb.toString();
+  }
   /* +***************************************************************** */
   /**
    * used by {@link #toString} only, not needed for the function of the
@@ -158,16 +166,12 @@ public abstract class Grammar<N, C extends Enum<C>> {
   }
   /* +***************************************************************** */
   public String getName() {
-    StringBuilder sb = new StringBuilder();
-    if(name!=null) {
-      sb.append(name).append("->");
-      if( nodeFactory!=null ) {
-        sb.append(nodeFactory);
-      }
-    } else if( nodeFactory!=null ) {
-      sb.append(nodeFactory);
-    } 
-    return sb.toString();
+    return name;
+  }
+  /*+******************************************************************/
+  public final String toString() {
+    if( name!=null ) return name;
+    return ruleString();
   }
   /* +***************************************************************** */
   protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {

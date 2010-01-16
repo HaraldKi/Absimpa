@@ -49,7 +49,10 @@ public class Recurse<N,C extends Enum<C>>
     myParser.setChild(p);
   }
   /*+******************************************************************/
-  public String toString() {
-    return getName() + "[" + child.getName() + "]";
+  public String _ruleString() {
+    String cname = child.getName();
+    if( cname==null ) cname ="(unnamed)";
+    
+    return "[" + cname + "]";
   }
 }

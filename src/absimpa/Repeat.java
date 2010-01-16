@@ -64,19 +64,14 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     return sb.toString();
   }
   /*+******************************************************************/
-  public String toString() {
+  public String _ruleString() {
     String detail = getDetail();
-    String head = getName();
-    String tail = "";
-    if( head.length()>0 ) {
-      head = head+"(";
-      tail = ")";
-    }
+    String tail;
     if( detail.length()>1 ) {
-      tail = tail + "{"+detail+"}";
+      tail = "{"+detail+"}";
     } else {
-      tail = tail + detail;
+      tail = detail;
     }
-    return Util.join(children(), head, " ", tail);
+    return child.toString()+ tail;
   }
 }

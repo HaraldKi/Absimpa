@@ -2,11 +2,19 @@ package absimpa;
 
 import java.util.Iterator;
 
-
+/**
+ * the typical set of static utility methods.
+ */
 public class Util {
-  public static String join(Iterable<?> list, String start, String sep, String end) {
+  /**
+   * join a list of things into a string with a prefix, a separator and a
+   * suffix.
+   */
+  public static String join(Iterable<?> list, String prefix, String sep,
+                            String suffix)
+  {
     StringBuilder sb = new StringBuilder();
-    sb.append(start);
+    sb.append(prefix);
     Iterator<?> it = list.iterator();
     if( it.hasNext() ) {
       sb.append(it.next());
@@ -14,11 +22,8 @@ public class Util {
     while( it.hasNext() ) {
       sb.append(sep).append(it.next());
     }
-    sb.append(end);
+    sb.append(suffix);
     return sb.toString();
   }
   /*+******************************************************************/
-  public static String join(Iterable<?> list, String sep) {
-    return join(list, "", sep, "");
-  }
 }

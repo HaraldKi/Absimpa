@@ -75,13 +75,13 @@ public class Sequence<N,C extends Enum<C>>
   }
   /*+******************************************************************/
   @Override
-  public String toString() {
-    String head = getName();
-    String tail = "";
-    if( head.length()>0 || children.size()>1) {
-      head = head + "(";
-      tail = ")";
+  public String _ruleString() {
+    if( children.size()>1 ) {
+      return Util.join(children, "(", " ", ")");
+    } else if(children.size()==1) {
+      return children.get(0).toString();
+    } else {
+      return "";
     }
-    return Util.join(children, head, " ", tail);
   }
 }

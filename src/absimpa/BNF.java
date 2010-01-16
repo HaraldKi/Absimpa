@@ -27,6 +27,33 @@ public class BNF<N, C extends Enum<C>> {
   }
   /* +***************************************************************** */
   public BNF(Class<C> enumClass) {
+    C[] constants = enumClass.getEnumConstants();
+    syntaxMap = new HashMap<String,Grammar<N,C>>(constants.length);
+    for(C c : constants) {
+      syntaxMap.put(c.toString(), new TokenGrammar<N,C>(c));
+    }
+
+    Grammar<Node,TokenCode> expr = getGrammar();
+    
+    parser = expr.compile();
+
+    lex = new TrivialLexer<Node,TokenCode>(TokenCode.EOF, new MyLeafs());
+    lex.addToken(TokenCode.SYMBOL, "[A-Za-z][A-Za-z0-9]*");
+    lex.addToken(TokenCode.NUMBER, "[0-9]+");
+    lex.addToken(TokenCode.STAR,"[*]");
+    lex.addToken(TokenCode.PLUS, "[+]");
+    lex.addToken(TokenCode.OPAREN, "[(]");
+    lex.addToken(TokenCode.CPAREN, "[)]");
+    lex.addToken(TokenCode.QUESTIONMARK,"[?]");
+    lex.addToken(TokenCode.BAR, "[|]");
+    lex.addToken(TokenCode.PERCENT, "[%]");
+    lex.addToken(TokenCode.LBRACE, "[{]");
+    lex.addToken(TokenCode.RBRACE, "[}]");
+    lex.addToken(TokenCode.COMMA, "[,]");
+    lex.setSkipRe("[\\s]+");
+  }
+  /*+******************************************************************/
+  private Grammar<Node,TokenCode> getGrammar() {
     // This is what we want to parse as right side of rules
     // expr -> product ( "|" product)*
     // product -> term (term)*
@@ -42,13 +69,8 @@ public class BNF<N, C extends Enum<C>> {
     // ends up somewhere with an NPE
     //
 
-    C[] constants = enumClass.getEnumConstants();
-    syntaxMap = new HashMap<String,Grammar<N,C>>(constants.length);
-    for(C c : constants) {
-      syntaxMap.put(c.toString(), new TokenGrammar<N,C>(c));
-    }
-    absimpa.GrammarBuilder<Node,TokenCode> gb =
-        new absimpa.GrammarBuilder<Node,TokenCode>(null);
+    GrammarBuilder<Node,TokenCode> gb =
+        new GrammarBuilder<Node,TokenCode>(null);
 
     Recurse<Node,TokenCode> recurse = new Recurse<Node,TokenCode>();
 
@@ -69,47 +91,40 @@ public class BNF<N, C extends Enum<C>> {
         gb.seq(gb.opt(nfmark), oparen, recurse, cparen)
           .setNodeFactory(makeNodeFactory);
 
-    Grammar<Node,TokenCode> literal = gb.choice(symbol, parenExpr);
+    Grammar<Node,TokenCode> literal = 
+      gb.choice(symbol, parenExpr)
+      .setName("literal");
 
     Grammar<Node,TokenCode> range = 
       gb.seq(number,
              gb.seq(comma, 
-                    gb.choice(number, star)).opt());
+                    gb.choice(number, star).setName("upperlimit")).opt()).setName("range");
                                       
     Grammar<Node,TokenCode> oper = 
       gb.choice(plus, 
                 star, 
                 questionmark, 
                 gb.seq(lbrace, range, rbrace)
-                );
+                ).setName("oper");
 
     Grammar<Node,TokenCode> term =
-        gb.seq(literal, gb.opt(oper)).setNodeFactory(makeLiteral);
+        gb.seq(literal, gb.opt(oper))
+        .setNodeFactory(makeLiteral)
+        .setName("term");
 
     Grammar<Node,TokenCode> product =
-        gb.repeat(term, 1, Integer.MAX_VALUE).setNodeFactory(makeProduct);
+        gb.repeat(term, 1, Integer.MAX_VALUE)
+        .setNodeFactory(makeProduct)
+        .setName("product");
 
     Grammar<Node,TokenCode> expr =
-        gb.seq(product, gb.seq(bar, product).star()).setNodeFactory(makeOr);
+        gb.seq(product, gb.seq(bar, product).star())
+        .setNodeFactory(makeOr)
+        .setName("expr");
 
     recurse.setChild(expr);
-
-    parser = expr.compile();
-
-    lex = new TrivialLexer<Node,TokenCode>(TokenCode.EOF, new MyLeafs());
-    lex.addToken(TokenCode.SYMBOL, "[A-Za-z][A-Za-z0-9]*");
-    lex.addToken(TokenCode.NUMBER, "[0-9]+");
-    lex.addToken(TokenCode.STAR,"[*]");
-    lex.addToken(TokenCode.PLUS, "[+]");
-    lex.addToken(TokenCode.OPAREN, "[(]");
-    lex.addToken(TokenCode.CPAREN, "[)]");
-    lex.addToken(TokenCode.QUESTIONMARK,"[?]");
-    lex.addToken(TokenCode.BAR, "[|]");
-    lex.addToken(TokenCode.PERCENT, "[%]");
-    lex.addToken(TokenCode.LBRACE, "[{]");
-    lex.addToken(TokenCode.RBRACE, "[}]");
-    lex.addToken(TokenCode.COMMA, "[,]");
-    lex.setSkipRe("[\\s]+");
+    //recurse.setName("r#expr");
+    return expr;
   }
   /*+******************************************************************/
   private Grammar<N,C> placeHolderGrammar(String symbolName) {
@@ -135,7 +150,10 @@ public class BNF<N, C extends Enum<C>> {
       NodeFactory<N> nf = children.get(0).getNodeFactory();
       child.setNodeFactory(nf);
       return childNode;
-    }  
+    }
+    public String toString() {
+      return "";
+    }
   };
   /*+******************************************************************/
   private final NodeFactory<Node> makeLiteral= new NodeFactory<Node>() {
@@ -161,6 +179,9 @@ public class BNF<N, C extends Enum<C>> {
         assert false : "should not have TokenCode "+children.get(1).getCode();
       }
       return null;
+    }
+    public String toString() {
+      return "";
     }
     private final Node createRepeatFromRange(List<Node> children) {
       int from = children.get(1).getNum().intValue();
@@ -190,7 +211,10 @@ public class BNF<N, C extends Enum<C>> {
         result.add(children.get(i).getGrammar());
       }
       return new Node(result);
-    }    
+    }
+    public String toString() {
+      return "";
+    }
   };
   /*+******************************************************************/
   private final NodeFactory<Node> makeOr = new NodeFactory<Node>() {
@@ -204,6 +228,9 @@ public class BNF<N, C extends Enum<C>> {
         result.or(children.get(i).getGrammar());
       }
       return new Node(result);
+    }
+    public String toString() {
+      return "";
     }
   };
   /*+******************************************************************/
@@ -362,5 +389,29 @@ public class BNF<N, C extends Enum<C>> {
     }
   }
   /*+******************************************************************/
+  private static void showGrammar(Grammar<?,?> grammar) {
+                                
+    Set<Grammar<?,?>> known = new HashSet<Grammar<?,?>>();
+    List<Grammar<?,?>> grammars = new ArrayList<Grammar<?,?>>();
+    grammars.add(grammar);
+    
+    while( grammars.size()>0 ) {
+      Grammar<?,?> g = grammars.remove(0);
+      known.add(g);
+      if( g.getName()!=null ) {
+        System.out.printf("%s --> %s%n", g, g.ruleString());
+      }
+      for(Grammar<?,?> child : g.children() ) {
+        if( !known.contains(child) ) grammars.add(child);
+      }
+    }
+  }
+  /*+******************************************************************/
+  static enum Code { TOK1, TOK2, TOK3;}
+  public static void main(String[] argv) {
+    
+    BNF<String,Code> bnf = new BNF<String,Code>(Code.class);
+    showGrammar(bnf.getGrammar());
+  }
 }
 
