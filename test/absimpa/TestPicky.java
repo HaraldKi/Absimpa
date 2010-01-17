@@ -8,8 +8,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import absimpa.bnf.SimpleLexer;
+
 import example.LeafFactory;
-import example.TrivialLexer;
 
 public class TestPicky {
   private L lex = null;
@@ -21,14 +22,14 @@ public class TestPicky {
     TERM, NUMBER, SPACE, IGNORE, PLUS, MINUS, EOF;
 
     @Override
-    public String create(TrivialLexer<String,Codes> lex) {
+    public String create(SimpleLexer<String,Codes> lex) {
       if( this==Codes.SPACE ) return null;
       if( this==Codes.IGNORE ) return null;
       return "("+lex.currentToken().getText()+")";
     }
   }
   /*+******************************************************************/
-  private static final class L extends TrivialLexer<String,Codes> {
+  private static final class L extends SimpleLexer<String,Codes> {
     public L(Codes eofToken) {
       super(eofToken, leafFactory);
       addToken(Codes.TERM, "[A-Za-z][A-Za-z0-9]*");
@@ -42,7 +43,7 @@ public class TestPicky {
   /*+******************************************************************/
   private static LeafFactory<String,Codes> leafFactory = new LeafFactory<String,Codes>() {
     @Override
-    public String create(TrivialLexer<String,Codes> lex)
+    public String create(SimpleLexer<String,Codes> lex)
       throws ParseException
     {
       return lex.current().create(lex);

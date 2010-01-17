@@ -96,7 +96,7 @@ package absimpa;
  * 
  * <p>
  * <b>Remark:</b> This package has no support to create a
- * {@link absimpa.Lexer}, but there is a {@link example.TrivialLexer} the
+ * {@link absimpa.Lexer}, but there is a {@link absimpa.bnf.SimpleLexer} the
  * source code of which may serve to demonstrate the principles.
  * </p>
  * 

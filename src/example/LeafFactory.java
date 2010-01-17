@@ -1,7 +1,8 @@
 package example;
 
 import absimpa.ParseException;
+import absimpa.bnf.SimpleLexer;
 
 public interface LeafFactory<N, C extends Enum<C>> {
-  N create(TrivialLexer<N,C> lex) throws ParseException;
+  N create(SimpleLexer<N,C> lex) throws ParseException;
 }

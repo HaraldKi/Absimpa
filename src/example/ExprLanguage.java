@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import absimpa.*;
+import absimpa.bnf.SimpleLexer;
 
 /**
  * create a simple expression language and use it for testing.
  *
  */
 public class ExprLanguage {
-  public static class L extends TrivialLexer<Expr,Codes> {
+  public static class L extends SimpleLexer<Expr,Codes> {
     public L(Codes eofCode) {
       super(eofCode, new AutoMappedLeafFactory());
     }    
@@ -35,31 +36,31 @@ public class ExprLanguage {
   private static enum Codes implements LeafFactory<Expr,Codes> {
     PLUS {
       @Override
-      public Expr create(TrivialLexer<Expr,Codes> lex) {
+      public Expr create(SimpleLexer<Expr,Codes> lex) {
         return new ExprOper(Etype.PLUS);
       }
     },
     MINUS {
       @Override
-      public Expr create(TrivialLexer<Expr,Codes> lex) {
+      public Expr create(SimpleLexer<Expr,Codes> lex) {
         return new ExprOper(Etype.MINUS);
       }
     },
     TIMES {
       @Override
-      public Expr create(TrivialLexer<Expr,Codes> lex) {
+      public Expr create(SimpleLexer<Expr,Codes> lex) {
         return new ExprOper(Etype.TIMES);
       }
     },
     DIVIDE {
       @Override
-      public Expr create(TrivialLexer<Expr,Codes> lex) {
+      public Expr create(SimpleLexer<Expr,Codes> lex) {
         return new ExprOper(Etype.DIVIDE);
       }
     },
     NUMBER {
       @Override
-      public Expr create(TrivialLexer<Expr,Codes> lex) {
+      public Expr create(SimpleLexer<Expr,Codes> lex) {
         String t = lex.currentText();
         Double d = Double.parseDouble(t);
         return new ExprNum(d);
@@ -68,14 +69,14 @@ public class ExprLanguage {
     OPAREN, CPAREN, EOF;
 
     @Override
-    public Expr create(TrivialLexer<Expr,Codes> lex) {
+    public Expr create(SimpleLexer<Expr,Codes> lex) {
       return null;
     }
   }
   private static class AutoMappedLeafFactory implements LeafFactory<Expr,Codes> {
 
     @Override
-    public Expr create(TrivialLexer<Expr,Codes> lex) {
+    public Expr create(SimpleLexer<Expr,Codes> lex) {
       return lex.current().create(lex);
     }
     

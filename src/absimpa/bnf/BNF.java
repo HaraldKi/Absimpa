@@ -1,9 +1,10 @@
-package absimpa;
+package absimpa.bnf;
 
 import java.util.*;
 
+import absimpa.*;
+
 import example.LeafFactory;
-import example.TrivialLexer;
 
 public class BNF<N, C extends Enum<C>> {
   // For grammars entered with rule();
@@ -14,7 +15,7 @@ public class BNF<N, C extends Enum<C>> {
     new HashMap<String,Recurse<N,C>>();
 
   // our lexer and parser
-  private final TrivialLexer<Node,TokenCode> lex;
+  private final SimpleLexer<Node,TokenCode> lex;
   private final Parser<Node,TokenCode> parser;
   
   // only used during parsing to allow MyLeafs to fetch the next node factory
@@ -22,8 +23,28 @@ public class BNF<N, C extends Enum<C>> {
   
   /*+******************************************************************/
   private static enum TokenCode  {
-    EOF, SYMBOL, NUMBER, STAR, PLUS, OPAREN, CPAREN, QUESTIONMARK, BAR, PERCENT,
-    LBRACE, RBRACE, COMMA;
+    EOF(""), 
+    SYMBOL("[A-Za-z][A-Za-z0-9]*"), 
+    NUMBER("[0-9]+"), 
+    STAR("[*]"), 
+    PLUS("[+]"), 
+    OPAREN("[(]"), 
+    CPAREN("[)]"), 
+    QUESTIONMARK("[?]"), 
+    BAR("[|]"), 
+    PERCENT("[%]"),
+    LBRACE("[{]"), 
+    RBRACE("[}]"), 
+    COMMA("[,]");
+
+    private final String regex;
+    
+    private TokenCode(String regex) {
+      this.regex = regex;
+    }
+    public String toString() {
+      return ""+'"'+regex+'"';
+    }
   }
   /* +***************************************************************** */
   public BNF(Class<C> enumClass) {
@@ -34,22 +55,12 @@ public class BNF<N, C extends Enum<C>> {
     }
 
     Grammar<Node,TokenCode> expr = getGrammar();
-    
+
     parser = expr.compile();
 
-    lex = new TrivialLexer<Node,TokenCode>(TokenCode.EOF, new MyLeafs());
-    lex.addToken(TokenCode.SYMBOL, "[A-Za-z][A-Za-z0-9]*");
-    lex.addToken(TokenCode.NUMBER, "[0-9]+");
-    lex.addToken(TokenCode.STAR,"[*]");
-    lex.addToken(TokenCode.PLUS, "[+]");
-    lex.addToken(TokenCode.OPAREN, "[(]");
-    lex.addToken(TokenCode.CPAREN, "[)]");
-    lex.addToken(TokenCode.QUESTIONMARK,"[?]");
-    lex.addToken(TokenCode.BAR, "[|]");
-    lex.addToken(TokenCode.PERCENT, "[%]");
-    lex.addToken(TokenCode.LBRACE, "[{]");
-    lex.addToken(TokenCode.RBRACE, "[}]");
-    lex.addToken(TokenCode.COMMA, "[,]");
+    lex =
+        new SimpleLexer<Node,TokenCode>(TokenCode.EOF, TokenCode.values(),
+            new MyLeafs());
     lex.setSkipRe("[\\s]+");
   }
   /*+******************************************************************/
@@ -308,7 +319,7 @@ public class BNF<N, C extends Enum<C>> {
   /*+******************************************************************/
   private class MyLeafs implements LeafFactory<Node,TokenCode> {
     @Override
-    public Node create(TrivialLexer<Node,TokenCode> lex) throws ParseException {
+    public Node create(SimpleLexer<Node,TokenCode> lex) throws ParseException {
       TokenCode current = lex.current();
       
       switch( current ) {

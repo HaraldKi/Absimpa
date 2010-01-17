@@ -1,9 +1,12 @@
-package example;
+package absimpa.bnf;
 
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import example.LeafFactory;
+import example.Token;
 
 import absimpa.*;
 
@@ -43,7 +46,7 @@ import absimpa.*;
  * @param <N> is the date type returned for a token when the parser has
  *        recognized it and calles {@link #next}
  */
-public class TrivialLexer<N,C extends Enum<C>> implements Lexer<N,C> {
+public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<TokenInfo<N,C>>();
   private final Token<N,C> eofToken;
 
@@ -63,9 +66,24 @@ public class TrivialLexer<N,C extends Enum<C>> implements Lexer<N,C> {
    * when the end of input is encountered.
    * </p>
    */
-  public TrivialLexer(C eofCode, LeafFactory<N,C> leafFactory) {
+  public SimpleLexer(C eofCode, LeafFactory<N,C> leafFactory) {
     eofToken = new Token<N,C>("", eofCode);
     this.leafFactory = leafFactory; 
+  }
+  /*+******************************************************************/
+  /**
+   * adds all {@code codes} with {@link #addToken} except if it is identical
+   * to {@code eofCode}. It is assumed, that {@code toString()} of a code
+   * returns a regular expressions that defines the strings representing the
+   * token.
+   */
+  public SimpleLexer(C eofCode, C[] codes, LeafFactory<N,C> leafFactory) {
+    eofToken = new Token<N,C>("", eofCode);
+    this.leafFactory = leafFactory;
+    for(C c : codes) {
+      if( c==eofCode ) continue;
+      addToken(c, c.toString());
+    }
   }
   /*+******************************************************************/
   /**
@@ -107,7 +125,7 @@ public class TrivialLexer<N,C extends Enum<C>> implements Lexer<N,C> {
    * <code>[a-z]+</code>, make sure to call <code>addToken</code> first
    * for the more specific token. Otherwise it will never be matched.</p>
    */
-  public TrivialLexer<N,C> addToken(C tc, String regex) {
+  public SimpleLexer<N,C> addToken(C tc, String regex) {
     Pattern p = Pattern.compile(regex);
     tokenInfos.add(new TokenInfo<N,C>(p, tc));
     return this;

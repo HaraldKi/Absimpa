@@ -12,12 +12,14 @@ import nodes.ValueNode;
 import org.junit.Before;
 import org.junit.Test;
 
+import absimpa.bnf.SimpleLexer;
+
 import example.*;
 
 
 
 public class TestParsers {
-  private static class L extends TrivialLexer<TestNode,Codes> {
+  private static class L extends SimpleLexer<TestNode,Codes> {
     public L(Codes eofCode) {
       super(eofCode, leafFactory);
     }    
@@ -41,14 +43,14 @@ public class TestParsers {
   private static enum Codes implements LeafFactory<TestNode,Codes> {
     SCOPE, TERM, AND, OR, POPEN, PCLOSE, NOT, EOF;
     @Override
-    public TestNode create(TrivialLexer<TestNode,Codes> lex) {
+    public TestNode create(SimpleLexer<TestNode,Codes> lex) {
       return new LeafNode(lex.currentToken());
     }
   }
   /*+******************************************************************/
   private static LeafFactory<TestNode,Codes> leafFactory = new LeafFactory<TestNode,Codes>() {
     @Override
-    public TestNode create(TrivialLexer<TestNode,Codes> lex)
+    public TestNode create(SimpleLexer<TestNode,Codes> lex)
       throws ParseException
     {
       return lex.current().create(lex);
