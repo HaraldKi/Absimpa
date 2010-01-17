@@ -12,7 +12,7 @@ import absimpa.*;
 
 /**
  * <p>
- * is a trival implementation of a {@link absimpa.Lexer} which analyzes a
+ * is an example implementation of a {@link absimpa.Lexer} which analyzes a
  * string by trying out regular expressions for tokens until a match is
  * found. This is not intended for productive use. It is merely an example.
  * </p>
@@ -73,7 +73,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   /* +***************************************************************** */
   /**
    * <p>
-   * adds all constants found in class {@tokenCode} with {@link #addToken}
+   * adds all constants found in class {@code tokenCode} with {@link #addToken}
    * except if it is identical to the {@link LexerInfo#eofCode} it provides.
    * It is assumed, that {@code toString()} of a code returns a regular
    * expression that defines the strings representing the token.

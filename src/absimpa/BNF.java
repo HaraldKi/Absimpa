@@ -2,12 +2,41 @@ package absimpa;
 
 import java.util.*;
 
-import absimpa.*;
 import absimpa.lexer.LexerInfo;
 import absimpa.lexer.SimpleLexer;
 
 import example.LeafFactory;
 
+/**
+ * <p>
+ * is an alternative to {@link GrammarBuilder} to create a grammar by
+ * providing a string syntax resembling <a
+ * href="http://en.wikipedia.org/wiki/Backus%E2%80%93Naur_Form">Backus Naur
+ * Form (BNF)</a> to build recursive grammars. The syntax used, as
+ * automatically generated with {@link Grammar#toBNF()}, is as follows:
+ * </p>
+ * 
+ * <pre>
+ * expr --> (product ("[|]" product)*)
+ * product --> term+
+ * term --> (literal oper?)
+ * literal --> ("[A-Za-z][A-Za-z0-9]*" | ("[%]"? "[(]" [expr] "[)]"))
+ * oper --> ("[+]" | "[*]" | "[?]" | ("[{]" range "[}]"))
+ * range --> ("[0-9]+" ("[,]" upperlimit)?)
+ * upperlimit --> ("[0-9]+" | "[*]")
+ * </pre>
+ * <p>
+ * Tokens are represented by their regular expressions and the brackets in
+ * {@code [expr]} merely point out that this is a recursive use of the rule
+ * {@code expr}.
+ * </p>
+ * <p>
+ * Add rules with {@link #rule rule()} and finally compile your start symbol
+ * with {@link #compile compile()}.
+ * 
+ * @param <N>
+ * @param <C>
+ */
 public class BNF<N, C extends Enum<C>> {
   // For grammars entered with rule();
   private final Map<String,Grammar<N,C>> syntaxMap;
@@ -34,10 +63,10 @@ public class BNF<N, C extends Enum<C>> {
     CPAREN("[)]"), 
     QUESTIONMARK("[?]"), 
     BAR("[|]"), 
-    PERCENT("[%]"),
+    PERCENT("%"),
     LBRACE("[{]"), 
     RBRACE("[}]"), 
-    COMMA("[,]");
+    COMMA(",");
 
     private final String regex;
     
@@ -52,6 +81,12 @@ public class BNF<N, C extends Enum<C>> {
     }
   }
   /* +***************************************************************** */
+  /**
+   * <p>creates a BNF parser and registers all elements {@code c} of the
+   * enumeration as tokens of the grammar with {@code new
+   * TokenGrammar<N,C>(c)}. The name of each {@code c} is immediately usable
+   * in rules.</p>
+   */
   public BNF(Class<C> enumClass) {
     C[] constants = enumClass.getEnumConstants();
     syntaxMap = new HashMap<String,Grammar<N,C>>(constants.length);
@@ -139,15 +174,6 @@ public class BNF<N, C extends Enum<C>> {
     recurse.setChild(expr);
     //recurse.setName("r#expr");
     return expr;
-  }
-  /*+******************************************************************/
-  private Grammar<N,C> placeHolderGrammar(String symbolName) {
-    Grammar<N,C> placeHolder = placeHolders.get(symbolName);
-    if( placeHolder!=null ) return placeHolder;
-    
-    Recurse<N,C> g = new Recurse<N,C>();
-    placeHolders.put(symbolName, g);
-    return g;
   }
   /*+******************************************************************/
   private final NodeFactory<Node> makeNodeFactory = new NodeFactory<Node>() {
@@ -248,20 +274,72 @@ public class BNF<N, C extends Enum<C>> {
     }
   };
   /*+******************************************************************/
+  /**
+   * return the grammar defined for the given name.
+   * 
+   * @return the requested grammar or {@code null} if the grammar was never
+   *         defined with an expansion.
+   */
   public Grammar<N,C> getGrammar(String name) {
     return syntaxMap.get(name);
   }
+  /*+******************************************************************/
+  /**
+   * <p>
+   * create an empty rule to be filled later. This may be necessary as a
+   * forward declaration for recursive grammar symbol use.
+   * </p>
+   */
+  public Grammar<N,C> rule(String name) {
+    if( syntaxMap.containsKey(name) || placeHolders.containsKey(name) ) {
+      throw new IllegalArgumentException(name+" already defined.");
+    }
+    
+    Recurse<N,C> g = new Recurse<N,C>();
+    placeHolders.put(name, g);
+    return g;
+  }
   /* +***************************************************************** */
+  /**
+   * <p>
+   * same as the three parameter {@link #rule(String,String,NodeFactory)
+   * rule()}, but without any node factory.</p>
+   */
   public Grammar<N,C> rule(String name, String expansion) throws ParseException {
     return rule(name, expansion, Collections.<NodeFactory<N>>emptyList()); 
   }
   /* +***************************************************************** */
+  /**
+   * translates a rule with the given {@code name} into a grammar described
+   * by {@code expansion}, using the given node factory. An example expansion
+   * according to the grammar desribed above is:</p>
+   * 
+   * <pre>
+   * %(term (PLUS term)*)
+   * </pre>
+   * <p>
+   * <p>
+   * This assumes that {@code term} is already defined as a rule, at least
+   * with {@code #rule(String)}. The same holds for {@code PLUS}. Most likely
+   * the latter is defined already by the constructor, if {@code PLUS} is
+   * part of the token code enumeration {@code <C>}.
+   * </p>
+   * <p>
+   * The node factory provided is inserted at the place of the percent sign.
+   * In this example, the node factory would need to be able to combine one
+   * or more objects of type {@code N} representing {@code term} elements
+   * into one new {@code N}.</p>
+   */
   public Grammar<N,C> rule(String name, String expansion, NodeFactory<N> nf) throws ParseException {
     List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(1);
     l.add(nf);
     return rule(name, expansion, l);
   }
   /* +***************************************************************** */
+  /**
+   * <p>create a rule that uses two node factories.</p>
+   * @see #rule(String,String,NodeFactory)
+   */
   public Grammar<N,C> rule(String name, String expansion, 
                    NodeFactory<N> nf1, NodeFactory<N> nf2) throws ParseException {
     List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(2);
@@ -270,6 +348,10 @@ public class BNF<N, C extends Enum<C>> {
     return rule(name, expansion, l);
   }
   /*+******************************************************************/
+  /**
+   * <p>create a rule that uses many node factories.</p>
+   * @see #rule(String,String,NodeFactory)
+   */
   public Grammar<N,C> rule(String name, String expansion, 
                    NodeFactory<N> nf1, 
                    NodeFactory<N> nf2,
@@ -307,6 +389,18 @@ public class BNF<N, C extends Enum<C>> {
     return g;
   }
   /*+******************************************************************/
+  /**
+   * <p>
+   * compiles a previously define rule. This will typically be the start
+   * symbol of your grammar.
+   * </p>
+   * 
+   * @throws IllegalStateException if there are rules registered with
+   *         {@link #rule(String)} that have no expansion yet. You can always
+   *         circumvent this restriction by using {@link #getGrammar} and
+   *         calling compile on the result. This may, however, through other
+   *         exceptions.
+   */
   public Parser<N,C> compile(String ruleNname) {
     Grammar<N,C> g = syntaxMap.get(ruleNname);
     if( placeHolders.size()>0 ) {
@@ -329,10 +423,12 @@ public class BNF<N, C extends Enum<C>> {
       case SYMBOL:
         String symbolName = lex.currentText();
         Grammar<N,C> g = syntaxMap.get(symbolName);
-        if( g==null ) {
-          g = placeHolderGrammar(symbolName);
-        }
-        return new Node(g);        
+        if( g!=null ) return new Node(g);
+        g = placeHolders.get(symbolName);
+        if( g!=null ) return new Node(g);
+        ParseException pex = lex.parseException(Collections.<TokenCode>emptySet());
+        pex.setMoreInfo("undefined grammar element");
+        throw pex;
       case STAR:
       case PLUS:
       case QUESTIONMARK:
@@ -403,7 +499,10 @@ public class BNF<N, C extends Enum<C>> {
     }
   }
   /*+******************************************************************/
-  static enum Code { TOK1, TOK2, TOK3;}
+  private static enum Code { TOK1, TOK2, TOK3;}
+  /**
+   * prints the grammar employed to parse grammars.
+   */
   public static void main(String[] argv) {
     
     BNF<String,Code> bnf = new BNF<String,Code>(Code.class);

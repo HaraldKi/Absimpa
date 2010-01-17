@@ -56,7 +56,20 @@ public class TestBNF {
   }
   /*+******************************************************************/
   @Test
-  public void placeholderTest() throws Exception {
+  public void placeholderTest1() throws Exception {
+    Exception e = new Exception();
+    try {
+      bnf.rule("assign", "IDENT EQUAL expr");
+    } catch( Exception ee ) {
+      e = ee;
+    }
+    assertTrue(e instanceof ParseException );
+    assertTrue(e.getMessage().endsWith("undefined grammar element"));
+  }
+  /*+******************************************************************/
+  @Test
+  public void placeholderTest2() throws Exception {
+    bnf.rule("expr");
     Grammar<String,Token> g = bnf.rule("assign", "IDENT EQUAL expr");
     Grammar<String,Token> m = bnf.rule("m", "expr | NUMBER");
     Grammar<String,Token> h = bnf.rule("expr", "IDENT | NUMBER");
@@ -138,7 +151,7 @@ public class TestBNF {
   /*+******************************************************************/
   @Test
   public void testGetGrammar() throws Exception {
-    Grammar<String,Token> g = bnf.rule("assign", "IDENT EQUALS NUMBER");
+    Grammar<String,Token> g = bnf.rule("assign", "IDENT EQUAL NUMBER");
     assertEquals(g, bnf.getGrammar("assign"));
   }
   /*+******************************************************************/
@@ -152,14 +165,9 @@ public class TestBNF {
     assertEquals("%all(IDENT | %num(NUMBER) | %=(EQUAL))", g.ruleString());
   }
   /*+******************************************************************/
-  @Test(expected=IllegalStateException.class)
-  public void missingDefinitions() throws Exception {
-    bnf.rule("a", "IDENT | expr");
-    bnf.compile("a");    
-  }
-  /*+******************************************************************/
   @Test(expected=LeftRecursiveException.class)
   public void leftrecursiveLoop() throws Exception {
+    bnf.rule("b");
     bnf.rule("a", "b IDENT");
     bnf.rule("b", "a EQUAL NUMBER");
     bnf.compile("a");
