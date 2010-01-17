@@ -1,8 +1,10 @@
-package absimpa.bnf;
+package absimpa;
 
 import java.util.*;
 
 import absimpa.*;
+import absimpa.lexer.LexerInfo;
+import absimpa.lexer.SimpleLexer;
 
 import example.LeafFactory;
 
@@ -22,7 +24,7 @@ public class BNF<N, C extends Enum<C>> {
   private List<NodeFactory<N>> nfmarkStack = null;
   
   /*+******************************************************************/
-  private static enum TokenCode  {
+  private static enum TokenCode implements LexerInfo<TokenCode>  {
     EOF(""), 
     SYMBOL("[A-Za-z][A-Za-z0-9]*"), 
     NUMBER("[0-9]+"), 
@@ -42,8 +44,11 @@ public class BNF<N, C extends Enum<C>> {
     private TokenCode(String regex) {
       this.regex = regex;
     }
-    public String toString() {
-      return ""+'"'+regex+'"';
+    public String getRegex() {
+      return regex;
+    }
+    public TokenCode eofCode() {
+      return EOF;
     }
   }
   /* +***************************************************************** */
@@ -58,9 +63,7 @@ public class BNF<N, C extends Enum<C>> {
 
     parser = expr.compile();
 
-    lex =
-        new SimpleLexer<Node,TokenCode>(TokenCode.EOF, TokenCode.values(),
-            new MyLeafs());
+    lex = new SimpleLexer<Node,TokenCode>(TokenCode.class, new MyLeafs());
     lex.setSkipRe("[\\s]+");
   }
   /*+******************************************************************/

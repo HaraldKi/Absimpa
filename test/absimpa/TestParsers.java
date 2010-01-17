@@ -12,7 +12,7 @@ import nodes.ValueNode;
 import org.junit.Before;
 import org.junit.Test;
 
-import absimpa.bnf.SimpleLexer;
+import absimpa.lexer.SimpleLexer;
 
 import example.*;
 

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import absimpa.*;
-import absimpa.bnf.SimpleLexer;
+import absimpa.lexer.SimpleLexer;
 
 /**
  * create a simple expression language and use it for testing.

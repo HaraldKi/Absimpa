@@ -1,4 +1,4 @@
-package absimpa.bnf;
+package absimpa.lexer;
 
 
 import java.util.*;
@@ -70,19 +70,30 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
     eofToken = new Token<N,C>("", eofCode);
     this.leafFactory = leafFactory; 
   }
-  /*+******************************************************************/
+  /* +***************************************************************** */
   /**
-   * adds all {@code codes} with {@link #addToken} except if it is identical
-   * to {@code eofCode}. It is assumed, that {@code toString()} of a code
-   * returns a regular expressions that defines the strings representing the
-   * token.
+   * <p>
+   * adds all constants found in class {@tokenCode} with {@link #addToken}
+   * except if it is identical to the {@link LexerInfo#eofCode} it provides.
+   * It is assumed, that {@code toString()} of a code returns a regular
+   * expression that defines the strings representing the token.
+   * </p>
+   * <p>
+   * <b>IMPORTANT:</b>Make sure to define the code constants of {@code <C>}
+   * in the order you want the regular expressions tried out by the lexer.
    */
-  public SimpleLexer(C eofCode, C[] codes, LeafFactory<N,C> leafFactory) {
+  public <CC extends Enum<C> & LexerInfo<C>> SimpleLexer(
+                                                         Class<CC> tokenCode,
+                                                         LeafFactory<N,C> leafFactory) {
+    CC[] codes = tokenCode.getEnumConstants();
+    C eofCode = codes[0].eofCode();
     eofToken = new Token<N,C>("", eofCode);
     this.leafFactory = leafFactory;
-    for(C c : codes) {
-      if( c==eofCode ) continue;
-      addToken(c, c.toString());
+    for(CC cc : codes) {
+      if( cc==eofCode ) continue;
+      @SuppressWarnings("unchecked")
+      C c = (C)cc;
+      addToken(c, cc.getRegex());
     }
   }
   /*+******************************************************************/
