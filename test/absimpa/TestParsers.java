@@ -118,13 +118,13 @@ public class TestParsers {
   }
   /*+******************************************************************/
   private static class LeafNode extends TestNode {
-    private final Token<TestNode, Codes> t;
+    private final Token<Codes> t;
     @SuppressWarnings("unchecked")
-    public LeafNode(Token t) {
+    public LeafNode(Token<Codes> t) {
       super(NodeType.TOKEN, Collections.EMPTY_LIST);
       this.t = t;
     }
-    public Token<TestNode, Codes> getToken() {
+    public Token<Codes> getToken() {
       return t;
     }
     protected void dump(Appendable app, String indent) throws IOException {
@@ -170,7 +170,7 @@ public class TestParsers {
     //node.dump(System.out);
     assertTrue(node instanceof LeafNode);
     LeafNode n = (LeafNode)node;
-    Token<TestNode,Codes> t = n.getToken();
+    Token<Codes> t = n.getToken();
     assertEquals(text, t.getText());
     assertEquals(code, t.getCode());
   }

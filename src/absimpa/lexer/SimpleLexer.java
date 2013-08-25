@@ -48,12 +48,12 @@ import absimpa.*;
  */
 public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<TokenInfo<N,C>>();
-  private final Token<N,C> eofToken;
+  private final Token<C> eofToken;
 
   private final LeafFactory<N,C> leafFactory;
   
   private final StringBuilder restText = new StringBuilder();  
-  private Token<N,C> currentToken = null;
+  private Token<C> currentToken = null;
 
   private int line;
   private int column;
@@ -67,7 +67,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
    * </p>
    */
   public SimpleLexer(C eofCode, LeafFactory<N,C> leafFactory) {
-    eofToken = new Token<N,C>("", eofCode);
+    eofToken = new Token<C>("", eofCode);
     this.leafFactory = leafFactory; 
   }
   /* +***************************************************************** */
@@ -87,7 +87,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
                                                          LeafFactory<N,C> leafFactory) {
     CC[] codes = tokenCode.getEnumConstants();
     C eofCode = codes[0].eofCode();
-    eofToken = new Token<N,C>("", eofCode);
+    eofToken = new Token<C>("", eofCode);
     this.leafFactory = leafFactory;
     for(CC cc : codes) {
       if( cc==eofCode ) continue;
@@ -206,7 +206,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   /**
    * <p>returns the current token.</p>
    */
-  public Token<N,C> currentToken() {
+  public Token<C> currentToken() {
     return currentToken;
   }
   /* +***************************************************************** */
@@ -222,7 +222,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   private void createCurrentToken(TokenInfo<N,C> ti, Matcher match) {
     String text = match.group();
     restText.delete(0, match.end());
-    currentToken = new Token<N,C>(text, ti.c);
+    currentToken = new Token<C>(text, ti.c);
     //System.out.printf("%s: creating token %s%n", getClass().getName(),
     //                currentToken);
   }
