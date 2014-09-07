@@ -1,10 +1,16 @@
 package example;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import absimpa.*;
+import absimpa.Grammar;
+import absimpa.GrammarBuilder;
+import absimpa.Lexer;
+import absimpa.NodeFactory;
+import absimpa.ParseException;
+import absimpa.Parser;
+import absimpa.Recurse;
+import absimpa.lexer.LeafFactory;
 import absimpa.lexer.SimpleLexer;
 
 /**
@@ -12,16 +18,6 @@ import absimpa.lexer.SimpleLexer;
  *
  */
 public class ExprLanguage {
-  public static class L extends SimpleLexer<Expr,Codes> {
-    public L(Codes eofCode) {
-      super(eofCode, new AutoMappedLeafFactory());
-    }    
-    @Override
-    public L addToken(Codes tc, String regex) {
-      super.addToken(tc, regex);
-      return this;
-    }
-  }
   public static class Eparser implements Parser<Expr,Codes> {
     private final Parser<Expr,Codes> p;
     public Eparser(Parser<Expr,Codes> p) {
@@ -33,7 +29,7 @@ public class ExprLanguage {
       return p.parse(lex);
     }
   }
-  private static enum Codes implements LeafFactory<Expr,Codes> {
+  public static enum Codes implements LeafFactory<Expr,Codes> {
     PLUS {
       @Override
       public Expr create(SimpleLexer<Expr,Codes> lex) {
@@ -112,22 +108,25 @@ public class ExprLanguage {
     }
   }
   private static class ExprOper extends Expr {
-    private List<Expr> ops = new ArrayList<Expr>(2);
+    //private List<Expr> ops = new ArrayList<Expr>(2);
+    Expr leftOp = null;
+    Expr rightOp = null;
     ExprOper(Etype t) {
       super(t);
-      ops.add(null);
-      ops.add(null);
     }
-    public void setOp(int which, Expr op) {
-      ops.set(which, op);
+    public void setLeftOp(Expr op) {
+      leftOp = op;
     }
-    public Expr getOp(int i) {
-      return ops.get(i);
+    public void setRightOp(Expr op) {
+      rightOp = op;
+    }
+    public Expr getLeftOp() {
+      return leftOp;
     }
     @Override
     public Number value() {
-      double v0 = ops.get(0).value().doubleValue();
-      double v1 = ops.get(1).value().doubleValue();
+      double v0 = leftOp.value().doubleValue();
+      double v1 = rightOp.value().doubleValue();
       switch(etype) {
       case PLUS: v0 = v0+v1; break;
       case MINUS: v0 = v0-v1; break;
@@ -143,14 +142,13 @@ public class ExprLanguage {
     @Override
     public void dump(Appendable app, String indent) throws IOException {
       app.append(indent).append(toString()).append("\n");
-      for(Expr e : ops) {
-        e.dump(app, "  "+indent);
-      }
+      leftOp.dump(app, "  "+indent);
+      rightOp.dump(app, "  "+indent);
     }
   }
   /*+******************************************************************/
-  public static L createLexer() {
-    return new L(Codes.EOF)
+  public static SimpleLexer<Expr,Codes> createLexer() {
+    return new SimpleLexer<>(Codes.EOF, new AutoMappedLeafFactory())
     .addToken(Codes.PLUS, "[+]")
     .addToken(Codes.MINUS, "[-]")
     .addToken(Codes.NUMBER, "[1-9][0-9]*|0")
@@ -201,48 +199,17 @@ public class ExprLanguage {
         gb.seq(Inner.PICKFIRST, OPAREN).add(sum).add(CPAREN).setName("Expr");
 
     recExpr.setChild(parenthesized);
+    System.out.println(parenthesized.toBNF());
 
     return new Eparser(sum.compile());
   }
-  /* +***************************************************************** */
-//  private static enum Leafs implements LeafFactory<Expr,Codes> {
-//    NUMBER {
-//      public Expr create(L lex) {
-//        String t = lex.currentText();
-//        Double d = Double.parseDouble(t);
-//        return new ExprNum(d);
-//      }
-//    },
-//    OPERATOR {
-//      public Expr create(L lex) {
-//        String t = lex.currentText();
-//        int count = 0;
-//        for(int i=0; i<t.length(); i++) {
-//          if( t.charAt(i)=='-') count+=1;
-//        }
-//        if( count%2==1 ) {
-//          return new ExprOper(Etype.MINUS);
-//        }
-//        char ch = t.charAt(0);
-//        if( ch=='*') return new ExprOper(Etype.TIMES);
-//        if( ch=='/') return new ExprOper(Etype.DIVIDE);
-//        return new ExprOper(Etype.PLUS);
-//      }
-//    },
-//    IGNORE {
-//      public Expr create(L lex) {
-//        return null;
-//      }
-//    }
-//    ;  
-//  }
   /* +***************************************************************** */
   private static enum Inner implements NodeFactory<Expr> {
     APPLYRIGHT {
       public Expr create(List<Expr> children) {
         ExprOper op = (ExprOper)(children.get(0));
         Expr e = children.get(1);
-        op.setOp(1, e);
+        op.setRightOp(e);
         return op;
       }
     },
@@ -253,9 +220,9 @@ public class ExprLanguage {
         ExprOper tmp = (ExprOper)children.get(1);
         while( tmp!=null ) {
           op = tmp;
-          tmp = (ExprOper)op.getOp(0);
+          tmp = (ExprOper)op.getLeftOp();
         }
-        op.setOp(0, children.get(0));
+        op.setLeftOp(children.get(0));
         return children.get(1);
       }      
     },
@@ -263,11 +230,11 @@ public class ExprLanguage {
       public Expr create(List<Expr> children) {
         if( children.size()==0 ) return null;
         int l = children.size();
-        ExprOper last = (ExprOper)children.get(l-1);
+        ExprOper current = (ExprOper)children.get(l-1);
         for(int i=l-2; i>=0; i--) {
           ExprOper prev = (ExprOper)children.get(i);
-          last.setOp(0, prev);
-          last = prev;
+          current.setLeftOp(prev);
+          current = prev;
         }
         return children.get(l-1);
       }

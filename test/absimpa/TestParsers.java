@@ -4,7 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 
 import nodes.Node;
 import nodes.ValueNode;
@@ -12,9 +15,9 @@ import nodes.ValueNode;
 import org.junit.Before;
 import org.junit.Test;
 
+import absimpa.lexer.LeafFactory;
 import absimpa.lexer.SimpleLexer;
-
-import example.*;
+import absimpa.lexer.Token;
 
 
 

@@ -47,6 +47,7 @@ public class ChoiceParser<N,C extends Enum<C>>
       fmt.format("%s%s", sep, p.getName());
       sep = "|";
     }
+    fmt.close();
     sb.append("]");
     return sb.toString();
   }

@@ -8,9 +8,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import absimpa.lexer.LeafFactory;
 import absimpa.lexer.SimpleLexer;
-
-import example.LeafFactory;
 
 public class TestPicky {
   private L lex = null;

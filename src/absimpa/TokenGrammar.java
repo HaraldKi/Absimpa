@@ -1,8 +1,9 @@
 package absimpa;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Map;
 
-import absimpa.lexer.LexerInfo;
 import absimpa.parserimpl.AbstractParser;
 import absimpa.parserimpl.TokenParser;
 
@@ -39,11 +40,8 @@ public class TokenGrammar<N,C extends Enum<C>>
   public String _ruleString() {
     String name = getName();
     String representation = null;
-    if( code instanceof LexerInfo<?> ) {
-      representation = "\""+((LexerInfo<?>)code).getRegex()+'"';
-    } else {
-      representation = code.toString();
-    }
+    representation = code.toString();
+    
     if( name==null ) {
       return representation;
     } else {

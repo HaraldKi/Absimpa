@@ -137,7 +137,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
   }
   /* +***************************************************************** */
   protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {
-    // only Recurse needs to override.
+    // only the class Recurse needs to override.
   }
   /* +***************************************************************** */
   protected abstract Iterable<Grammar<N,C>> children();

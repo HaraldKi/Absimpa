@@ -44,6 +44,7 @@ public class SeqParser<N,C extends Enum<C>>
       sep = ",";
     }
     sb.append(']');
+    fmt.close();
     return sb.toString();
   }
 }

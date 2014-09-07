@@ -5,9 +5,9 @@ import java.util.Set;
 /**
  * <p>
  * defines the interface to a lexical analyzer (lexer) needed by the
- * {@link Parser}. This interface does not define the kind of input the
- * lexer takes apart. It is only assumed that the lexer, as a result, can
- * provide objects of an enumeration type.
+ * {@link Parser}. This interface does not define the kind of input the lexer
+ * takes apart. It is only assumed that the lexer, as a result, can provide
+ * objects of an enumeration type.
  * </p>
  * <p>
  * The {@code Lexer} must maintain a <em>current token code</em> which is
@@ -16,15 +16,24 @@ import java.util.Set;
  * own input.
  * </p>
  * 
- * @param <TokenCode> is the type representing the
- *        <q>characters</q>
- *        of the language to be parsed
+ * @param <C> is the type representing the <q>characters</q> of the language
+ *        to be parsed
  */
-public interface Lexer<N, TokenCode extends Enum<TokenCode>> {
+public interface Lexer<N, C extends Enum<C>> {
   /**
    * <p>
    * returns a node of type N for the current token while advancing the
    * current token internally to the next one.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> It may seem strange at first to force the lexer to create
+   * the leaf nodes. Rather we would let this do the parser. But then a lexer
+   * implementation would need to return more than just the token code for
+   * most tokens to be transformed into a node. This again would require a
+   * general return type {@code Token<C>} which would then have to
+   * implemented by each implementation. As a result the descendants of
+   * {@code Token<C>} would have to be specified as a third type parameter at
+   * many places.
    * </p>
    */
   N next() throws ParseException;
@@ -34,7 +43,7 @@ public interface Lexer<N, TokenCode extends Enum<TokenCode>> {
    * same token code as long as {@link #next} is not called.
    * </p>
    */
-  TokenCode current();
+  C current();
 
   /**
    * <p>
@@ -47,5 +56,5 @@ public interface Lexer<N, TokenCode extends Enum<TokenCode>> {
    * @param expectedTokens a set of tokens that the parser would have
    *        expected at the current position.
    */
-  ParseException parseException(Set<TokenCode> expectedTokens);
+  ParseException parseException(Set<C> expectedTokens);
 }

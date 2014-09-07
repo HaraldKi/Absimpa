@@ -7,10 +7,11 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+import absimpa.lexer.SimpleLexer;
 import example.ExprLanguage.*;
 
 public class TestExprLanguage {
-  L lex = null;
+  SimpleLexer<Expr,Codes> lex = null;
   Eparser parser = null;
   
   @Before
@@ -24,7 +25,10 @@ public class TestExprLanguage {
   }
   /*+******************************************************************/
   private double eval(String text) throws IOException, ParseException {
-   double x = analyze(text).value().doubleValue();
+   Expr result = analyze(text);
+//   System.out.print("--> ");
+//   result.dump(System.out, "  ");
+   double x = result.value().doubleValue();
    return x;
   }
   /*+******************************************************************/
@@ -45,6 +49,8 @@ public class TestExprLanguage {
     assertEquals(6.0, eval("3*(1+ 1* (4- 3))"), eps);
     assertEquals(-6.0, eval("3*-3--3"), eps);
     assertEquals(6.0, eval("3*+3-+3"), eps);
+    
+    assertEquals(1.0, eval("+1"), eps);
   }
   /*+******************************************************************/
 

@@ -1,4 +1,4 @@
-package example;
+package absimpa.lexer;
 
 import absimpa.ParseException;
 import absimpa.lexer.SimpleLexer;

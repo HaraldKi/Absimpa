@@ -5,9 +5,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import example.LeafFactory;
-import example.Token;
-
 import absimpa.*;
 
 /**
@@ -41,7 +38,7 @@ import absimpa.*;
  * </p>
  * 
  * @param <C> is an enumeration and describes the token codes provided to the
- *        parser. In addition, the enum know how to transform a token code
+ *        parser. In addition, the enum knows how to transform a token code
  *        into an {@code N}
  * @param <N> is the date type returned for a token when the parser has
  *        recognized it and calles {@link #next}
@@ -62,7 +59,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   /*+******************************************************************/
   /**
    * <p>
-   * creates a <code>TrivialLexer</code> to return <code>eofCode</code>
+   * creates a <code>SimpleLexer</code> to return <code>eofCode</code>
    * when the end of input is encountered.
    * </p>
    */
@@ -71,32 +68,6 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
     this.leafFactory = leafFactory; 
   }
   /* +***************************************************************** */
-  /**
-   * <p>
-   * adds all constants found in class {@code tokenCode} with {@link #addToken}
-   * except if it is identical to the {@link LexerInfo#eofCode} it provides.
-   * It is assumed, that {@code toString()} of a code returns a regular
-   * expression that defines the strings representing the token.
-   * </p>
-   * <p>
-   * <b>IMPORTANT:</b>Make sure to define the code constants of {@code <C>}
-   * in the order you want the regular expressions tried out by the lexer.
-   */
-  public <CC extends Enum<C> & LexerInfo<C>> SimpleLexer(
-                                                         Class<CC> tokenCode,
-                                                         LeafFactory<N,C> leafFactory) {
-    CC[] codes = tokenCode.getEnumConstants();
-    C eofCode = codes[0].eofCode();
-    eofToken = new Token<C>("", eofCode);
-    this.leafFactory = leafFactory;
-    for(CC cc : codes) {
-      if( cc==eofCode ) continue;
-      @SuppressWarnings("unchecked")
-      C c = (C)cc;
-      addToken(c, cc.getRegex());
-    }
-  }
-  /*+******************************************************************/
   /**
    * <p>
    * resets the lexer and initializes it to analyze the given
