@@ -6,6 +6,7 @@ import java.util.Iterator;
  * the typical set of static utility methods.
  */
 public class Util {
+  private Util(){}
   /**
    * join a list of things into a string with a prefix, a separator and a
    * suffix.

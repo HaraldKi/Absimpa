@@ -30,11 +30,13 @@ import absimpa.lexer.SimpleLexer;
  * <p>
  * Tokens are represented by their regular expressions and the brackets in
  * {@code [expr]} merely point out that this is a recursive use of the rule
- * {@code expr}.
+ * {@code expr}. The percent sign is used to insert {@link NodeFactory}
+ * objects in the right place.
  * </p>
  * <p>
  * Add rules with {@link #rule rule()} and finally compile your start symbol
  * with {@link #compile compile()}.
+ * </p>
  * 
  * @param <N>
  * @param <C>
@@ -323,7 +325,7 @@ public class BNF<N, C extends Enum<C>> {
    * <p>
    * <p>
    * This assumes that {@code term} is already defined as a rule, at least
-   * with {@code #rule(String)}. The same holds for {@code PLUS}. Most likely
+   * with {@link #rule(String)}. The same holds for {@code PLUS}. Most likely
    * the latter is defined already by the constructor, if {@code PLUS} is
    * part of the token code enumeration {@code <C>}.
    * </p>
@@ -394,14 +396,14 @@ public class BNF<N, C extends Enum<C>> {
   /*+******************************************************************/
   /**
    * <p>
-   * compiles a previously define rule. This will typically be the start
+   * compiles a previously defined rule. This will typically be the start
    * symbol of your grammar.
    * </p>
    * 
    * @throws IllegalStateException if there are rules registered with
    *         {@link #rule(String)} that have no expansion yet. You can always
    *         circumvent this restriction by using {@link #getGrammar} and
-   *         calling compile on the result. This may, however, through other
+   *         calling compile on the result. This may, however, throw other
    *         exceptions.
    */
   public Parser<N,C> compile(String ruleNname) {

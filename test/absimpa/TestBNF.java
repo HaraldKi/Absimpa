@@ -5,9 +5,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TestBNF {
   private static enum Token {
@@ -56,19 +54,18 @@ public class TestBNF {
   }
   /*+******************************************************************/
   @Test
-  public void placeholderTest1() throws Exception {
-    Exception e = new Exception();
+  public void placeholderUndefinedTest() throws Exception {
     try {
       bnf.rule("assign", "IDENT EQUAL expr");
-    } catch( Exception ee ) {
-      e = ee;
+      fail("expected exception");
+    } catch( Exception e ) {
+      assertTrue(e instanceof ParseException );
+      assertTrue(e.getMessage().endsWith("undefined grammar element"));
     }
-    assertTrue(e instanceof ParseException );
-    assertTrue(e.getMessage().endsWith("undefined grammar element"));
   }
   /*+******************************************************************/
   @Test
-  public void placeholderTest2() throws Exception {
+  public void placeholderTest() throws Exception {
     bnf.rule("expr");
     Grammar<String,Token> g = bnf.rule("assign", "IDENT EQUAL expr");
     Grammar<String,Token> m = bnf.rule("m", "expr | NUMBER");
