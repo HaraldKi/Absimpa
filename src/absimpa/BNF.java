@@ -99,6 +99,7 @@ public class BNF<N, C extends Enum<C>> {
 
     lex = new SimpleLexer<Node,TokenCode>(TokenCode.EOF, new MyLeafs());
     for(TokenCode c : TokenCode.values()) {
+      if (c==TokenCode.EOF) continue;
       lex.addToken(c, c.getRegex());
     }
     lex.setSkipRe("[\\s]+");

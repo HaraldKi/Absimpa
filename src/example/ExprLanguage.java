@@ -199,7 +199,7 @@ public class ExprLanguage {
         gb.seq(Inner.PICKFIRST, OPAREN).add(sum).add(CPAREN).setName("Expr");
 
     recExpr.setChild(parenthesized);
-    System.out.println(parenthesized.toBNF());
+    //System.out.println(parenthesized.toBNF());
 
     return new Eparser(sum.compile());
   }
