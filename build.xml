@@ -9,7 +9,7 @@
     <mkdir dir="Classes"/>
     <javac srcdir="src"
       destdir="Classes"
-      source="1.5"
+      source="1.7"
       fork="false"
       debug="true"
       deprecation="true"
