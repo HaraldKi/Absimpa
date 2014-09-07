@@ -87,6 +87,7 @@
     description="runit unit tests with our own test runner">
     <java classname="absimpa.VerboseTester" fork="yes">
       <jvmarg value="-Demma.coverage.out.file=dist/coverage/emmadata.ec"/>
+      <jvmarg value="-noverify"/>
       <classpath>
 	<pathelement location="dist/coverage/Classes"/>
 	<pathelement location="/usr/share/java/junit4.jar"/>
