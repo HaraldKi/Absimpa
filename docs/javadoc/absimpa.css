@@ -1,0 +1,35 @@
+body {
+  color: black;
+}
+
+.block {
+  color: black;
+}
+
+
+
+.bar, .topNav, .bottomNav, .memberSummary caption span.tableTab span, .packagesSummary caption span.tableTab span, .overviewSummary caption span.tableTab span, .typeSummary caption span.tableTab span, .memberSummary .tableTab .tabEnd, .packagesSummary .tableTab .tabEnd, .overviewSummary .tableTab .tabEnd, .typeSummary .tableTab .tabEnd, .ui-autocomplete-category  {
+  background-color:#672;
+}
+.subNav, .indexNav, div.details ul.blockList ul.blockList ul.blockList li.blockList h4, div.details ul.blockList ul.blockList ul.blockListLast li.blockList h4, ul.blockList ul.blockList ul.blockList li.blockList h3, th.colFirst, th.colSecond,  th.colLast {
+  background-color:#efa;
+}
+
+/* the next two compensate for a bug in the HTML where table rows contain th */
+.altColor, .altColor th {
+    background-color: #FFFFFF;
+}
+.rowColor, .rowColor th {
+  background-color: #EEEEEF;
+}
+
+a[href]:hover, a[href]:focus, .bar a:hover, .bar a:focus, .topNav a:hover, .bottomNav a:hover {
+  color: #892;
+}
+a:link, a:visited {
+  color: #450;
+}
+
+.navBarCell1Rev, .overviewSummary caption, .memberSummary caption, .typeSummary caption, .useSummary caption, .constantsSummary caption, .deprecatedSummary caption, .requiresSummary caption, .packagesSummary caption, .providesSummary caption, .usesSummary caption {
+  xbackground-color: #450;
+}

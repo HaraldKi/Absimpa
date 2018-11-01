@@ -1,281 +1,283 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="de">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../absimpa.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>package absimpa;<a name="line.1"></a>
-<span class="sourceLineNo">002</span><a name="line.2"></a>
-<span class="sourceLineNo">003</span>/**<a name="line.3"></a>
-<span class="sourceLineNo">004</span> * &lt;p&gt;<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * helps to build a {@link Grammar} for a language made from objects of type<a name="line.5"></a>
-<span class="sourceLineNo">006</span> * {@code C}. To create your grammar, the following bits and pieces are<a name="line.6"></a>
-<span class="sourceLineNo">007</span> * needed.<a name="line.7"></a>
-<span class="sourceLineNo">008</span> * &lt;/p&gt;<a name="line.8"></a>
-<span class="sourceLineNo">009</span> * &lt;ol&gt;<a name="line.9"></a>
-<span class="sourceLineNo">010</span> * &lt;li&gt;A {@link absimpa.Lexer} is needed that provides token codes of type<a name="line.10"></a>
-<span class="sourceLineNo">011</span> * {@code C}. It is completely up to you what these token codes stand for.<a name="line.11"></a>
-<span class="sourceLineNo">012</span> * For the parser and the grammar the only interesting bit is that {@code C}<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * is an {@link java.lang.Enum}. Typically a token code signifies a type of<a name="line.13"></a>
-<span class="sourceLineNo">014</span> * token like NUMBER, OPENBRACKET, IDENTIFIER and so on. Normally the lexer<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * will internally associate the current token code also with a piece of<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * text, the token text, but the parser we built is never interested in this<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * text. Nevertheless, the text is not lost. Read on.&lt;/li&gt;<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * <a name="line.18"></a>
-<span class="sourceLineNo">019</span> * &lt;li&gt;A result type {@code N} is needed. This package makes no assumption<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * about the type of result created, it is just called {@code N}. Whenever<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * the parser has recognized a token, it will ask the lexer to provide a leaf<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * node for it. And when it has recognized a partial bit of input, it will<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * call a {@link NodeFactory} with the bits it has recognized and asks it to<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * create an {@code N}.&lt;/li&gt;<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * <a name="line.25"></a>
-<span class="sourceLineNo">026</span> * &lt;li&gt;One or more {@link NodeFactory} objects are needed. Whenever the<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * parser recognizes a part of the input, for example a sequence of tokens as<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * described by the {@link #seq seq()} method, it will call the associated<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * {@code NodeFactory} with the bits it recognized to obtain a new {@code N}.<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * &lt;/li&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * &lt;/ol&gt;<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * <a name="line.32"></a>
-<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * It is up to you to define what {@code N} is. It may be a type that<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * describes a syntax tree, but it may as well describe something completely<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * different that is incrementally built up while parsing.<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * &lt;/p&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * <a name="line.38"></a>
-<span class="sourceLineNo">039</span> * &lt;p&gt;<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * To build a grammar, start by defining a few token recognizing grammars<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * with {@link #token token()}. Then you can combine these, for example into<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * a sequence, by passing the first to {@link #seq seq()} and then adding<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * more with {@link Sequence#add}. To repeat things, use {@link #star star()}<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * or {@link #repeat repeat()}. Use {@link #choice choice()} and subsequently<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * {@link Choice#or Choice.or()} to create a choice of subnodes. A rough<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * outline of an example is:<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * &lt;/p&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * <a name="line.48"></a>
-<span class="sourceLineNo">049</span> * &lt;pre&gt;<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * GrammarBuilder&amp;lt;...&amp;gt; gb = <a name="line.50"></a>
-<span class="sourceLineNo">051</span> *   new GrammarBuilder&amp;lt;...&amp;gt;(nodeFactory);<a name="line.51"></a>
-<span class="sourceLineNo">052</span> * Grammar&amp;lt;...&amp;gt; NUMBER = gb.token(CODE_NUMBER);<a name="line.52"></a>
-<span class="sourceLineNo">053</span> * Grammar&amp;lt;...&amp;gt; product = gb.star(NUMBER);<a name="line.53"></a>
-<span class="sourceLineNo">054</span> * Parser&amp;lt;...&amp;gt; parser = product.compile();<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * &lt;/pre&gt;<a name="line.55"></a>
-<span class="sourceLineNo">056</span> * <a name="line.56"></a>
-<span class="sourceLineNo">057</span> * &lt;p&gt;<a name="line.57"></a>
-<span class="sourceLineNo">058</span> * This would define a {@code product} as arbitrary length sequence of<a name="line.58"></a>
-<span class="sourceLineNo">059</span> * {@code NUMBER}s. When the parser has collected all {@code NUMBER}s<a name="line.59"></a>
-<span class="sourceLineNo">060</span> * available, it will call the {@code nodeFactory} with the list of results<a name="line.60"></a>
-<span class="sourceLineNo">061</span> * provided by the lexer to the token parser. The result of the parse would<a name="line.61"></a>
-<span class="sourceLineNo">062</span> * be whatever the {@code nodeFactory} makes out of the list. It could return<a name="line.62"></a>
-<span class="sourceLineNo">063</span> * an object that contains the list as a field, but it could as well multiply<a name="line.63"></a>
-<span class="sourceLineNo">064</span> * the numbers and return an {@code N} that contains just the product.<a name="line.64"></a>
-<span class="sourceLineNo">065</span> * &lt;/p&gt;<a name="line.65"></a>
-<span class="sourceLineNo">066</span> * &lt;p&gt;<a name="line.66"></a>
-<span class="sourceLineNo">067</span> * Slightly tricky is the creation of a recursive grammar. Create a<a name="line.67"></a>
-<span class="sourceLineNo">068</span> * {@link Recurse} as a placeholder and later set its recursive child with<a name="line.68"></a>
-<span class="sourceLineNo">069</span> * {@link Recurse#setChild(Grammar)}.<a name="line.69"></a>
-<span class="sourceLineNo">070</span> * &lt;/p&gt;<a name="line.70"></a>
-<span class="sourceLineNo">071</span> * <a name="line.71"></a>
-<span class="sourceLineNo">072</span> * &lt;p&gt;<a name="line.72"></a>
-<span class="sourceLineNo">073</span> * The use of the {@code GrammarBuilder} is recommended over direct use of<a name="line.73"></a>
-<span class="sourceLineNo">074</span> * the grammar classes like {@link Sequence}, {@link Choice} and so on,<a name="line.74"></a>
-<span class="sourceLineNo">075</span> * because it reliefs from a lot of generic parameter typing.<a name="line.75"></a>
-<span class="sourceLineNo">076</span> * &lt;/p&gt;<a name="line.76"></a>
-<span class="sourceLineNo">077</span> * &lt;h2&gt;Parsing EOF&lt;/h2&gt;<a name="line.77"></a>
-<span class="sourceLineNo">078</span> * &lt;p&gt;<a name="line.78"></a>
-<span class="sourceLineNo">079</span> * To make sure that parsers compiled from the grammars produced here parse<a name="line.79"></a>
-<span class="sourceLineNo">080</span> * the whole input sequence, the lexer eventually needs to produce a specific<a name="line.80"></a>
-<span class="sourceLineNo">081</span> * eof-token which is explicitly matched by the grammar. Suppose your grammar<a name="line.81"></a>
-<span class="sourceLineNo">082</span> * is nothing but {@code G-&gt; (SCOPE TERM)+}. The parser will happily parse a<a name="line.82"></a>
-<span class="sourceLineNo">083</span> * non-empty sequence of {@code SCOPE} and {@code TERM} pairs. In particular<a name="line.83"></a>
-<span class="sourceLineNo">084</span> * it will succeed for the sequence {@code SCOPE TERM TERM} with parsing the<a name="line.84"></a>
-<span class="sourceLineNo">085</span> * first pair and will leave the 2nd {@code TERM} unparsed. To prevent this,<a name="line.85"></a>
-<span class="sourceLineNo">086</span> * the grammar should rather be {@code G-&gt; (SCOPE TERM)+ EOF}.<a name="line.86"></a>
-<span class="sourceLineNo">087</span> * <a name="line.87"></a>
-<span class="sourceLineNo">088</span> * &lt;h2&gt;Multiple Argument Methods&lt;/h2&gt;<a name="line.88"></a>
-<span class="sourceLineNo">089</span> * &lt;p&gt;<a name="line.89"></a>
-<span class="sourceLineNo">090</span> * It would be nice to use varargs methods for {@code seq()} and {@code<a name="line.90"></a>
-<span class="sourceLineNo">091</span> * choice()}. But due to the generic parameters of grammars, there would then<a name="line.91"></a>
-<span class="sourceLineNo">092</span> * always be the compiler warning about unsafe conversion to array. Therefore<a name="line.92"></a>
-<span class="sourceLineNo">093</span> * there are variants of those methods with up to 5 parameters. Only beyond<a name="line.93"></a>
-<span class="sourceLineNo">094</span> * that, varargs is used.&lt;/p&gt;<a name="line.94"></a>
-<span class="sourceLineNo">095</span> * <a name="line.95"></a>
-<span class="sourceLineNo">096</span> * <a name="line.96"></a>
-<span class="sourceLineNo">097</span> * &lt;p&gt;<a name="line.97"></a>
-<span class="sourceLineNo">098</span> * &lt;b&gt;Remark:&lt;/b&gt; This package has no support to create a<a name="line.98"></a>
-<span class="sourceLineNo">099</span> * {@link absimpa.Lexer}, but there is a {@link absimpa.lexer.SimpleLexer} the<a name="line.99"></a>
-<span class="sourceLineNo">100</span> * source code of which may serve to demonstrate the principles.<a name="line.100"></a>
-<span class="sourceLineNo">101</span> * &lt;/p&gt;<a name="line.101"></a>
-<span class="sourceLineNo">102</span> * <a name="line.102"></a>
-<span class="sourceLineNo">103</span> * @param &lt;N&gt; is the type of the objects created by the parser to be<a name="line.103"></a>
-<span class="sourceLineNo">104</span> *        generated from the grammar constructed with a {@code<a name="line.104"></a>
-<span class="sourceLineNo">105</span> *        GrammarBuilder}<a name="line.105"></a>
-<span class="sourceLineNo">106</span> * @param &lt;C&gt; is the type of token codes provided by the lexer that will be<a name="line.106"></a>
-<span class="sourceLineNo">107</span> *        used by parser<a name="line.107"></a>
-<span class="sourceLineNo">108</span> */<a name="line.108"></a>
-<span class="sourceLineNo">109</span>public class GrammarBuilder&lt;N,C extends Enum&lt;C&gt;&gt; {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>  private final NodeFactory&lt;N&gt; defaultNode;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  /* +***************************************************************** */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>  /**<a name="line.112"></a>
-<span class="sourceLineNo">113</span>   * &lt;p&gt;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>   * the resulting {@code GrammarBuilder} will enter the given factory into<a name="line.114"></a>
-<span class="sourceLineNo">115</span>   * grammar objects as they are created, if no factory is explicitly<a name="line.115"></a>
-<span class="sourceLineNo">116</span>   * provided.<a name="line.116"></a>
-<span class="sourceLineNo">117</span>   * &lt;/p&gt;<a name="line.117"></a>
-<span class="sourceLineNo">118</span>   */<a name="line.118"></a>
-<span class="sourceLineNo">119</span>  public GrammarBuilder(NodeFactory&lt;N&gt; defaultFactory) {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>    this.defaultNode = defaultFactory;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>  }<a name="line.121"></a>
-<span class="sourceLineNo">122</span>  /* +***************************************************************** */<a name="line.122"></a>
-<span class="sourceLineNo">123</span>  /**<a name="line.123"></a>
-<span class="sourceLineNo">124</span>   * &lt;p&gt;<a name="line.124"></a>
-<span class="sourceLineNo">125</span>   * creates a grammar to recognize the given token code.<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   * &lt;/p&gt;<a name="line.126"></a>
-<span class="sourceLineNo">127</span>   */<a name="line.127"></a>
-<span class="sourceLineNo">128</span>  public TokenGrammar&lt;N,C&gt; token(C code) {<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    return new TokenGrammar&lt;&gt;(code);<a name="line.129"></a>
-<span class="sourceLineNo">130</span>  }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>  /* +***************************************************************** */<a name="line.131"></a>
-<span class="sourceLineNo">132</span>  /**<a name="line.132"></a>
-<span class="sourceLineNo">133</span>   * &lt;p&gt;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>   * creates a grammar to recognize a sequence of subgrammars which starts<a name="line.134"></a>
-<span class="sourceLineNo">135</span>   * with {@code g}. The {@code factory} provided will be used to transform<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   * the recognized list of elements into the result type {@code N}. To add<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   * more subgrammars to the sequence, use {@link Sequence#add}.<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   * &lt;/p&gt;<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   */<a name="line.139"></a>
-<span class="sourceLineNo">140</span>  public Sequence&lt;N,C&gt; seq(NodeFactory&lt;N&gt; factory, Grammar&lt;N,C&gt; g) {<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    Sequence&lt;N,C&gt; s = new Sequence&lt;&gt;(g);<a name="line.141"></a>
-<span class="sourceLineNo">142</span>    s.setNodeFactory(factory);<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    return s;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>  }<a name="line.144"></a>
-<span class="sourceLineNo">145</span>  /**<a name="line.145"></a>
-<span class="sourceLineNo">146</span>   * &lt;p&gt;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>   * creates a grammar like {@link #seq(NodeFactory, Grammar)}, but with the<a name="line.147"></a>
-<span class="sourceLineNo">148</span>   * default {@link NodeFactory}.<a name="line.148"></a>
-<span class="sourceLineNo">149</span>   * &lt;/p&gt;<a name="line.149"></a>
-<span class="sourceLineNo">150</span>   */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g) {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>    return seq(defaultNode, g);<a name="line.152"></a>
-<span class="sourceLineNo">153</span>  }<a name="line.153"></a>
-<span class="sourceLineNo">154</span>  /* +***************************************************************** */<a name="line.154"></a>
-<span class="sourceLineNo">155</span>  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2) {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    return seq(g1).add(g2);<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
-<span class="sourceLineNo">158</span>  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3)<a name="line.158"></a>
-<span class="sourceLineNo">159</span>  {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    return seq(g1, g2).add(g3);<a name="line.160"></a>
-<span class="sourceLineNo">161</span>  }<a name="line.161"></a>
-<span class="sourceLineNo">162</span>  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2,<a name="line.162"></a>
-<span class="sourceLineNo">163</span>                           Grammar&lt;N,C&gt; g3, Grammar&lt;N,C&gt; g4)<a name="line.163"></a>
-<span class="sourceLineNo">164</span>  {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    return seq(g1,g2,g3).add(g4);<a name="line.165"></a>
-<span class="sourceLineNo">166</span>  }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,<a name="line.167"></a>
-<span class="sourceLineNo">168</span>                           Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5) {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    return seq(g1,g2,g3,g4).add(g5);<a name="line.169"></a>
-<span class="sourceLineNo">170</span>  }<a name="line.170"></a>
-<span class="sourceLineNo">171</span>  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,<a name="line.171"></a>
-<span class="sourceLineNo">172</span>                           Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5, <a name="line.172"></a>
-<span class="sourceLineNo">173</span>                           Grammar&lt;N,C&gt; ... more) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    Sequence&lt;N,C&gt; s =  seq(g1,g2,g3,g4).add(g5);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    for(Grammar&lt;N,C&gt; g : more) s.add(g);<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    return s;<a name="line.176"></a>
-<span class="sourceLineNo">177</span>  }<a name="line.177"></a>
-<span class="sourceLineNo">178</span>   /* +***************************************************************** */<a name="line.178"></a>
-<span class="sourceLineNo">179</span>  /**<a name="line.179"></a>
-<span class="sourceLineNo">180</span>   * creates a grammar to recognize a repetition of the given subgrammar<a name="line.180"></a>
-<span class="sourceLineNo">181</span>   * {@code g}. The provided {@code factory} will be used to transform the<a name="line.181"></a>
-<span class="sourceLineNo">182</span>   * recognized list of elements into the result type {@code N}.<a name="line.182"></a>
-<span class="sourceLineNo">183</span>   * <a name="line.183"></a>
-<span class="sourceLineNo">184</span>   * @param min is the minimum number of times the subgrammar must be found<a name="line.184"></a>
-<span class="sourceLineNo">185</span>   *        in the input<a name="line.185"></a>
-<span class="sourceLineNo">186</span>   * @param max is the maximum number of times the subgrammar must be found<a name="line.186"></a>
-<span class="sourceLineNo">187</span>   *        in the input<a name="line.187"></a>
-<span class="sourceLineNo">188</span>   * @see #star<a name="line.188"></a>
-<span class="sourceLineNo">189</span>   * @see #opt<a name="line.189"></a>
-<span class="sourceLineNo">190</span>   */<a name="line.190"></a>
-<span class="sourceLineNo">191</span>  public Repeat&lt;N,C&gt; repeat(NodeFactory&lt;N&gt; factory, Grammar&lt;N,C&gt; g, int min,<a name="line.191"></a>
-<span class="sourceLineNo">192</span>                            int max)<a name="line.192"></a>
-<span class="sourceLineNo">193</span>  {<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    Repeat&lt;N,C&gt; rep =  new Repeat&lt;&gt;(min, max, g);<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    rep.setNodeFactory(factory);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>    return rep;<a name="line.196"></a>
-<span class="sourceLineNo">197</span>  }<a name="line.197"></a>
-<span class="sourceLineNo">198</span>  /**<a name="line.198"></a>
-<span class="sourceLineNo">199</span>   * &lt;p&gt;<a name="line.199"></a>
-<span class="sourceLineNo">200</span>   * creates a grammar like {@link #repeat(NodeFactory, Grammar,int,int)},<a name="line.200"></a>
-<span class="sourceLineNo">201</span>   * but with the default {@link NodeFactory}.<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   * &lt;/p&gt;<a name="line.202"></a>
-<span class="sourceLineNo">203</span>   */<a name="line.203"></a>
-<span class="sourceLineNo">204</span>  public Repeat&lt;N,C&gt; repeat(Grammar&lt;N,C&gt; grammar, int min, int max) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    return repeat(defaultNode, grammar, min, max);<a name="line.205"></a>
-<span class="sourceLineNo">206</span>  }<a name="line.206"></a>
-<span class="sourceLineNo">207</span>  /**<a name="line.207"></a>
-<span class="sourceLineNo">208</span>   * convenience function to call {@link #repeat(Grammar,int,int)} with<a name="line.208"></a>
-<span class="sourceLineNo">209</span>   * {@code min=0} and {@code max=Integer.MAX_VALUE}.<a name="line.209"></a>
-<span class="sourceLineNo">210</span>   */<a name="line.210"></a>
-<span class="sourceLineNo">211</span>  public Repeat&lt;N,C&gt; star(Grammar&lt;N,C&gt; grammar) {<a name="line.211"></a>
-<span class="sourceLineNo">212</span>    return repeat(grammar, 0, Integer.MAX_VALUE);<a name="line.212"></a>
-<span class="sourceLineNo">213</span>  }<a name="line.213"></a>
-<span class="sourceLineNo">214</span>  /**<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   * convenience function to call<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   * {@link #repeat(NodeFactory,Grammar,int,int)} with {@code min=0} and<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   * {@code max=Integer.MAX_VALUE}.<a name="line.217"></a>
-<span class="sourceLineNo">218</span>   */<a name="line.218"></a>
-<span class="sourceLineNo">219</span>  public Repeat&lt;N,C&gt; star(NodeFactory&lt;N&gt; nf, Grammar&lt;N,C&gt; grammar) {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    return repeat(nf, grammar, 0, Integer.MAX_VALUE);<a name="line.220"></a>
-<span class="sourceLineNo">221</span>  }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>  /**<a name="line.222"></a>
-<span class="sourceLineNo">223</span>   * convenience function to call {@link #repeat(Grammar,int,int)} with<a name="line.223"></a>
-<span class="sourceLineNo">224</span>   * {@code min=0} and {@code max=1}.<a name="line.224"></a>
-<span class="sourceLineNo">225</span>   */<a name="line.225"></a>
-<span class="sourceLineNo">226</span>  public Repeat&lt;N,C&gt; opt(Grammar&lt;N,C&gt; grammar) {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    return repeat(defaultNode, grammar, 0, 1);<a name="line.227"></a>
-<span class="sourceLineNo">228</span>  }<a name="line.228"></a>
-<span class="sourceLineNo">229</span>  /**<a name="line.229"></a>
-<span class="sourceLineNo">230</span>   * convenience function to call<a name="line.230"></a>
-<span class="sourceLineNo">231</span>   * {@link #repeat(NodeFactory,Grammar,int,int)} with {@code min=0} and<a name="line.231"></a>
-<span class="sourceLineNo">232</span>   * {@code max=1}.<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   */<a name="line.233"></a>
-<span class="sourceLineNo">234</span>  public Repeat&lt;N,C&gt; opt(NodeFactory&lt;N&gt; nf, Grammar&lt;N,C&gt; grammar) {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>    return repeat(nf, grammar, 0, 1);<a name="line.235"></a>
-<span class="sourceLineNo">236</span>  }<a name="line.236"></a>
-<span class="sourceLineNo">237</span>  /* +***************************************************************** */<a name="line.237"></a>
-<span class="sourceLineNo">238</span>  /**<a name="line.238"></a>
-<span class="sourceLineNo">239</span>   * creates a grammar to recognize any one of a number of sub grammars, one<a name="line.239"></a>
-<span class="sourceLineNo">240</span>   * of which is the given {@code g}. To add more sub grammars to the choice,<a name="line.240"></a>
-<span class="sourceLineNo">241</span>   * call {@link Choice#or}. In contrast to all other grammars, the {@code<a name="line.241"></a>
-<span class="sourceLineNo">242</span>   * Choice} does not need a {@link NodeFactory}, because the resulting<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   * parser just passes on the choice that was recognized.<a name="line.243"></a>
-<span class="sourceLineNo">244</span>   */<a name="line.244"></a>
-<span class="sourceLineNo">245</span>  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g) {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    return new Choice&lt;&gt;(g);<a name="line.246"></a>
-<span class="sourceLineNo">247</span>  }<a name="line.247"></a>
-<span class="sourceLineNo">248</span>  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2) {<a name="line.248"></a>
-<span class="sourceLineNo">249</span>    return choice(g1).or(g2);<a name="line.249"></a>
-<span class="sourceLineNo">250</span>  }<a name="line.250"></a>
-<span class="sourceLineNo">251</span>  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3) {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>    return choice(g1).or(g2).or(g3);<a name="line.252"></a>
-<span class="sourceLineNo">253</span>  }<a name="line.253"></a>
-<span class="sourceLineNo">254</span>  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                            Grammar&lt;N,C&gt; g4) {<a name="line.255"></a>
-<span class="sourceLineNo">256</span>    return choice(g1).or(g2).or(g3).or(g4);<a name="line.256"></a>
-<span class="sourceLineNo">257</span>  }<a name="line.257"></a>
-<span class="sourceLineNo">258</span>  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,<a name="line.258"></a>
-<span class="sourceLineNo">259</span>                            Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5) {<a name="line.259"></a>
-<span class="sourceLineNo">260</span>    return choice(g1).or(g2).or(g3).or(g4).or(g5);<a name="line.260"></a>
-<span class="sourceLineNo">261</span>  }<a name="line.261"></a>
-<span class="sourceLineNo">262</span>  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,<a name="line.262"></a>
-<span class="sourceLineNo">263</span>                            Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5,<a name="line.263"></a>
-<span class="sourceLineNo">264</span>                            Grammar&lt;N,C&gt; ... more) {<a name="line.264"></a>
-<span class="sourceLineNo">265</span>    Choice&lt;N,C&gt; c = choice(g1).or(g2).or(g3).or(g4).or(g5);<a name="line.265"></a>
-<span class="sourceLineNo">266</span>    for(Grammar&lt;N,C&gt; g : more) c.or(g);<a name="line.266"></a>
-<span class="sourceLineNo">267</span>    return c;    <a name="line.267"></a>
-<span class="sourceLineNo">268</span>  }<a name="line.268"></a>
-<span class="sourceLineNo">269</span>  /* +***************************************************************** */<a name="line.269"></a>
-<span class="sourceLineNo">270</span>}<a name="line.270"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">package absimpa;</a>
+<span class="sourceLineNo">002</span><a id="line.2"></a>
+<span class="sourceLineNo">003</span><a id="line.3">/**</a>
+<span class="sourceLineNo">004</span><a id="line.4"> * &lt;p&gt;</a>
+<span class="sourceLineNo">005</span><a id="line.5"> * helps to build a {@link Grammar} for a language made from objects of type</a>
+<span class="sourceLineNo">006</span><a id="line.6"> * {@code C}. To create your grammar, the following bits and pieces are</a>
+<span class="sourceLineNo">007</span><a id="line.7"> * needed.</a>
+<span class="sourceLineNo">008</span><a id="line.8"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">009</span><a id="line.9"> * &lt;ol&gt;</a>
+<span class="sourceLineNo">010</span><a id="line.10"> * &lt;li&gt;A {@link absimpa.Lexer} is needed that provides token codes of type</a>
+<span class="sourceLineNo">011</span><a id="line.11"> * {@code C}. It is completely up to you what these token codes stand for.</a>
+<span class="sourceLineNo">012</span><a id="line.12"> * For the parser and the grammar the only interesting bit is that {@code C}</a>
+<span class="sourceLineNo">013</span><a id="line.13"> * is an {@link java.lang.Enum}. Typically a token code signifies a type of</a>
+<span class="sourceLineNo">014</span><a id="line.14"> * token like NUMBER, OPENBRACKET, IDENTIFIER and so on. Normally the lexer</a>
+<span class="sourceLineNo">015</span><a id="line.15"> * will internally associate the current token code also with a piece of</a>
+<span class="sourceLineNo">016</span><a id="line.16"> * text, the token text, but the parser we built is never interested in this</a>
+<span class="sourceLineNo">017</span><a id="line.17"> * text. Nevertheless, the text is not lost. Read on.&lt;/li&gt;</a>
+<span class="sourceLineNo">018</span><a id="line.18"> * </a>
+<span class="sourceLineNo">019</span><a id="line.19"> * &lt;li&gt;A result type {@code N} is needed. This package makes no assumption</a>
+<span class="sourceLineNo">020</span><a id="line.20"> * about the type of result created, it is just called {@code N}. Whenever</a>
+<span class="sourceLineNo">021</span><a id="line.21"> * the parser has recognized a token, it will ask the lexer to provide a leaf</a>
+<span class="sourceLineNo">022</span><a id="line.22"> * node for it. And when it has recognized a partial bit of input, it will</a>
+<span class="sourceLineNo">023</span><a id="line.23"> * call a {@link NodeFactory} with the bits it has recognized and asks it to</a>
+<span class="sourceLineNo">024</span><a id="line.24"> * create an {@code N}.&lt;/li&gt;</a>
+<span class="sourceLineNo">025</span><a id="line.25"> * </a>
+<span class="sourceLineNo">026</span><a id="line.26"> * &lt;li&gt;One or more {@link NodeFactory} objects are needed. Whenever the</a>
+<span class="sourceLineNo">027</span><a id="line.27"> * parser recognizes a part of the input, for example a sequence of tokens as</a>
+<span class="sourceLineNo">028</span><a id="line.28"> * described by the {@link #seq seq()} method, it will call the associated</a>
+<span class="sourceLineNo">029</span><a id="line.29"> * {@code NodeFactory} with the bits it recognized to obtain a new {@code N}.</a>
+<span class="sourceLineNo">030</span><a id="line.30"> * &lt;/li&gt;</a>
+<span class="sourceLineNo">031</span><a id="line.31"> * &lt;/ol&gt;</a>
+<span class="sourceLineNo">032</span><a id="line.32"> * </a>
+<span class="sourceLineNo">033</span><a id="line.33"> * &lt;p&gt;</a>
+<span class="sourceLineNo">034</span><a id="line.34"> * It is up to you to define what {@code N} is. It may be a type that</a>
+<span class="sourceLineNo">035</span><a id="line.35"> * describes a syntax tree, but it may as well describe something completely</a>
+<span class="sourceLineNo">036</span><a id="line.36"> * different that is incrementally built up while parsing.</a>
+<span class="sourceLineNo">037</span><a id="line.37"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">038</span><a id="line.38"> * </a>
+<span class="sourceLineNo">039</span><a id="line.39"> * &lt;p&gt;</a>
+<span class="sourceLineNo">040</span><a id="line.40"> * To build a grammar, start by defining a few token recognizing grammars</a>
+<span class="sourceLineNo">041</span><a id="line.41"> * with {@link #token token()}. Then you can combine these, for example into</a>
+<span class="sourceLineNo">042</span><a id="line.42"> * a sequence, by passing the first to {@link #seq seq()} and then adding</a>
+<span class="sourceLineNo">043</span><a id="line.43"> * more with {@link Sequence#add}. To repeat things, use {@link #star star()}</a>
+<span class="sourceLineNo">044</span><a id="line.44"> * or {@link #repeat repeat()}. Use {@link #choice choice()} and subsequently</a>
+<span class="sourceLineNo">045</span><a id="line.45"> * {@link Choice#or Choice.or()} to create a choice of subnodes. A rough</a>
+<span class="sourceLineNo">046</span><a id="line.46"> * outline of an example is:</a>
+<span class="sourceLineNo">047</span><a id="line.47"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">048</span><a id="line.48"> * </a>
+<span class="sourceLineNo">049</span><a id="line.49"> * &lt;pre&gt;</a>
+<span class="sourceLineNo">050</span><a id="line.50"> * GrammarBuilder&amp;lt;...&amp;gt; gb = </a>
+<span class="sourceLineNo">051</span><a id="line.51"> *   new GrammarBuilder&amp;lt;...&amp;gt;(nodeFactory);</a>
+<span class="sourceLineNo">052</span><a id="line.52"> * Grammar&amp;lt;...&amp;gt; NUMBER = gb.token(CODE_NUMBER);</a>
+<span class="sourceLineNo">053</span><a id="line.53"> * Grammar&amp;lt;...&amp;gt; product = gb.star(NUMBER);</a>
+<span class="sourceLineNo">054</span><a id="line.54"> * Parser&amp;lt;...&amp;gt; parser = product.compile();</a>
+<span class="sourceLineNo">055</span><a id="line.55"> * &lt;/pre&gt;</a>
+<span class="sourceLineNo">056</span><a id="line.56"> * </a>
+<span class="sourceLineNo">057</span><a id="line.57"> * &lt;p&gt;</a>
+<span class="sourceLineNo">058</span><a id="line.58"> * This would define a {@code product} as arbitrary length sequence of</a>
+<span class="sourceLineNo">059</span><a id="line.59"> * {@code NUMBER}s. When the parser has collected all {@code NUMBER}s</a>
+<span class="sourceLineNo">060</span><a id="line.60"> * available, it will call the {@code nodeFactory} with the list of results</a>
+<span class="sourceLineNo">061</span><a id="line.61"> * provided by the lexer to the token parser. The result of the parse would</a>
+<span class="sourceLineNo">062</span><a id="line.62"> * be whatever the {@code nodeFactory} makes out of the list. It could return</a>
+<span class="sourceLineNo">063</span><a id="line.63"> * an object that contains the list as a field, but it could as well multiply</a>
+<span class="sourceLineNo">064</span><a id="line.64"> * the numbers and return an {@code N} that contains just the product.</a>
+<span class="sourceLineNo">065</span><a id="line.65"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">066</span><a id="line.66"> * &lt;p&gt;</a>
+<span class="sourceLineNo">067</span><a id="line.67"> * Slightly tricky is the creation of a recursive grammar. Create a</a>
+<span class="sourceLineNo">068</span><a id="line.68"> * {@link Recurse} as a placeholder and later set its recursive child with</a>
+<span class="sourceLineNo">069</span><a id="line.69"> * {@link Recurse#setChild(Grammar)}.</a>
+<span class="sourceLineNo">070</span><a id="line.70"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">071</span><a id="line.71"> * </a>
+<span class="sourceLineNo">072</span><a id="line.72"> * &lt;p&gt;</a>
+<span class="sourceLineNo">073</span><a id="line.73"> * The use of the {@code GrammarBuilder} is recommended over direct use of</a>
+<span class="sourceLineNo">074</span><a id="line.74"> * the grammar classes like {@link Sequence}, {@link Choice} and so on,</a>
+<span class="sourceLineNo">075</span><a id="line.75"> * because it reliefs from a lot of generic parameter typing.</a>
+<span class="sourceLineNo">076</span><a id="line.76"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">077</span><a id="line.77"> * &lt;h2&gt;Parsing EOF&lt;/h2&gt;</a>
+<span class="sourceLineNo">078</span><a id="line.78"> * &lt;p&gt;</a>
+<span class="sourceLineNo">079</span><a id="line.79"> * To make sure that parsers compiled from the grammars produced here parse</a>
+<span class="sourceLineNo">080</span><a id="line.80"> * the whole input sequence, the lexer eventually needs to produce a specific</a>
+<span class="sourceLineNo">081</span><a id="line.81"> * eof-token which is explicitly matched by the grammar. Suppose your grammar</a>
+<span class="sourceLineNo">082</span><a id="line.82"> * is nothing but {@code G-&gt; (SCOPE TERM)+}. The parser will happily parse a</a>
+<span class="sourceLineNo">083</span><a id="line.83"> * non-empty sequence of {@code SCOPE} and {@code TERM} pairs. In particular</a>
+<span class="sourceLineNo">084</span><a id="line.84"> * it will succeed for the sequence {@code SCOPE TERM TERM} with parsing the</a>
+<span class="sourceLineNo">085</span><a id="line.85"> * first pair and will leave the 2nd {@code TERM} unparsed. To prevent this,</a>
+<span class="sourceLineNo">086</span><a id="line.86"> * the grammar should rather be {@code G-&gt; (SCOPE TERM)+ EOF}.</a>
+<span class="sourceLineNo">087</span><a id="line.87"> * </a>
+<span class="sourceLineNo">088</span><a id="line.88"> * &lt;h2&gt;Multiple Argument Methods&lt;/h2&gt;</a>
+<span class="sourceLineNo">089</span><a id="line.89"> * &lt;p&gt;</a>
+<span class="sourceLineNo">090</span><a id="line.90"> * It would be nice to use varargs methods for {@code seq()} and {@code</a>
+<span class="sourceLineNo">091</span><a id="line.91"> * choice()}. But due to the generic parameters of grammars, there would then</a>
+<span class="sourceLineNo">092</span><a id="line.92"> * always be the compiler warning about unsafe conversion to array. Therefore</a>
+<span class="sourceLineNo">093</span><a id="line.93"> * there are variants of those methods with up to 5 parameters. Only beyond</a>
+<span class="sourceLineNo">094</span><a id="line.94"> * that, varargs is used.&lt;/p&gt;</a>
+<span class="sourceLineNo">095</span><a id="line.95"> * </a>
+<span class="sourceLineNo">096</span><a id="line.96"> * </a>
+<span class="sourceLineNo">097</span><a id="line.97"> * &lt;p&gt;</a>
+<span class="sourceLineNo">098</span><a id="line.98"> * &lt;b&gt;Remark:&lt;/b&gt; This package has no support to create a</a>
+<span class="sourceLineNo">099</span><a id="line.99"> * {@link absimpa.Lexer}, but there is a {@link absimpa.lexer.SimpleLexer} the</a>
+<span class="sourceLineNo">100</span><a id="line.100"> * source code of which may serve to demonstrate the principles.</a>
+<span class="sourceLineNo">101</span><a id="line.101"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">102</span><a id="line.102"> * </a>
+<span class="sourceLineNo">103</span><a id="line.103"> * @param &lt;N&gt; is the type of the objects created by the parser to be</a>
+<span class="sourceLineNo">104</span><a id="line.104"> *        generated from the grammar constructed with a {@code</a>
+<span class="sourceLineNo">105</span><a id="line.105"> *        GrammarBuilder}</a>
+<span class="sourceLineNo">106</span><a id="line.106"> * @param &lt;C&gt; is the type of token codes provided by the lexer that will be</a>
+<span class="sourceLineNo">107</span><a id="line.107"> *        used by parser</a>
+<span class="sourceLineNo">108</span><a id="line.108"> */</a>
+<span class="sourceLineNo">109</span><a id="line.109">public class GrammarBuilder&lt;N,C extends Enum&lt;C&gt;&gt; {</a>
+<span class="sourceLineNo">110</span><a id="line.110">  private final NodeFactory&lt;N&gt; defaultNode;</a>
+<span class="sourceLineNo">111</span><a id="line.111">  /* +***************************************************************** */</a>
+<span class="sourceLineNo">112</span><a id="line.112">  /**</a>
+<span class="sourceLineNo">113</span><a id="line.113">   * &lt;p&gt;</a>
+<span class="sourceLineNo">114</span><a id="line.114">   * the resulting {@code GrammarBuilder} will enter the given factory into</a>
+<span class="sourceLineNo">115</span><a id="line.115">   * grammar objects as they are created, if no factory is explicitly</a>
+<span class="sourceLineNo">116</span><a id="line.116">   * provided.</a>
+<span class="sourceLineNo">117</span><a id="line.117">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">118</span><a id="line.118">   */</a>
+<span class="sourceLineNo">119</span><a id="line.119">  public GrammarBuilder(NodeFactory&lt;N&gt; defaultFactory) {</a>
+<span class="sourceLineNo">120</span><a id="line.120">    this.defaultNode = defaultFactory;</a>
+<span class="sourceLineNo">121</span><a id="line.121">  }</a>
+<span class="sourceLineNo">122</span><a id="line.122">  /* +***************************************************************** */</a>
+<span class="sourceLineNo">123</span><a id="line.123">  /**</a>
+<span class="sourceLineNo">124</span><a id="line.124">   * &lt;p&gt;</a>
+<span class="sourceLineNo">125</span><a id="line.125">   * creates a grammar to recognize the given token code.</a>
+<span class="sourceLineNo">126</span><a id="line.126">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">127</span><a id="line.127">   */</a>
+<span class="sourceLineNo">128</span><a id="line.128">  public TokenGrammar&lt;N,C&gt; token(C code) {</a>
+<span class="sourceLineNo">129</span><a id="line.129">    return new TokenGrammar&lt;&gt;(code);</a>
+<span class="sourceLineNo">130</span><a id="line.130">  }</a>
+<span class="sourceLineNo">131</span><a id="line.131">  /* +***************************************************************** */</a>
+<span class="sourceLineNo">132</span><a id="line.132">  /**</a>
+<span class="sourceLineNo">133</span><a id="line.133">   * &lt;p&gt;</a>
+<span class="sourceLineNo">134</span><a id="line.134">   * creates a grammar to recognize a sequence of subgrammars which starts</a>
+<span class="sourceLineNo">135</span><a id="line.135">   * with {@code g}. The {@code factory} provided will be used to transform</a>
+<span class="sourceLineNo">136</span><a id="line.136">   * the recognized list of elements into the result type {@code N}. To add</a>
+<span class="sourceLineNo">137</span><a id="line.137">   * more subgrammars to the sequence, use {@link Sequence#add}.</a>
+<span class="sourceLineNo">138</span><a id="line.138">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">139</span><a id="line.139">   */</a>
+<span class="sourceLineNo">140</span><a id="line.140">  public Sequence&lt;N,C&gt; seq(NodeFactory&lt;N&gt; factory, Grammar&lt;N,C&gt; g) {</a>
+<span class="sourceLineNo">141</span><a id="line.141">    Sequence&lt;N,C&gt; s = new Sequence&lt;&gt;(g);</a>
+<span class="sourceLineNo">142</span><a id="line.142">    s.setNodeFactory(factory);</a>
+<span class="sourceLineNo">143</span><a id="line.143">    return s;</a>
+<span class="sourceLineNo">144</span><a id="line.144">  }</a>
+<span class="sourceLineNo">145</span><a id="line.145">  /**</a>
+<span class="sourceLineNo">146</span><a id="line.146">   * &lt;p&gt;</a>
+<span class="sourceLineNo">147</span><a id="line.147">   * creates a grammar like {@link #seq(NodeFactory, Grammar)}, but with the</a>
+<span class="sourceLineNo">148</span><a id="line.148">   * default {@link NodeFactory}.</a>
+<span class="sourceLineNo">149</span><a id="line.149">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">150</span><a id="line.150">   */</a>
+<span class="sourceLineNo">151</span><a id="line.151">  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g) {</a>
+<span class="sourceLineNo">152</span><a id="line.152">    return seq(defaultNode, g);</a>
+<span class="sourceLineNo">153</span><a id="line.153">  }</a>
+<span class="sourceLineNo">154</span><a id="line.154">  /* +***************************************************************** */</a>
+<span class="sourceLineNo">155</span><a id="line.155">  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2) {</a>
+<span class="sourceLineNo">156</span><a id="line.156">    return seq(g1).add(g2);</a>
+<span class="sourceLineNo">157</span><a id="line.157">  }</a>
+<span class="sourceLineNo">158</span><a id="line.158">  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3)</a>
+<span class="sourceLineNo">159</span><a id="line.159">  {</a>
+<span class="sourceLineNo">160</span><a id="line.160">    return seq(g1, g2).add(g3);</a>
+<span class="sourceLineNo">161</span><a id="line.161">  }</a>
+<span class="sourceLineNo">162</span><a id="line.162">  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2,</a>
+<span class="sourceLineNo">163</span><a id="line.163">                           Grammar&lt;N,C&gt; g3, Grammar&lt;N,C&gt; g4)</a>
+<span class="sourceLineNo">164</span><a id="line.164">  {</a>
+<span class="sourceLineNo">165</span><a id="line.165">    return seq(g1,g2,g3).add(g4);</a>
+<span class="sourceLineNo">166</span><a id="line.166">  }</a>
+<span class="sourceLineNo">167</span><a id="line.167">  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,</a>
+<span class="sourceLineNo">168</span><a id="line.168">                           Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5) {</a>
+<span class="sourceLineNo">169</span><a id="line.169">    return seq(g1,g2,g3,g4).add(g5);</a>
+<span class="sourceLineNo">170</span><a id="line.170">  }</a>
+<span class="sourceLineNo">171</span><a id="line.171">  public Sequence&lt;N,C&gt; seq(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,</a>
+<span class="sourceLineNo">172</span><a id="line.172">                           Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5, </a>
+<span class="sourceLineNo">173</span><a id="line.173">                           Grammar&lt;N,C&gt; ... more) {</a>
+<span class="sourceLineNo">174</span><a id="line.174">    Sequence&lt;N,C&gt; s =  seq(g1,g2,g3,g4).add(g5);</a>
+<span class="sourceLineNo">175</span><a id="line.175">    for(Grammar&lt;N,C&gt; g : more) s.add(g);</a>
+<span class="sourceLineNo">176</span><a id="line.176">    return s;</a>
+<span class="sourceLineNo">177</span><a id="line.177">  }</a>
+<span class="sourceLineNo">178</span><a id="line.178">   /* +***************************************************************** */</a>
+<span class="sourceLineNo">179</span><a id="line.179">  /**</a>
+<span class="sourceLineNo">180</span><a id="line.180">   * creates a grammar to recognize a repetition of the given subgrammar</a>
+<span class="sourceLineNo">181</span><a id="line.181">   * {@code g}. The provided {@code factory} will be used to transform the</a>
+<span class="sourceLineNo">182</span><a id="line.182">   * recognized list of elements into the result type {@code N}.</a>
+<span class="sourceLineNo">183</span><a id="line.183">   * </a>
+<span class="sourceLineNo">184</span><a id="line.184">   * @param min is the minimum number of times the subgrammar must be found</a>
+<span class="sourceLineNo">185</span><a id="line.185">   *        in the input</a>
+<span class="sourceLineNo">186</span><a id="line.186">   * @param max is the maximum number of times the subgrammar must be found</a>
+<span class="sourceLineNo">187</span><a id="line.187">   *        in the input</a>
+<span class="sourceLineNo">188</span><a id="line.188">   * @see #star</a>
+<span class="sourceLineNo">189</span><a id="line.189">   * @see #opt</a>
+<span class="sourceLineNo">190</span><a id="line.190">   */</a>
+<span class="sourceLineNo">191</span><a id="line.191">  public Repeat&lt;N,C&gt; repeat(NodeFactory&lt;N&gt; factory, Grammar&lt;N,C&gt; g, int min,</a>
+<span class="sourceLineNo">192</span><a id="line.192">                            int max)</a>
+<span class="sourceLineNo">193</span><a id="line.193">  {</a>
+<span class="sourceLineNo">194</span><a id="line.194">    Repeat&lt;N,C&gt; rep =  new Repeat&lt;&gt;(min, max, g);</a>
+<span class="sourceLineNo">195</span><a id="line.195">    rep.setNodeFactory(factory);</a>
+<span class="sourceLineNo">196</span><a id="line.196">    return rep;</a>
+<span class="sourceLineNo">197</span><a id="line.197">  }</a>
+<span class="sourceLineNo">198</span><a id="line.198">  /**</a>
+<span class="sourceLineNo">199</span><a id="line.199">   * &lt;p&gt;</a>
+<span class="sourceLineNo">200</span><a id="line.200">   * creates a grammar like {@link #repeat(NodeFactory, Grammar,int,int)},</a>
+<span class="sourceLineNo">201</span><a id="line.201">   * but with the default {@link NodeFactory}.</a>
+<span class="sourceLineNo">202</span><a id="line.202">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">203</span><a id="line.203">   */</a>
+<span class="sourceLineNo">204</span><a id="line.204">  public Repeat&lt;N,C&gt; repeat(Grammar&lt;N,C&gt; grammar, int min, int max) {</a>
+<span class="sourceLineNo">205</span><a id="line.205">    return repeat(defaultNode, grammar, min, max);</a>
+<span class="sourceLineNo">206</span><a id="line.206">  }</a>
+<span class="sourceLineNo">207</span><a id="line.207">  /**</a>
+<span class="sourceLineNo">208</span><a id="line.208">   * convenience function to call {@link #repeat(Grammar,int,int)} with</a>
+<span class="sourceLineNo">209</span><a id="line.209">   * {@code min=0} and {@code max=Integer.MAX_VALUE}.</a>
+<span class="sourceLineNo">210</span><a id="line.210">   */</a>
+<span class="sourceLineNo">211</span><a id="line.211">  public Repeat&lt;N,C&gt; star(Grammar&lt;N,C&gt; grammar) {</a>
+<span class="sourceLineNo">212</span><a id="line.212">    return repeat(grammar, 0, Integer.MAX_VALUE);</a>
+<span class="sourceLineNo">213</span><a id="line.213">  }</a>
+<span class="sourceLineNo">214</span><a id="line.214">  /**</a>
+<span class="sourceLineNo">215</span><a id="line.215">   * convenience function to call</a>
+<span class="sourceLineNo">216</span><a id="line.216">   * {@link #repeat(NodeFactory,Grammar,int,int)} with {@code min=0} and</a>
+<span class="sourceLineNo">217</span><a id="line.217">   * {@code max=Integer.MAX_VALUE}.</a>
+<span class="sourceLineNo">218</span><a id="line.218">   */</a>
+<span class="sourceLineNo">219</span><a id="line.219">  public Repeat&lt;N,C&gt; star(NodeFactory&lt;N&gt; nf, Grammar&lt;N,C&gt; grammar) {</a>
+<span class="sourceLineNo">220</span><a id="line.220">    return repeat(nf, grammar, 0, Integer.MAX_VALUE);</a>
+<span class="sourceLineNo">221</span><a id="line.221">  }</a>
+<span class="sourceLineNo">222</span><a id="line.222">  /**</a>
+<span class="sourceLineNo">223</span><a id="line.223">   * convenience function to call {@link #repeat(Grammar,int,int)} with</a>
+<span class="sourceLineNo">224</span><a id="line.224">   * {@code min=0} and {@code max=1}.</a>
+<span class="sourceLineNo">225</span><a id="line.225">   */</a>
+<span class="sourceLineNo">226</span><a id="line.226">  public Repeat&lt;N,C&gt; opt(Grammar&lt;N,C&gt; grammar) {</a>
+<span class="sourceLineNo">227</span><a id="line.227">    return repeat(defaultNode, grammar, 0, 1);</a>
+<span class="sourceLineNo">228</span><a id="line.228">  }</a>
+<span class="sourceLineNo">229</span><a id="line.229">  /**</a>
+<span class="sourceLineNo">230</span><a id="line.230">   * convenience function to call</a>
+<span class="sourceLineNo">231</span><a id="line.231">   * {@link #repeat(NodeFactory,Grammar,int,int)} with {@code min=0} and</a>
+<span class="sourceLineNo">232</span><a id="line.232">   * {@code max=1}.</a>
+<span class="sourceLineNo">233</span><a id="line.233">   */</a>
+<span class="sourceLineNo">234</span><a id="line.234">  public Repeat&lt;N,C&gt; opt(NodeFactory&lt;N&gt; nf, Grammar&lt;N,C&gt; grammar) {</a>
+<span class="sourceLineNo">235</span><a id="line.235">    return repeat(nf, grammar, 0, 1);</a>
+<span class="sourceLineNo">236</span><a id="line.236">  }</a>
+<span class="sourceLineNo">237</span><a id="line.237">  /* +***************************************************************** */</a>
+<span class="sourceLineNo">238</span><a id="line.238">  /**</a>
+<span class="sourceLineNo">239</span><a id="line.239">   * creates a grammar to recognize any one of a number of sub grammars, one</a>
+<span class="sourceLineNo">240</span><a id="line.240">   * of which is the given {@code g}. To add more sub grammars to the choice,</a>
+<span class="sourceLineNo">241</span><a id="line.241">   * call {@link Choice#or}. In contrast to all other grammars, the {@code</a>
+<span class="sourceLineNo">242</span><a id="line.242">   * Choice} does not need a {@link NodeFactory}, because the resulting</a>
+<span class="sourceLineNo">243</span><a id="line.243">   * parser just passes on the choice that was recognized.</a>
+<span class="sourceLineNo">244</span><a id="line.244">   */</a>
+<span class="sourceLineNo">245</span><a id="line.245">  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g) {</a>
+<span class="sourceLineNo">246</span><a id="line.246">    return new Choice&lt;&gt;(g);</a>
+<span class="sourceLineNo">247</span><a id="line.247">  }</a>
+<span class="sourceLineNo">248</span><a id="line.248">  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2) {</a>
+<span class="sourceLineNo">249</span><a id="line.249">    return choice(g1).or(g2);</a>
+<span class="sourceLineNo">250</span><a id="line.250">  }</a>
+<span class="sourceLineNo">251</span><a id="line.251">  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3) {</a>
+<span class="sourceLineNo">252</span><a id="line.252">    return choice(g1).or(g2).or(g3);</a>
+<span class="sourceLineNo">253</span><a id="line.253">  }</a>
+<span class="sourceLineNo">254</span><a id="line.254">  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,</a>
+<span class="sourceLineNo">255</span><a id="line.255">                            Grammar&lt;N,C&gt; g4) {</a>
+<span class="sourceLineNo">256</span><a id="line.256">    return choice(g1).or(g2).or(g3).or(g4);</a>
+<span class="sourceLineNo">257</span><a id="line.257">  }</a>
+<span class="sourceLineNo">258</span><a id="line.258">  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,</a>
+<span class="sourceLineNo">259</span><a id="line.259">                            Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5) {</a>
+<span class="sourceLineNo">260</span><a id="line.260">    return choice(g1).or(g2).or(g3).or(g4).or(g5);</a>
+<span class="sourceLineNo">261</span><a id="line.261">  }</a>
+<span class="sourceLineNo">262</span><a id="line.262">  public Choice&lt;N,C&gt; choice(Grammar&lt;N,C&gt; g1, Grammar&lt;N,C&gt; g2, Grammar&lt;N,C&gt; g3,</a>
+<span class="sourceLineNo">263</span><a id="line.263">                            Grammar&lt;N,C&gt; g4, Grammar&lt;N,C&gt; g5,</a>
+<span class="sourceLineNo">264</span><a id="line.264">                            Grammar&lt;N,C&gt; ... more) {</a>
+<span class="sourceLineNo">265</span><a id="line.265">    Choice&lt;N,C&gt; c = choice(g1).or(g2).or(g3).or(g4).or(g5);</a>
+<span class="sourceLineNo">266</span><a id="line.266">    for(Grammar&lt;N,C&gt; g : more) c.or(g);</a>
+<span class="sourceLineNo">267</span><a id="line.267">    return c;    </a>
+<span class="sourceLineNo">268</span><a id="line.268">  }</a>
+<span class="sourceLineNo">269</span><a id="line.269">  /* +***************************************************************** */</a>
+<span class="sourceLineNo">270</span><a id="line.270">}</a>
 
 
 
@@ -338,5 +340,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>
