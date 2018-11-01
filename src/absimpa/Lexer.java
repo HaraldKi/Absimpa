@@ -16,7 +16,7 @@ import java.util.Set;
  * own input.
  * </p>
  * 
- * @param <C> is the type representing the <q>characters</q> of the language
+ * @param <C> is the type representing the <em>characters</em> of the language
  *        to be parsed
  */
 public interface Lexer<N, C extends Enum<C>> {
@@ -51,7 +51,7 @@ public interface Lexer<N, C extends Enum<C>> {
    * is called by the parser if it finds a token code that does not fit its
    * grammar. It is up to the {@code Lexer} implementation to provide as much
    * information as possible in the exception about the current position of
-   * the input.</p.
+   * the input.</p>
    * 
    * @param expectedTokens a set of tokens that the parser would have
    *        expected at the current position.

@@ -7,11 +7,11 @@ import absimpa.parserimpl.AbstractParser;
 import absimpa.parserimpl.SeqParser;
 
 /**
- * is a grammar to recognize a sequence of child grammars. In BNF notation
+ * <p>is a grammar to recognize a sequence of child grammars. In BNF notation
  * this would typically be written like the right side of</p>
  * 
  * <pre>
- * A -> B C D E</pre>
+ * A → B C D E</pre>
  * <p>
  * The parser created from this grammar parses on a first come first serve
  * basis, meaning that a sequence like {@code A? A B} can not parse the token

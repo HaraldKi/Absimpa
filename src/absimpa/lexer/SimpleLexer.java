@@ -127,7 +127,6 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
    * 
    * @return a token code or, on end of input, the specific token code
    *         provided to the constructor
-   * @throws ParseException<C> 
    */
   @Override
   public N next() throws ParseException {

@@ -14,8 +14,14 @@ import absimpa.lexer.LeafFactory;
 import absimpa.lexer.SimpleLexer;
 
 /**
+ * <p>
  * create a simple expression language and use it for testing.
+ * </p>
  *
+ * <p>
+ * See the <a href="../src-html/example/ExprLanguage.html">source code</a> for
+ * the details.
+ * </p>
  */
 public class ExprLanguage {
   public static class Eparser implements Parser<Expr,Codes> {

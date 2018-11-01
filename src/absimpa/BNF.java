@@ -19,13 +19,13 @@ import absimpa.lexer.SimpleLexer;
  * </p>
  * 
  * <pre>
- * expr --> (product ("[|]" product)*)
- * product --> term+
- * term --> (literal oper?)
- * literal --> ("[A-Za-z][A-Za-z0-9]*" | ("[%]"? "[(]" [expr] "[)]"))
- * oper --> ("[+]" | "[*]" | "[?]" | ("[{]" range "[}]"))
- * range --> ("[0-9]+" ("[,]" upperlimit)?)
- * upperlimit --> ("[0-9]+" | "[*]")
+ * expr → (product ("[|]" product)*)
+ * product → term+
+ * term → (literal oper?)
+ * literal → ("[A-Za-z][A-Za-z0-9]*" | ("[%]"? "[(]" [expr] "[)]"))
+ * oper → ("[+]" | "[*]" | "[?]" | ("[{]" range "[}]"))
+ * range → ("[0-9]+" ("[,]" upperlimit)?)
+ * upperlimit → ("[0-9]+" | "[*]")
  * </pre>
  * <p>
  * Tokens are represented by their regular expressions and the brackets in
@@ -38,8 +38,8 @@ import absimpa.lexer.SimpleLexer;
  * with {@link #compile compile()}.
  * </p>
  * 
- * @param <N>
- * @param <C>
+ * @param <N> type of node
+ * @param <C> type of tokencode
  */
 public class BNF<N, C extends Enum<C>> {
   // For grammars entered with rule();
@@ -313,14 +313,14 @@ public class BNF<N, C extends Enum<C>> {
   }
   /* +***************************************************************** */
   /**
-   * translates a rule with the given {@code name} into a grammar described
+   * <p>translates a rule with the given {@code name} into a grammar described
    * by {@code expansion}, using the given node factory. An example expansion
    * according to the grammar desribed above is:</p>
    * 
    * <pre>
    * %(term (PLUS term)*)
    * </pre>
-   * <p>
+   *
    * <p>
    * This assumes that {@code term} is already defined as a rule, at least
    * with {@link #rule(String)}. The same holds for {@code PLUS}. Most likely
