@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="de">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package absimpa;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import java.util.Set;<a name="line.3"></a>
+<span class="sourceLineNo">004</span><a name="line.4"></a>
+<span class="sourceLineNo">005</span>/**<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * &lt;p&gt;<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * defines the interface to a lexical analyzer (lexer) needed by the<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * {@link Parser}. This interface does not define the kind of input the lexer<a name="line.8"></a>
+<span class="sourceLineNo">009</span> * takes apart. It is only assumed that the lexer, as a result, can provide<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * objects of an enumeration type.<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * &lt;/p&gt;<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * &lt;p&gt;<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * The {@code Lexer} must maintain a &lt;em&gt;current token code&lt;/em&gt; which is<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * repeatedly queried by the parser. Only when {@link #next} is called, the<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * parser should discard the current token, and chop the next token off its<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * own input.<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * &lt;/p&gt;<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * <a name="line.18"></a>
+<span class="sourceLineNo">019</span> * @param &lt;C&gt; is the type representing the &lt;q&gt;characters&lt;/q&gt; of the language<a name="line.19"></a>
+<span class="sourceLineNo">020</span> *        to be parsed<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public interface Lexer&lt;N, C extends Enum&lt;C&gt;&gt; {<a name="line.22"></a>
+<span class="sourceLineNo">023</span>  /**<a name="line.23"></a>
+<span class="sourceLineNo">024</span>   * &lt;p&gt;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>   * returns a node of type N for the current token while advancing the<a name="line.25"></a>
+<span class="sourceLineNo">026</span>   * current token internally to the next one.<a name="line.26"></a>
+<span class="sourceLineNo">027</span>   * &lt;/p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>   * &lt;p&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>   * &lt;b&gt;NOTE:&lt;/b&gt; It may seem strange at first to force the lexer to create<a name="line.29"></a>
+<span class="sourceLineNo">030</span>   * the leaf nodes. Rather we would let this do the parser. But then a lexer<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   * implementation would need to return more than just the token code for<a name="line.31"></a>
+<span class="sourceLineNo">032</span>   * most tokens to be transformed into a node. This again would require a<a name="line.32"></a>
+<span class="sourceLineNo">033</span>   * general return type {@code Token&lt;C&gt;} which would then have to<a name="line.33"></a>
+<span class="sourceLineNo">034</span>   * implemented by each implementation. As a result the descendants of<a name="line.34"></a>
+<span class="sourceLineNo">035</span>   * {@code Token&lt;C&gt;} would have to be specified as a third type parameter at<a name="line.35"></a>
+<span class="sourceLineNo">036</span>   * many places.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>   * &lt;/p&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>   */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  N next() throws ParseException;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  /**<a name="line.40"></a>
+<span class="sourceLineNo">041</span>   * &lt;p&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>   * provides the current token code. This method must always return the<a name="line.42"></a>
+<span class="sourceLineNo">043</span>   * same token code as long as {@link #next} is not called.<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   * &lt;/p&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  C current();<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>  /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   * &lt;p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * creates a {@link ParseException} on request from the parser. This method<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   * is called by the parser if it finds a token code that does not fit its<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   * grammar. It is up to the {@code Lexer} implementation to provide as much<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * information as possible in the exception about the current position of<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * the input.&lt;/p.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * <a name="line.55"></a>
+<span class="sourceLineNo">056</span>   * @param expectedTokens a set of tokens that the parser would have<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   *        expected at the current position.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  ParseException parseException(Set&lt;C&gt; expectedTokens);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>}<a name="line.60"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
