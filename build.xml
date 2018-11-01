@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="Simpa" default="compile" basedir=".">
+<project name="Absimpa" default="compile" basedir=".">
 
   <!-- To get this going, emma.jar must be in the ant classpath. One
   way to have this is to put it into ${user.home}/.ant/lib -->
@@ -10,6 +10,7 @@
     <javac srcdir="src"
       destdir="build/Classes"
       source="1.8"
+      target="1.8"
       fork="false"
       debug="true"
       deprecation="true"
@@ -21,25 +22,22 @@
     </javac>
   </target>
 
-  <target name="javadoc" depends="svnrevision"
-    description="run javadoc to create api docs">
-    <property name="apidocdir" value="dist/AbsimpaDoc"/>
+  <target name="javadoc">
+    <property name="apidocdir" value="docs/javadoc"/>
     <javadoc sourcepath="src"
       packagenames="absimpa, example, absimpa.lexer"
       destdir="${apidocdir}"
       windowtitle="Abstract Simple Parser API"
-      header="&lt;span class='approheader'&gt;Absimpa v${svn.revision}&lt;/span&gt;"
+      header="(&lt;a target='_top' href='https://github.com/HaraldKi/Absimpa'>Back to Github&lt;/a>) &lt;span class='approheader'&gt;Absimpa ${version}&lt;/span&gt;"
       overview="src/overview.html"
-
-      Bottom="&lt;div class=&quot;approlink&quot;>download: &lt;a
-      href='http://pifpafpuf.de/Absimpa/download' target='_top'>pifpafpuf.de&lt;/a>&lt;br/>home page: &lt;a href=&quot;http://pifpafpuf.de/Absimpa/&quot; target='_top'>pifpafpuf.de/Absimpa&lt;/a>&lt;/div>"
       public="true"
       linksource="true"
+      additionalparam="-Xdoclint:html,syntax,reference,accessibility --frames -html5 --add-stylesheet files/absimpa.css -notimestamp"
       >
     </javadoc>
   </target> 
   
-  <target name="jar" depends="cleanClasses, compile, svnrevision">
+  <target name="jar" depends="cleanClasses, compile">
     <mkdir dir="dist"/>
     <property name="distjar" value="dist/Absimpa-${svn.revision}.jar"/>
     <jar destfile="${distjar}" basedir="build/Classes"
@@ -130,36 +128,10 @@
     </emma>
   </target>
 
-  <!-- Get subversion revision and whether the working dir is dirty
-  with regard to the repository. (Since subversion tasks are still not
-  standard with ant, use exec -->
-  <target name="svnrevision">
-    <mkdir dir="dist"/>
-    <exec executable="svn" output="dist/svnstatus">
-      <arg value="status"/> <arg value="-u"/>
-    </exec>
-    <!-- set svn.clean to "." if svnstatus has only one line -->
-    <loadfile property="svn.clean" srcFile="dist/svnstatus">
-      <filterchain>
-	<replaceregex pattern=".*" replace="."/>
-	<striplinebreaks/>
-      </filterchain>
-    </loadfile>
-
-    <loadfile property="svn.revid" srcFile="dist/svnstatus">
-      <filterchain>
-	<tailfilter lines="1"/>
-	<replaceregex pattern=".[^0-9]*" replace=""/>
-	<striplinebreaks/>
-      </filterchain>
-    </loadfile>
-    <condition property="svn.revision" value="${svn.revid}" else="dirty">
-      <equals arg1="${svn.clean}" arg2="." />
-    </condition>
-  </target>
 
   <tstamp>
     <format property="time.now" pattern="yyyy-MM-dd hh:mm:ss"/>
+    <format property="version" pattern="yyyy-MM-dd" />
   </tstamp>
 
   <target name="e">
