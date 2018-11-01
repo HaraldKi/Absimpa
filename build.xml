@@ -6,10 +6,10 @@
   <taskdef resource="emma_ant.properties" />
 
   <target name="compile" description="compiles java classes">
-    <mkdir dir="Classes"/>
+    <mkdir dir="build/Classes"/>
     <javac srcdir="src"
-      destdir="Classes"
-      source="1.7"
+      destdir="build/Classes"
+      source="1.8"
       fork="false"
       debug="true"
       deprecation="true"
@@ -42,7 +42,7 @@
   <target name="jar" depends="cleanClasses, compile, svnrevision">
     <mkdir dir="dist"/>
     <property name="distjar" value="dist/Absimpa-${svn.revision}.jar"/>
-    <jar destfile="${distjar}" basedir="Classes"
+    <jar destfile="${distjar}" basedir="build/Classes"
       includes="**/*.class"
       excludes="**/Test*.class">
       <manifest>
@@ -60,8 +60,8 @@
   </target>
 
   <target name="cleanClasses">
-    <delete dir="Classes/" />
-    <mkdir dir="Classes"/>
+    <delete dir="build/Classes/" />
+    <mkdir dir="build/Classes"/>
   </target>
   <target name="cleanDoc">
     <delete dir="dist/SimpaDoc"/>
@@ -69,8 +69,8 @@
 
   <target name="compiletests">
     <javac srcdir="test"
-      destdir="Classes"
-      source="1.5"
+      destdir="build/Classes"
+      source="1.8"
       listfiles="no"
       fork="false"
       debug="true"
@@ -91,7 +91,7 @@
 	<pathelement location="dist/coverage/Classes"/>
 	<pathelement location="/usr/share/java/junit4.jar"/>
 	<pathelement location="${user.home}/.ant/lib/emma.jar"/>
-	<pathelement location="Classes"/>
+	<pathelement location="build/Classes"/>
       </classpath>
       <arg value="absimpa.TestParsers"/>
       <arg value="absimpa.TestExprLanguage"/>
@@ -103,7 +103,7 @@
   <target name="emmainstr">
     <delete dir="dist/coverage/Classes"/>
     <emma verbosity="quiet">
-      <instr instrpath="Classes"
+      <instr instrpath="build/Classes"
 	destdir="dist/coverage/Classes"
 	metadatafile="dist/coverage/emmadata.em"
 	merge="false">
