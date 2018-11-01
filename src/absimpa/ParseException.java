@@ -39,23 +39,24 @@ public class ParseException extends Exception {
   @Override
   public String getMessage() {
     StringBuilder sb = new StringBuilder();
-    Formatter f = new Formatter(sb);
-    if( sourceName!=null ) f.format("%s:", sourceName);
-    if( line!=UNSET ) {
-      f.format("%d", line);
-      if( column!=UNSET ) f.format(":%d", column);
-      sb.append(':');
-    }
-    f.format("found token `%s", foundTokenCode);
-    if( tokenText!=null ) f.format("(%s)'", tokenText);
-    else sb.append('\'');
-    if( expectedTokenCodes.size()!=0 ) {
-      if( expectedTokenCodes.size()!=1 ) {
-        f.format(" but expected one of %s", expectedTokenCodes);
-      } else {
-        sb.append(" but expected `")
-        .append(expectedTokenCodes.iterator().next())
-        .append('\'');
+    try(Formatter f = new Formatter(sb)) {
+      if( sourceName!=null ) f.format("%s:", sourceName);
+      if( line!=UNSET ) {
+        f.format("%d", line);
+        if( column!=UNSET ) f.format(":%d", column);
+        sb.append(':');
+      }
+      f.format("found token `%s", foundTokenCode);
+      if( tokenText!=null ) f.format("(%s)'", tokenText);
+      else sb.append('\'');
+      if( expectedTokenCodes.size()!=0 ) {
+        if( expectedTokenCodes.size()!=1 ) {
+          f.format(" but expected one of %s", expectedTokenCodes);
+        } else {
+          sb.append(" but expected `")
+          .append(expectedTokenCodes.iterator().next())
+          .append('\'');
+        }
       }
     }
     if( moreInfo!=null ) {

@@ -126,7 +126,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    * </p>
    */
   public TokenGrammar<N,C> token(C code) {
-    return new TokenGrammar<N,C>(code);
+    return new TokenGrammar<>(code);
   }
   /* +***************************************************************** */
   /**
@@ -138,7 +138,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    * </p>
    */
   public Sequence<N,C> seq(NodeFactory<N> factory, Grammar<N,C> g) {
-    Sequence<N,C> s = new Sequence<N,C>(g);
+    Sequence<N,C> s = new Sequence<>(g);
     s.setNodeFactory(factory);
     return s;
   }
@@ -191,7 +191,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
   public Repeat<N,C> repeat(NodeFactory<N> factory, Grammar<N,C> g, int min,
                             int max)
   {
-    Repeat<N,C> rep =  new Repeat<N,C>(min, max, g);
+    Repeat<N,C> rep =  new Repeat<>(min, max, g);
     rep.setNodeFactory(factory);
     return rep;
   }
@@ -243,7 +243,7 @@ public class GrammarBuilder<N,C extends Enum<C>> {
    * parser just passes on the choice that was recognized.
    */
   public Choice<N,C> choice(Grammar<N,C> g) {
-    return new Choice<N,C>(g);
+    return new Choice<>(g);
   }
   public Choice<N,C> choice(Grammar<N,C> g1, Grammar<N,C> g2) {
     return choice(g1).or(g2);

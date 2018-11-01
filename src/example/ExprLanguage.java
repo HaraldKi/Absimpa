@@ -163,9 +163,9 @@ public class ExprLanguage {
     // product -> term ( (mul | div ) term)*
     // sum -> product ( (add | sub ) product)*
     // expr -> '(' sum ')'
-    GrammarBuilder<Expr,Codes> gb = new GrammarBuilder<Expr,Codes>(null);
+    GrammarBuilder<Expr,Codes> gb = new GrammarBuilder<>(null);
 
-    Recurse<Expr,Codes> recExpr = new Recurse<Expr,Codes>();
+    Recurse<Expr,Codes> recExpr = new Recurse<>();
 
     Grammar<Expr,Codes> NUMBER = gb.token(Codes.NUMBER);
     Grammar<Expr,Codes> SIGN =
@@ -248,9 +248,8 @@ public class ExprLanguage {
         ExprNum num = (ExprNum)children.get(1);
         if( sign.etype==Etype.MINUS ) {
           return new ExprNum(-num.value().doubleValue());
-        } else {
-          return num;
         }
+        return num;
       }
     },
     PICKFIRST {

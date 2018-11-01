@@ -17,9 +17,8 @@ public class TokenParser<N,C extends Enum<C>>
     N node = lex.next();
     if( node==null ) {
       return Collections.<N>emptyList();
-    } else {
-      return Collections.singletonList(node);
     }
+    return Collections.singletonList(node);
   }
   public String toString() {
     C tokenCode = lookahead.iterator().next();

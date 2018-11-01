@@ -24,9 +24,9 @@ public class Recurse<N,C extends Enum<C>>
   }
   /* +***************************************************************** */
   @Override
-  protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf)
+  protected AbstractParser<N,C> 
+  buildParser(Map<Grammar<N,C>,First<N,C>> firstOf)
   {
-
     // FIXME: this is very nasty, because I take advantage of the knowledge
     // about how Grammar orchestrates the tree walking. Need to find a
     // cleaner solution.

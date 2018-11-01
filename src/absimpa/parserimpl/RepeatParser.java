@@ -29,7 +29,7 @@ public class RepeatParser<N,C extends Enum<C>>
   }
   /*+******************************************************************/
   List<N> doParse(Lexer<N,C> lex) throws ParseException {
-    List<N> nodes = new ArrayList<N>(min);
+    List<N> nodes = new ArrayList<>(min);
 
     int count = 0;
     while( count<max ) {
@@ -40,9 +40,8 @@ public class RepeatParser<N,C extends Enum<C>>
       if( r.notApplicable() ) {
         if( count<min ) {
           throw lex.parseException(lookahead);
-        } else {
-          break;
         }
+        break;
       }
       r.addToNodeList(nodes);
       count += 1;

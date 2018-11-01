@@ -44,7 +44,7 @@ import absimpa.*;
  *        recognized it and calles {@link #next}
  */
 public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
-  private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<TokenInfo<N,C>>();
+  private final List<TokenInfo<N,C>> tokenInfos = new ArrayList<>();
   private final Token<C> eofToken;
 
   private final LeafFactory<N,C> leafFactory;
@@ -64,7 +64,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
    * </p>
    */
   public SimpleLexer(C eofCode, LeafFactory<N,C> leafFactory) {
-    eofToken = new Token<C>("", eofCode);
+    eofToken = new Token<>("", eofCode);
     this.leafFactory = leafFactory; 
   }
   /* +***************************************************************** */
@@ -132,6 +132,7 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   @Override
   public N next() throws ParseException {
     N node = leafFactory.create(this);
+    //System.out.println("lex created "+node);
     nextToken();
     return node;
   }
@@ -193,12 +194,12 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   private void createCurrentToken(TokenInfo<N,C> ti, Matcher match) {
     String text = match.group();
     restText.delete(0, match.end());
-    currentToken = new Token<C>(text, ti.c);
+    currentToken = new Token<>(text, ti.c);
     //System.out.printf("%s: creating token %s%n", getClass().getName(),
     //                currentToken);
   }
   /*+******************************************************************/
-  private static final class TokenInfo<N,C extends Enum<C>> {
+  private static final class TokenInfo<N, C extends Enum<C>> {
     public final Pattern p;
     public final C c;
     public TokenInfo(Pattern p, C c) {

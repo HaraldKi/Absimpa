@@ -23,7 +23,7 @@ public class RecurseParser<N,C extends Enum<C>>
   }
   @Override
   List<N> doParse(Lexer<N,C> lex) throws ParseException {
-    List<N> nodes = new ArrayList<N>(1);
+    List<N> nodes = new ArrayList<>(1);
     ParseResult<N> r = child.parseInternal(lex);
     r.addToNodeList(nodes);
     return nodes;

@@ -45,18 +45,16 @@ public abstract class AbstractParser<N,C extends Enum<C>>
     if( !lookahead.contains(lex.current()) ) {
       if( mayBeEpsilon ) {
         return ParseResult.ISEPSILON();
-      } else {
-        return ParseResult.NOTAPPLICABLE();
       }
+      return ParseResult.NOTAPPLICABLE();
     }
     
     List<N> nodes = doParse(lex);
     
     if( nodeFactory==null ) {
-      return new ParseResult<N>(nodes);
-    } else {
-      return new ParseResult<N>(nodeFactory.create(nodes));
-    }
+      return new ParseResult<>(nodes);
+    } 
+    return new ParseResult<>(nodeFactory.create(nodes));
   }
   /*+******************************************************************/
   abstract List<N> doParse(Lexer<N,C> lex)
@@ -70,8 +68,10 @@ public abstract class AbstractParser<N,C extends Enum<C>>
   }
   /* +***************************************************************** */
   String getName() {
-    if( name==null ) return shortClassname();
-    else return name;
+    if( name==null ) {
+      return shortClassname();
+    }
+    return name;
   }
   public String toString() {
     return getName();

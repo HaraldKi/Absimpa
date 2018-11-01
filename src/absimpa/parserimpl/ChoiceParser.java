@@ -28,7 +28,7 @@ public class ChoiceParser<N,C extends Enum<C>>
       if( r.notApplicable() ) {
         continue;
       }
-      List<N> nodes = new ArrayList<N>(1);
+      List<N> nodes = new ArrayList<>(1);
       r.addToNodeList(nodes);
       return nodes;
     }
@@ -40,14 +40,14 @@ public class ChoiceParser<N,C extends Enum<C>>
   /*+******************************************************************/
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    Formatter fmt = new Formatter(sb);
-    fmt.format("%s[", getName());
-    String sep = "";
-    for(AbstractParser<N,C> p : children) {
-      fmt.format("%s%s", sep, p.getName());
-      sep = "|";
-    }
-    fmt.close();
+    try(Formatter fmt = new Formatter(sb)) {
+      fmt.format("%s[", getName());
+      String sep = "";
+      for(AbstractParser<N,C> p : children) {
+        fmt.format("%s%s", sep, p.getName());
+        sep = "|";
+      }
+    } 
     sb.append("]");
     return sb.toString();
   }

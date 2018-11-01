@@ -46,8 +46,7 @@ public class BNF<N, C extends Enum<C>> {
   private final Map<String,Grammar<N,C>> syntaxMap;
   
   // For grammar names not yet entered with rule()
-  private final Map<String,Recurse<N,C>> placeHolders =
-    new HashMap<String,Recurse<N,C>>();
+  private final Map<String,Recurse<N,C>> placeHolders = new HashMap<>();
 
   // our lexer and parser
   private final SimpleLexer<Node,TokenCode> lex;
@@ -90,7 +89,7 @@ public class BNF<N, C extends Enum<C>> {
    */
   public BNF(Class<C> enumClass) {
     C[] constants = enumClass.getEnumConstants();
-    syntaxMap = new HashMap<String,Grammar<N,C>>(constants.length);
+    syntaxMap = new HashMap<>(constants.length);
     for(C c : constants) {
       syntaxMap.put(c.toString(), new TokenGrammar<N,C>(c));
     }
@@ -99,7 +98,7 @@ public class BNF<N, C extends Enum<C>> {
 
     parser = expr.compile();
 
-    lex = new SimpleLexer<Node,TokenCode>(TokenCode.EOF, new MyLeafs());
+    lex = new SimpleLexer<>(TokenCode.EOF, new MyLeafs());
     for(TokenCode c : TokenCode.values()) {
       if (c==TokenCode.EOF) continue;
       lex.addToken(c, c.getRegex());
@@ -123,10 +122,9 @@ public class BNF<N, C extends Enum<C>> {
     // ends up somewhere with an NPE
     //
 
-    GrammarBuilder<Node,TokenCode> gb =
-        new GrammarBuilder<Node,TokenCode>(null);
+    GrammarBuilder<Node,TokenCode> gb = new GrammarBuilder<>(null);
 
-    Recurse<Node,TokenCode> recurse = new Recurse<Node,TokenCode>();
+    Recurse<Node,TokenCode> recurse = new Recurse<>();
 
     Grammar<Node,TokenCode> symbol = gb.token(TokenCode.SYMBOL);
     Grammar<Node,TokenCode> number = gb.token(TokenCode.NUMBER);
@@ -215,11 +213,11 @@ public class BNF<N, C extends Enum<C>> {
       Grammar<N,C> child = children.get(0).getGrammar();
       switch( children.get(1).getCode() ) {
       case STAR:
-        return new Node(new Repeat<N,C>(0, Integer.MAX_VALUE, child));
+        return new Node(new Repeat<>(0, Integer.MAX_VALUE, child));
       case QUESTIONMARK:
-        return new Node(new Repeat<N,C>(0, 1, child));
+        return new Node(new Repeat<>(0, 1, child));
       case PLUS:
-        return new Node(new Repeat<N,C>(1, Integer.MAX_VALUE, child));
+        return new Node(new Repeat<>(1, Integer.MAX_VALUE, child));
       default:
         assert false : "should not have TokenCode "+children.get(1).getCode();
       }
@@ -240,7 +238,7 @@ public class BNF<N, C extends Enum<C>> {
       } else {
         to = from;
       }
-      Grammar<N,C> g = new Repeat<N,C>(from, to, children.get(0).getGrammar());
+      Grammar<N,C> g = new Repeat<>(from, to, children.get(0).getGrammar());
       return new Node(g);
     }
   };
@@ -251,7 +249,7 @@ public class BNF<N, C extends Enum<C>> {
       if( children.size()==1 ) {
         return children.get(0);
       }
-      Sequence<N,C> result = new Sequence<N,C>(children.get(0).getGrammar());
+      Sequence<N,C> result = new Sequence<>(children.get(0).getGrammar());
       for(int i=1; i<children.size(); i++) {
         result.add(children.get(i).getGrammar());
       }
@@ -268,7 +266,7 @@ public class BNF<N, C extends Enum<C>> {
       if( children.size()==1 ) {
         return children.get(0);
       }
-      Choice<N,C> result = new Choice<N,C>(children.get(0).getGrammar());
+      Choice<N,C> result = new Choice<>(children.get(0).getGrammar());
       for(int i=1; i<children.size(); i++) {
         result.or(children.get(i).getGrammar());
       }
@@ -300,7 +298,7 @@ public class BNF<N, C extends Enum<C>> {
       throw new IllegalArgumentException(name+" already defined.");
     }
     
-    Recurse<N,C> g = new Recurse<N,C>();
+    Recurse<N,C> g = new Recurse<>();
     placeHolders.put(name, g);
     return g;
   }
@@ -336,7 +334,7 @@ public class BNF<N, C extends Enum<C>> {
    * into one new {@code N}.</p>
    */
   public Grammar<N,C> rule(String name, String expansion, NodeFactory<N> nf) throws ParseException {
-    List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(1);
+    List<NodeFactory<N>> l = new ArrayList<>(1);
     l.add(nf);
     return rule(name, expansion, l);
   }
@@ -347,7 +345,7 @@ public class BNF<N, C extends Enum<C>> {
    */
   public Grammar<N,C> rule(String name, String expansion, 
                    NodeFactory<N> nf1, NodeFactory<N> nf2) throws ParseException {
-    List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(2);
+    List<NodeFactory<N>> l = new ArrayList<>(2);
     l.add(nf1);
     l.add(nf2);
     return rule(name, expansion, l);
@@ -361,7 +359,7 @@ public class BNF<N, C extends Enum<C>> {
                    NodeFactory<N> nf1, 
                    NodeFactory<N> nf2,
                    NodeFactory<N> ...more) throws ParseException {
-    List<NodeFactory<N>> l = new ArrayList<NodeFactory<N>>(2+more.length);
+    List<NodeFactory<N>> l = new ArrayList<>(2+more.length);
     l.add(nf1);
     l.add(nf2);
     for(NodeFactory<N> nf : more) l.add(nf);
@@ -421,17 +419,17 @@ public class BNF<N, C extends Enum<C>> {
   /*+******************************************************************/
   private class MyLeafs implements LeafFactory<Node,TokenCode> {
     @Override
-    public Node create(SimpleLexer<Node,TokenCode> lex) throws ParseException {
-      TokenCode current = lex.current();
+    public Node create(SimpleLexer<Node,TokenCode> alex) throws ParseException {
+      TokenCode current = alex.current();
       
       switch( current ) {
       case SYMBOL:
-        String symbolName = lex.currentText();
+        String symbolName = alex.currentText();
         Grammar<N,C> g = syntaxMap.get(symbolName);
         if( g!=null ) return new Node(g);
         g = placeHolders.get(symbolName);
         if( g!=null ) return new Node(g);
-        ParseException pex = lex.parseException(Collections.<TokenCode>emptySet());
+        ParseException pex = alex.parseException(Collections.<TokenCode>emptySet());
         pex.setMoreInfo("undefined grammar element");
         throw pex;
       case STAR:
@@ -440,17 +438,17 @@ public class BNF<N, C extends Enum<C>> {
         return new Node(current);
       case NUMBER:
         try {
-          Integer num = Integer.parseInt(lex.currentText());
+          Integer num = Integer.parseInt(alex.currentText());
           return new Node(num);
         } catch( NumberFormatException e) {
-          ParseException ex = lex.parseException(Collections.<TokenCode>emptySet());
+          ParseException ex = alex.parseException(Collections.<TokenCode>emptySet());
           ex.setMoreInfo("cannot parse number, it is likely too large");
           ex.initCause(e);
           throw ex;
         }
       case PERCENT:
         if( nfmarkStack.size()<1 ) {
-          ParseException e = lex.parseException(Collections.<TokenCode>emptySet());
+          ParseException e = alex.parseException(Collections.<TokenCode>emptySet());
           e.setMoreInfo("not enough node factories");
           throw e;
         }
@@ -510,7 +508,7 @@ public class BNF<N, C extends Enum<C>> {
    */
   public static void main(String[] argv) {
     
-    BNF<String,Code> bnf = new BNF<String,Code>(Code.class);
+    BNF<String,Code> bnf = new BNF<>(Code.class);
     System.out.println(bnf.getGrammar().toBNF());
   }
 }

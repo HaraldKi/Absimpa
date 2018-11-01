@@ -36,8 +36,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
    *         conflict.
    */
   public final Parser<N,C> compile() {
-    Map<Grammar<N,C>,First<N,C>> firstOf =
-        new HashMap<Grammar<N,C>,First<N,C>>();
+    Map<Grammar<N,C>,First<N,C>> firstOf = new HashMap<>();
 
     Parser<N,C> result = build(firstOf);
     fillRecursives(firstOf, new HashSet<Grammar<N,C>>());
@@ -48,8 +47,16 @@ public abstract class Grammar<N, C extends Enum<C>> {
    * <p>wraps {@code this} into a {@link Repeat}.</p>
    */
   public Grammar<N,C> rep(NodeFactory<N> nf, int min, int max) {
-    Grammar<N,C> g = new Repeat<N,C>(min, max, this);
+    Grammar<N,C> g = new Repeat<>(min, max, this);
     g.setNodeFactory(nf);
+    return g;
+  }
+  /*+******************************************************************/
+  /**
+   * <p>wraps {@code this} into a {@link Repeat}.</p>
+   */
+  public Grammar<N,C> rep(int min, int max) {
+    Grammar<N,C> g = new Repeat<>(min, max, this);
     return g;
   }
   /*+******************************************************************/
@@ -136,6 +143,7 @@ public abstract class Grammar<N, C extends Enum<C>> {
     return f;
   }
   /* +***************************************************************** */
+  @SuppressWarnings("unused")
   protected void setRecurse(Map<Grammar<N,C>,First<N,C>> firstOf) {
     // only the class Recurse needs to override.
   }
@@ -180,8 +188,8 @@ public abstract class Grammar<N, C extends Enum<C>> {
   /* +***************************************************************** */
   public final String toBNF() {
     
-    Set<Grammar<?,?>> known = new HashSet<Grammar<?,?>>();
-    List<Grammar<?,?>> grammars = new ArrayList<Grammar<?,?>>();
+    Set<Grammar<?,?>> known = new HashSet<>();
+    List<Grammar<?,?>> grammars = new ArrayList<>();
     grammars.add(this);
     StringBuilder sb = new StringBuilder();
     while( grammars.size()>0 ) {

@@ -33,17 +33,17 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     First<N,C> f = child.first(firstOf);
     EnumSet<C> childLookahead = f.firstSet();
     AbstractParser<N,C> childParser = child.build(firstOf);
-    return new RepeatParser<N,C>(childLookahead, 
-        childParser, min==0 || f.epsilon, min, max);
+    return new RepeatParser<>(childLookahead, 
+                              childParser, min==0 || f.epsilon, min, max);
   }
   /*+******************************************************************/
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = child.first(firstOf);
     boolean mayBeEpsilon = min==0 || f.epsilon; 
     if( mayBeEpsilon != f.epsilon ) {
-      return new First<N,C>(f.firstSet(), mayBeEpsilon);
+      return new First<>(f.firstSet(), mayBeEpsilon);
     }
-    else return f;
+    return f;
   }
   /*+******************************************************************/
   public String getDetail() {

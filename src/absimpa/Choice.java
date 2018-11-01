@@ -12,7 +12,7 @@ public class Choice<N,C extends Enum<C>>
   // private final Grammar<N,C> firstOptional;
 
   public Choice(Grammar<N,C> g) {
-    children = new ArrayList<Grammar<N,C>>();
+    children = new ArrayList<>();
     children.add(g);
   }
   /* +***************************************************************** */
@@ -29,17 +29,16 @@ public class Choice<N,C extends Enum<C>>
     return "";
   }
   /* +***************************************************************** */
-  protected AbstractParser<N,C> buildParser(
-                                            Map<Grammar<N,C>,First<N,C>> firstOf)
+  protected AbstractParser<N,C> 
+  buildParser(Map<Grammar<N,C>,First<N,C>> firstOf)
   {
-    List<AbstractParser<N,C>> childParsers =
-        new ArrayList<AbstractParser<N,C>>(children.size());
+    List<AbstractParser<N,C>> childParsers = new ArrayList<>(children.size());
 
     for(Grammar<N,C> g : children) {
       childParsers.add(g.build(firstOf));
     }
     First<N,C> myFirst = first(firstOf);
-    return new ChoiceParser<N,C>(childParsers, myFirst.firstSet(),
+    return new ChoiceParser<>(childParsers, myFirst.firstSet(),
         myFirst.epsilon);
   }
   /* +***************************************************************** */
@@ -55,7 +54,7 @@ public class Choice<N,C extends Enum<C>>
       firstSet.addAll(childFirst.firstSet());
       optional |= childFirst.epsilon;
     }
-    return new First<N,C> (firstSet, optional);
+    return new First<> (firstSet, optional);
   }
   /* +***************************************************************** */
   @Override

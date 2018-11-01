@@ -7,14 +7,14 @@ class ParseResult<N> {
   private final boolean isEpsilon;
   private final boolean notApplicable;
   private static final ParseResult<?> instanceNotApplicable = 
-    new ParseResult<Object>(false);
+    new ParseResult<>(false);
   private static final ParseResult<?> instanceIsEpsilon = 
-    new ParseResult<Object>(true);
+    new ParseResult<>(true);
   /*+******************************************************************/
   public ParseResult(List<N> nodes) {
     this.isEpsilon = false;
     this.notApplicable = false;
-    this.nodes = new ArrayList<N>(nodes.size());
+    this.nodes = new ArrayList<>(nodes.size());
     this.nodes.addAll(nodes);
   }
   /*+******************************************************************/
@@ -45,8 +45,8 @@ class ParseResult<N> {
     return r;
   }
   /* +***************************************************************** */
-  public void addToNodeList(List<N> nodes) {
-    nodes.addAll(this.nodes);
+  public void addToNodeList(List<N> otherNodes) {
+    otherNodes.addAll(this.nodes);
   }
   /* +***************************************************************** */
   public N getNode() {

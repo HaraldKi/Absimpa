@@ -17,9 +17,9 @@ version=$(echo $jarfile|sed -e 's/.*-\|[.]jar//g')
 srctgz="dist/Absimpa-src-${version}.tar.gz"
 tar cfz "$srctgz" -C dist Absimpa
 
-t=gnuher.de:apache/pifpafpuf.de/Absimpa
+t=login.gnuher.de:apache/pifpafpuf.de/Absimpa
 
-ssh gnuher.de "mkdir -p apache/pifpafpuf.de/Absimpa/download"
+ssh login.gnuher.de "mkdir -p apache/pifpafpuf.de/Absimpa/download"
 scp "$jarfile" "$t/download"
 scp "$srctgz" "$t/download"
 rsync --delete -az dist/AbsimpaDoc/ "$t/AbsimpaDoc"

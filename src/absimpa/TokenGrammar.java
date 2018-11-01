@@ -26,13 +26,13 @@ public class TokenGrammar<N,C extends Enum<C>>
     return Collections.emptyList();
   }
   protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
-    return new TokenParser<N,C>(code);
+    return new TokenParser<>(code);
   }
   @Override
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf)
   {
     EnumSet<C> firstSet = EnumSet.of(code);
-    return new First<N,C>(firstSet, false);
+    return new First<>(firstSet, false);
   }
   public String getDetail() {
     return code.toString();
@@ -44,8 +44,7 @@ public class TokenGrammar<N,C extends Enum<C>>
     
     if( name==null ) {
       return representation;
-    } else {
-      return name + "(" + representation +")";
     }
+    return name + "(" + representation +")";
   }
 }

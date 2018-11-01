@@ -20,12 +20,12 @@ public class SeqParser<N,C extends Enum<C>>
   /*+******************************************************************/
   @Override
   List<N> doParse(Lexer<N,C> lex) throws ParseException {
-    List<N> nodes = new ArrayList<N>(children.size());
+    List<N> nodes = new ArrayList<>(children.size());
 
-    for(AbstractParser<N,C> p : children) {
-      ParseResult<N> r = p.parseInternal(lex);
+    for(AbstractParser<N,C> child : children) {
+      ParseResult<N> r = child.parseInternal(lex);
       if( r.notApplicable() ) {
-        throw lex.parseException(p.getLookahead());
+        throw lex.parseException(child.getLookahead());
       }
       if( !r.isEpsilon() ) { 
         r.addToNodeList(nodes);
@@ -36,15 +36,15 @@ public class SeqParser<N,C extends Enum<C>>
   /*+******************************************************************/
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    Formatter fmt = new Formatter(sb);
-    fmt.format("%s[", getName());
-    String sep = "";
-    for(AbstractParser<N,C> p : children) {
-      fmt.format("%s%s", sep, p.getName());
-      sep = ",";
+    try(Formatter fmt = new Formatter(sb)) {
+      fmt.format("%s[", getName());
+      String sep = "";
+      for(AbstractParser<N,C> p : children) {
+        fmt.format("%s%s", sep, p.getName());
+        sep = ",";
+      }
     }
     sb.append(']');
-    fmt.close();
     return sb.toString();
   }
 }
