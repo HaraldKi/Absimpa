@@ -16,7 +16,7 @@ public class TestBNF {
   /*+******************************************************************/
   @Before
   public void setup() {
-    bnf = new BNF<String,Token>(Token.class);
+    bnf = new BNF<>(Token.class);
   }
   /*+******************************************************************/
   private static final class NF implements NodeFactory<String> {
@@ -54,7 +54,7 @@ public class TestBNF {
   }
   /*+******************************************************************/
   @Test
-  public void placeholderUndefinedTest() throws Exception {
+  public void placeholderUndefinedTest() {
     try {
       bnf.rule("assign", "IDENT EQUAL expr");
       fail("expected exception");
@@ -119,7 +119,7 @@ public class TestBNF {
   }
   /*+******************************************************************/
   @Test
-  public void rangeTooLarge() throws Exception {
+  public void rangeTooLarge() {
     Throwable ee = new Throwable();
     try {
       bnf.rule("R", "IDENT{2,777777777777777777777777777777}");
@@ -130,7 +130,7 @@ public class TestBNF {
   }
   /*+******************************************************************/
   @Test 
-  public void missingNodeFactory() throws Exception {
+  public void missingNodeFactory() {
     Exception ee = new Exception();
     try {
       bnf.rule("R", "%(IDENT)");

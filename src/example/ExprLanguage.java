@@ -75,14 +75,16 @@ public class ExprLanguage {
       return null;
     }
   }
-  private static class AutoMappedLeafFactory implements LeafFactory<Expr,Codes> {
-
+  
+  private static class AutoMappedLeafFactory 
+  implements LeafFactory<Expr,Codes> 
+  {
     @Override
     public Expr create(SimpleLexer<Expr,Codes> lex) {
       return lex.current().create(lex);
-    }
-    
+    }    
   }
+  
   private static enum Etype {
     NUMBER, PLUS, MINUS, TIMES, DIVIDE;
   }
@@ -95,6 +97,7 @@ public class ExprLanguage {
     public abstract Number value();
     public abstract void dump(Appendable app, String indent) throws IOException;
   }
+  
   private static class ExprNum extends Expr {
     private final Number n;
     ExprNum(Number n) {
@@ -113,6 +116,7 @@ public class ExprLanguage {
       app.append(indent).append(toString()).append("\n");
     }
   }
+  
   private static class ExprOper extends Expr {
     //private List<Expr> ops = new ArrayList<Expr>(2);
     Expr leftOp = null;

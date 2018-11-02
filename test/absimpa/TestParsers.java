@@ -41,7 +41,7 @@ public class TestParsers {
   private Grammar<TestNode,Codes> scopename;
 
   private final GrammarBuilder<TestNode,Codes> gb = 
-    new GrammarBuilder<TestNode,Codes>(NodeType.DEFAULT);
+    new GrammarBuilder<>(NodeType.DEFAULT);
 
   private static enum Codes implements LeafFactory<TestNode,Codes> {
     SCOPE, TERM, AND, OR, POPEN, PCLOSE, NOT, EOF;
@@ -53,9 +53,7 @@ public class TestParsers {
   /*+******************************************************************/
   private static LeafFactory<TestNode,Codes> leafFactory = new LeafFactory<TestNode,Codes>() {
     @Override
-    public TestNode create(SimpleLexer<TestNode,Codes> lex)
-      throws ParseException
-    {
+    public TestNode create(SimpleLexer<TestNode,Codes> lex) {
       return lex.current().create(lex);
     }
     
@@ -70,7 +68,7 @@ public class TestParsers {
       return new TestNode(this, flattened);
     }
     private static List<TestNode> flattenDefaultNodes(List<TestNode> l) {
-      List<TestNode> result = new ArrayList<TestNode>(l.size());
+      List<TestNode> result = new ArrayList<>(l.size());
       for(TestNode n : l) {
         if( DEFAULT==n.getValue() ) {
           for(Node child : n.children())
@@ -198,7 +196,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   private TestNode analyze(String text, Parser<TestNode,Codes> p)
-    throws IOException, ParseException
+    throws ParseException
   {
     lex.initAnalysis(text);
     TestNode node = p.parse(lex);
@@ -325,7 +323,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test 
-  public void notEnoughRepeat() throws Exception {
+  public void notEnoughRepeat() {
     Grammar<TestNode,Codes> rep =
       gb.repeat(NodeType.AND, term, 4, 1000);
     EnumSet<Codes> expected = codeSet(Codes.TERM);
@@ -353,8 +351,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test
-  public void conflictSequenceLA() throws Exception
-  {
+  public void conflictSequenceLA() {
     Grammar<TestNode,Codes> optTerm = gb.repeat(term, 0, 1);
 
     Parser<TestNode,Codes> p = 
@@ -414,7 +411,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test
-  public void testMiniLanguageORORThrows() throws Exception {
+  public void testMiniLanguageORORThrows() {
     Parser<TestNode,Codes> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM, Codes.SCOPE);
@@ -423,7 +420,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test
-  public void testMiniLanguageSCOPESCOPEThrows() throws Exception {
+  public void testMiniLanguageSCOPESCOPEThrows() {
     Parser<TestNode,Codes> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM);
@@ -432,7 +429,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test
-  public void testMiniLanguageNOTNOTThrows() throws Exception {
+  public void testMiniLanguageNOTNOTThrows() {
     Parser<TestNode,Codes> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM, Codes.SCOPE);
@@ -441,7 +438,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test
-  public void testMiniLanguageDanglingORThrows() throws Exception {
+  public void testMiniLanguageDanglingORThrows() {
     Parser<TestNode,Codes> grammar = miniLanguage();
 
     EnumSet<Codes> expectedTokens = codeSet(Codes.TERM, Codes.SCOPE);
@@ -457,9 +454,7 @@ public class TestParsers {
   /* +***************************************************************** */
   private void checkParseException(String text,
                                    Parser<TestNode,Codes> grammar,
-                                   EnumSet<Codes> expected, Codes found)
-    throws IOException
-  {
+                                   EnumSet<Codes> expected, Codes found) {
     Exception ex = new Exception();
     try {
       analyze(text, grammar);
@@ -477,7 +472,7 @@ public class TestParsers {
   public void minimalRecursive() throws Exception {
     Grammar<TestNode,Codes> OP = gb.token(Codes.POPEN);
     Grammar<TestNode,Codes> CP = gb.token(Codes.PCLOSE);
-    Recurse<TestNode,Codes> rec = new Recurse<TestNode,Codes>();
+    Recurse<TestNode,Codes> rec = new Recurse<>();
     
     Grammar<TestNode,Codes> parens = 
       gb.seq(OP).add(rec).add(CP);
@@ -509,8 +504,8 @@ public class TestParsers {
   }
   /*+******************************************************************/
   @Test
-  public void leftRecurseImmediate() throws Exception {
-    Recurse<TestNode,Codes> rec = new Recurse<TestNode,Codes>();
+  public void leftRecurseImmediate() {
+    Recurse<TestNode,Codes> rec = new Recurse<>();
     Grammar<TestNode,Codes> seq = gb.seq(rec).add(term);
     rec.setChild(seq);
     
@@ -525,8 +520,8 @@ public class TestParsers {
   }
   /*+******************************************************************/
   @Test
-  public void leftRecurseWithAStar() throws Exception {
-    Recurse<TestNode,Codes> rec = new Recurse<TestNode,Codes>();
+  public void leftRecurseWithAStar() {
+    Recurse<TestNode,Codes> rec = new Recurse<>();
     Grammar<TestNode,Codes> aStar = gb.repeat(term, 0, 1);
     Grammar<TestNode,Codes> seq = 
       gb.seq(aStar).add(rec).add(term).setName("TOP");
@@ -610,8 +605,7 @@ public class TestParsers {
   }
   /* +***************************************************************** */
   @Test
-  public void repeatThrows() throws Exception
-  {
+  public void repeatThrows() {
     Exception e = new Exception();
     try {
       gb.repeat(term, 1, 0);

@@ -2,8 +2,6 @@ package absimpa;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,23 +11,21 @@ import example.ExprLanguage.*;
 public class TestExprLanguage {
   SimpleLexer<Expr,Codes> lex = null;
   Eparser parser = null;
-  
+
   @Before
   public void setUp() {
     lex = example.ExprLanguage.createLexer();
     parser = example.ExprLanguage.createParser();
   }
-  private Expr analyze(String text) throws IOException, ParseException {
+  private Expr analyze(String text) throws ParseException {
     lex.initAnalysis(text);
     return parser.parse(lex);
   }
   /*+******************************************************************/
-  private double eval(String text) throws IOException, ParseException {
-   Expr result = analyze(text);
-//   System.out.print("--> ");
-//   result.dump(System.out, "  ");
-   double x = result.value().doubleValue();
-   return x;
+  private double eval(String text) throws ParseException {
+    Expr result = analyze(text);
+    double x = result.value().doubleValue();
+    return x;
   }
   /*+******************************************************************/
   @Test
@@ -49,7 +45,7 @@ public class TestExprLanguage {
     assertEquals(6.0, eval("3*(1+ 1* (4- 3))"), eps);
     assertEquals(-6.0, eval("3*-3--3"), eps);
     assertEquals(6.0, eval("3*+3-+3"), eps);
-    
+
     assertEquals(1.0, eval("+1"), eps);
   }
   /*+******************************************************************/

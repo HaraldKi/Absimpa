@@ -12,7 +12,7 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
   private final int min;
   private final int max;
   private final Grammar<N,C> child;
-  
+
   public Repeat(int min, int max, Grammar<N,C> arg) {
     if( min<0||max<min||max==0 ) {
       String msg =
@@ -25,21 +25,24 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     this.child = arg;
   }
   /* +***************************************************************** */
+  @Override
   protected Iterable<Grammar<N,C>> children() {
     return Collections.singletonList(child);
    }
   /*+******************************************************************/
+  @Override
   protected AbstractParser<N,C> buildParser(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = child.first(firstOf);
     EnumSet<C> childLookahead = f.firstSet();
     AbstractParser<N,C> childParser = child.build(firstOf);
-    return new RepeatParser<>(childLookahead, 
+    return new RepeatParser<>(childLookahead,
                               childParser, min==0 || f.epsilon, min, max);
   }
   /*+******************************************************************/
+  @Override
   protected First<N,C> computeFirst(Map<Grammar<N,C>,First<N,C>> firstOf) {
     First<N,C> f = child.first(firstOf);
-    boolean mayBeEpsilon = min==0 || f.epsilon; 
+    boolean mayBeEpsilon = min==0 || f.epsilon;
     if( mayBeEpsilon != f.epsilon ) {
       return new First<>(f.firstSet(), mayBeEpsilon);
     }
@@ -64,6 +67,7 @@ public class Repeat<N, C extends Enum<C>> extends Grammar<N,C> {
     return sb.toString();
   }
   /*+******************************************************************/
+  @Override
   public String _ruleString() {
     String detail = getDetail();
     String tail;

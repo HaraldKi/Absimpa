@@ -16,8 +16,7 @@ public class TestPicky {
   GrammarBuilder<String,Codes> gb;
   Grammar<String,Codes> term, number, space, ignore, plus, minus;
   /* +***************************************************************** */
-  private static enum Codes
-      implements LeafFactory<String,Codes> {
+  private static enum Codes implements LeafFactory<String,Codes> {
     TERM, NUMBER, SPACE, IGNORE, PLUS, MINUS, EOF;
 
     @Override
@@ -40,14 +39,13 @@ public class TestPicky {
     }
   }
   /*+******************************************************************/
-  private static LeafFactory<String,Codes> leafFactory = new LeafFactory<String,Codes>() {
+  private static LeafFactory<String,Codes> leafFactory = 
+      new LeafFactory<String,Codes>() 
+  {
     @Override
-    public String create(SimpleLexer<String,Codes> lex)
-      throws ParseException
-    {
+    public String create(SimpleLexer<String,Codes> lex) {
       return lex.current().create(lex);
-    }
-    
+    }    
   };
   /* +***************************************************************** */
   private static final class NodeMaker
@@ -74,7 +72,7 @@ public class TestPicky {
   @Before
   public void startup() {
     lex = new L(Codes.EOF);
-    gb = new GrammarBuilder<String,Codes>(null);
+    gb = new GrammarBuilder<>(null);
     term = gb.token(Codes.TERM);
     number = gb.token(Codes.NUMBER);
     space = gb.token(Codes.SPACE);
