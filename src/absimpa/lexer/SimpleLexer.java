@@ -89,9 +89,15 @@ public class SimpleLexer<N,C extends Enum<C>> implements Lexer<N,C> {
   }
   /*+******************************************************************/
   public ParseException parseException(Set<C> expectedTokens) {
-    ParseException p = 
-      new ParseException(expectedTokens, currentToken.getCode());
-    p.setTokenText(currentToken.getText());
+    C code = null;
+    String text = null;
+    if (currentToken!=null) {
+      code = currentToken.getCode();
+      text = currentToken.getText();
+    }
+        
+    ParseException p = new ParseException(expectedTokens, code);
+    p.setTokenText(text);
     p.setColumn(column);
     p.setLine(line);
     currentToken = null;

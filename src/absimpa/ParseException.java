@@ -46,9 +46,13 @@ public class ParseException extends Exception {
         if( column!=UNSET ) f.format(":%d", column);
         sb.append(':');
       }
-      f.format("found token `%s", foundTokenCode);
-      if( tokenText!=null ) f.format("(%s)'", tokenText);
-      else sb.append('\'');
+      if (foundTokenCode!=null) {
+        f.format("found token `%s", foundTokenCode);
+        if( tokenText!=null ) f.format("(%s)'", tokenText);
+        else sb.append('\'');
+      } else {
+        f.format(" at start of input");
+      }
       if( expectedTokenCodes.size()!=0 ) {
         if( expectedTokenCodes.size()!=1 ) {
           f.format(" but expected one of %s", expectedTokenCodes);

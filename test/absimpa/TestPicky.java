@@ -2,6 +2,7 @@ package absimpa;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -238,5 +239,20 @@ public class TestPicky {
     assertEquals("top[oterm[(abc)],mystar[(123),(45),(234),(234)]]", result);
      
   }
+  /*+******************************************************************/
+  @Test
+  public void bugNpeOnFirstTokenFail() {
+    SimpleLexer<String, Codes> lex1 = new SimpleLexer<>(Codes.EOF, leafFactory);
+    lex1.addToken(Codes.NUMBER, "\\d+");
+    lex1.setSkipRe("\\s+");
+    
+    try {
+      lex1.initAnalysis("abc 123");
+      fail("missing exception");
+    } catch (ParseException e) {
+      String snip = "at start of input"; 
+      assertTrue(snip, e.getMessage().contains(snip));
+    }
+ }
   /*+******************************************************************/
 }
